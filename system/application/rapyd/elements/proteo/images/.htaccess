@@ -1,0 +1,5 @@
+#mha.. vediamo se funziona
+
+<IfModule mod_rewrite.c>
+  RewriteEngine off
+</IfModule>

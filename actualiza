@@ -1,0 +1,17 @@
+#!/bin/bash
+#
+#
+mBD=`php index.php instalador database`
+mHOST=`php index.php instalador hostname`
+mUSER=`php index.php instalador username`
+mysql -u $mUSER -h $mHOST  -D $mBD < intramenu.sql
+mysql -u $mUSER -h $mHOST  -D $mBD < modbus.sql
+mysql -u $mUSER -h $mHOST  -D test < reportes.sql
+mysql -u $mUSER -h $mHOST  -D test < formatos.sql
+mysql -u $mUSER -h $mHOST -e "INSERT IGNORE INTO $mBD.reportes SELECT * FROM test.reportes"
+mysql -u $mUSER -h $mHOST -e "INSERT IGNORE INTO $mBD.formatos SELECT * FROM test.formatos"
+mysql -u $mUSER -h $mHOST -e "UPDATE $mBD.reportes a JOIN test.reportes b ON a.nombre=b.nombre SET a.proteo=b.proteo"
+#mysql -u $mUSER -h $mHOST -e "UPDATE $mBD.formatos a JOIN test.formatos b ON a.nombre=b.nombre SET a.proteo=b.proteo"
+mysql -u $mUSER -h $mHOST -e "INSERT IGNORE INTO $mBD.intrarepo SELECT * FROM test.intrarepo"
+mysql -u $mUSER -h $mHOST -e "UPDATE $mBD.intrarepo a JOIN test.intrarepo b ON a.nombre=b.nombre AND a.modulo=b.modulo SET a.titulo=b.titulo, a.mensaje=b.mensaje"
+echo Recuerde pasar las carpeta uploads contiene las fotos del inventario

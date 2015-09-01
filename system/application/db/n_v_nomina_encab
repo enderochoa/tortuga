@@ -1,0 +1,6 @@
+CREATE OR REPLACE VIEW n_v_nomina_encab
+AS SELECT numero,contrato,b.nombre,fecha,fechap,SUM(valor) total 
+FROM nomina a
+JOIN noco b ON a.contrato=b.codigo
+GROUP BY a.numero
+ORDER BY a.numero desc;

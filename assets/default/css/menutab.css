@@ -1,0 +1,54 @@
+#ddimagetabs {
+	background-color: #A92B2C;
+	vertical-align: bottom;
+}
+
+#ddimagetabs ul {
+	padding: 3px 9px 2px 5px;
+	margin: 0px;
+	font: bold 12px Verdana;
+	list-style-type: none;
+	text-align: left;
+	/*set to left, center, or right to align the menu as desired*/
+	/*border-bottom: 1px solid #929492;*/
+}
+
+#ddimagetabs li {
+	display: inline;
+	margin: 0;
+	/*border-left: 1px solid #929492;*/
+}
+
+#ddimagetabs li a {
+	text-decoration: none;
+	padding: 3px 9px 2px 5px;
+	margin: 0;
+	margin-right: 0; /*distance between each tab*/
+	border-left: 1px solid #DDD;
+	color: yellow;
+	font: bold 12px Verdana;
+	background: url(tabright.gif) top right no-repeat;
+}
+
+#ddimagetabs li a:visited {
+	color: yellow;
+}
+
+#ddimagetabs li a:hover,#ddimagetabs li a.current {
+	background-color: #7C2121;
+	color: #FFFFFF;
+	background: url(tabright_over.gif) top right no-repeat;
+}
+
+#tabcontentcontainer {
+	width: 100%; /*width of 2nd level content*/
+	height: 1.5em;
+	/*height of 2nd level content. Set to largest's content height to avoid jittering.*/
+	background-color: #7C2121;
+	font: bold 12px Verdana;
+	color: white;
+}
+
+.tabcontent {
+	display: none;
+}

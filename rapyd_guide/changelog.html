@@ -1,0 +1,275 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+
+<title>Rapyd Library Guide</title>
+
+<style type='text/css' media='all'>
+@import url('userguide.css');
+</style>
+<link rel='stylesheet' type='text/css' media='all' href='userguide.css' />
+
+<script type="text/javascript" src="./nav/nav.js"></script>
+<script type="text/javascript" src="./nav/prototype.lite.js"></script>
+<script type="text/javascript" src="./nav/moo.fx.js"></script>
+<script type="text/javascript" src="./nav/syntax.js"></script>
+<script type="text/javascript" src="./nav/syntax_php.js"></script>
+
+</head>
+<body>
+
+<!-- START NAVIGATION -->
+<script type="text/javascript">create_header('./');</script>
+<!-- END NAVIGATION -->
+
+
+<!-- START BREADCRUMB -->
+<table cellpadding="0" cellspacing="0" border="0" style="width: 100%">
+	<tr>
+		<td id="breadcrumb"><a href="http://www.rapyd.com/">Rapyd
+		Library Home</a> &nbsp;&#8250;&nbsp; <a href="index.html">Rapyd Guide</a>
+		&nbsp;&#8250;&nbsp; Change Log</td>
+		<td id="searchbox"><script type="text/javascript">create_search();</script>
+		</td>
+	</tr>
+</table>
+<!-- END BREADCRUMB -->
+
+<br clear="all" />
+
+
+<!-- START CONTENT -->
+<div id="content">
+
+<h1>Change Log</h1>
+
+
+
+<h2>Varsion 0.9.8</h2>
+<p>Release Date: Aug 10, 2007</p>
+<ul>
+	<li>Multi-db support completed. All "Data" components works
+	referencing to an independent CI Active Record object instance that
+	support now differents connections group. <code> //setting a
+	different db<br />
+	$this->rapyd->set_connection('db3'); </code> See rapyd_guide "General
+	Concepts"..</li>
+	<li>Rapyd resource paths are configurable, so now it's fully
+	supported the "outside web-root" installation</li>
+	<li>New layout system: images, "css" and other static resources
+	are now placed in a new folder: <strong>/application/rapyd/elements/{themename}/(css|images)</strong><br />
+	Path configurable in /application/config/rapyd.php<br />
+	This config allow you to define the shared design in witch Rapyd will
+	search the content file if it doesn't find it in the current
+	Theme-design.<br />
+	See rapyd_guide "Rapyd Views/Themes"..</li>
+	<li>documented pre_process &amp; post_process functions in
+	dataobject</li>
+	<li>enhancement about rapyd language, now it's optional (config.
+	key)</li>
+	<li>better language support, now short locale-segments are
+	supported (i.e. : host.com/it/controller/function) and are configurable</li>
+	<li>browser-detect language it's now debugged and works better
+	with "accepted_languages" header</li>
+	<li>editorField (tinymce based) now support <strong>upload_path</strong>
+	property to drive embedded file-manager to a custom folder (no more
+	hardcoded inside tiny filebrowser plugin).</li>
+	<li>new release based on CI 1.5.4 (compatible with 1.5.*)</li>
+</ul>
+
+
+
+
+<h2>Varsion 0.9.7</h2>
+<p>Release Date: May 25, 2007</p>
+<ul>
+
+	<li>Semplification, distribution changement, rapyd will be packed
+	only in the version "ci + rapyd", but it will preserve independence.
+	You can trash the CI /system folder and use your own (official or
+	customized).</li>
+	<li>Added support for php.ini config.: "short_open_tag = Off", all
+	views rebuilt with standard php tags (thnks reynierpm)</li>
+	<li>Added rapyd_auth, a simple but complete autorization class,
+	roles and permissions, based on rapyd_session. Added also an auth
+	helper.</li>
+	<li>Updated dataset, better support for aggregation functions, now
+	Distinct Group By.. atc don't crash dataset pagination</li>
+	<li>Added rapyd language: spanish (by reynierpm), dutch (by Joris)
+	and many CI language files (taken from the wiki), built some samples</li>
+	<li>Updated rapyd_lang, now support browser-detection language.
+	Added also a language helper.</li>
+	<li>Added two new fields: captcha and radiogroup.</li>
+	<li>Updated MY_Pagination.php (extension of CI pagination) to
+	enhance the support for URI suffix. Todo: fix the calendar..</li>
+	<li>Added MY_Validation.php (extension of CI validation) to
+	support the new field captcha and a new rule "unique" (callback, check
+	if the field is unique in the table where will be stored): <code>
+	$edit->email = new inputField("Email", "email"); <br />
+	$edit->email->rule = "required|valid_email|unique"; <br />
+	</code></li>
+
+	<li>Updated free/container field, now supports dataobject
+	relations: <#rel_identifier[fieldname]#>) usage: <code> $do =
+	new DataObject("articles");<br />
+	$do->rel_one_to_one("author", "authors", "author_id");<br />
+	...<br />
+	$edit = new DataEdit("manage articles", $do);<br />
+	...<br />
+	if ($edit->_status == 'show'){<br />
+	$edit->owner = new containerField("owner", "&lt;#author[name]#&gt;
+	&lt;#author[lastname]#&gt;");<br />
+	} </code></li>
+
+	<li>Added "in" params in all fields, so you can merge the output
+	of two or more field simply: <code> $edit->email = new
+	inputField("Email", "email"); <br />
+	$edit->email->rule = "required|valid_email"; <br />
+	<br />
+	$edit->isactive = new radiogroupField("active", "active",
+	array("y"=>"active","n"=>"unverified"));<br />
+	$edit->isactive->in = "email";<br />
+	<br />
+	//will output a radio group (isactive) inside "email" field row </code></li>
+
+	<li>Added DataEdit property <strong>back_cancel</strong>, alias
+	for both <strong>back_cancel_delete</strong> and <strong>back_cancel_save</strong>
+	(flow redirection)</li>
+	<li>new release based on CI 1.5.3 (compatible with 1.5.*)</li>
+</ul>
+
+
+
+<h2>Varsion 0.9.6</h2>
+<p>Release Date: February 28, 2007</p>
+<ul>
+	<li>Added fields pattern support in freeField / containerField</li>
+	<li>fixed bug on iframeField (pattern related)</li>
+	<li>Added rapyd_uri class (basically private scope), unique way
+	for component to work with uri.</li>
+	<li>Added a persistence engine to rapyd_session (basically private
+	scope), to keep "page persistence" (posts, uri segments)</li>
+	<li>Updated Sets (DataSet/DataGrid/DataTable) to work better with
+	offsets (new keyword introduced "osp" OffSetPosition)</li>
+	<li>Added 3 new config vars in
+	system/application/config/rapyd.php:
+	<ul>
+		<li><strong>uri_keywords</strong> reserved words in the uri
+		(show,modify,create..) are now configurable to prevent conflict with
+		your controllers/params</li>
+		<li><strong>persistence_duration</strong> max persistence seconds</li>
+		<li><strong>persistence_limit</strong> max number of concurrent
+		sessions per uri</li>
+	</ul>
+	</li>
+	<li>Added DataEdit properies: <strong>back_cancel_save</strong>, <strong>back_cancel_delete</strong>
+	so now it's possible to build master/detail cruds more "rapyd"</li>
+	<li>Added new crud/workflow sample "DG+DE in the same page". It
+	show action links, and a simply listing/editing crud in one
+	controller/page few line of code</li>
+	<li>Updated Ajax example DF+DG, now with support for pagination</li>
+	<li>Removed rapyd_auth, we hope to rebuild the auth in the next
+	version</li>
+	<li>new release based on CI 1.5.2 (compatible with 1.5.*)</li>
+</ul>
+
+
+<h2>Varsion 0.9.5</h2>
+<p>Release Date: February 4, 2007</p>
+<ul>
+	<li>Added $component->order_by($field,$direction), the default
+	orderby for (DS, DG, DT).</li>
+	<li>Added DataGrid Callbacks, now it's possible to use <strong>&lt;methodname&gt;<#fieldname#>&lt;/methodname&gt;</strong>
+	as pattern for DG</li>
+	<li>Added DataFilter "search by uri" trigger, an easy way to
+	preset Field values by uri (<strong>/cntr/fnct/search_uri/fieldname/fieldvalue</strong>)</li>
+	<li>fixed / presetted property "clause" if many field types
+	(needed by DataFilter)</li>
+	<li>New Rapyd Guide, wide and CI like</li>
+	<li>Added DataEdit propery <strong>back_save</strong> (bool). It
+	force redirect (to the passed back_url) after a save (insert/update),
+	by default is false</li>
+	<li>Added DataEdit propery <strong>back_delete</strong> (bool). It
+	force redirect (to the passed back_url) after a delete, by default is
+	true</li>
+	<li>Updated themes, each field has a css class, in the default
+	theme button's style now is not redefined</li>
+	<li>Added property <strong>delete_file</strong> (bool) to
+	fieldUpload, if file must be "unlinked" at the delete/check action
+	(true by default)</li>
+	<li>Updated constructor of datetimeField, now third param support
+	date formats (php like: "d/m/Y" or "m/d/y" etc..)</li>
+	<li>fixed pre/post process bug (when params are &gt; 1)</li>
+	<li>fixed DataSet/DG/DT bug when per_page is unsetted</li>
+	<li>Added sample of one-to-many CRUD (articles&amp;comments)</li>
+	<li>Added sample of DataFilter &amp; ajax (with prototype)</li>
+</ul>
+
+<h2>Varsion 0.9</h2>
+<p>Release Date: November 4, 2006</p>
+<ul>
+	<li>upgrade, new DataObject (&amp;DataForm, DataEdit)
+	"pre_process" and "post_process" methods/callback.</li>
+	<li>upgrade, DataForm (&amp; DataEdit) support for hidden fields,
+	now without output</li>
+	<li>new, rapyd_language class, enable your applications to switch
+	rapyd language runtime (it has a optonal ip-to-language feature)</li>
+	<li>upgrade, fields now have a new "mode": autohide. Autohide
+	fields can be inserted but not modified (it's a support for not autoinc
+	pk)</li>
+	<li>syntax change, DataTable->cellTemplate is now "cell_template"</li>
+	<li>upgrades, checkbox and some other fields updated</li>
+	<li>upgrade, iframeField support field-pattern in the $uri param</li>
+	<li>upgrade, DataGrid odd/even colors in view</li>
+	<li>new, passwordField, contributor: Nick Crossland</li>
+	<li>upgrade, dataform and dataedit now support not-autoinc. pk,
+	and tables with multiple-fields pk</li>
+	<li>fix, dataobject now support 100% tables with multiple-fields
+	pk</li>
+	<li>community, Thierry Rey joins rapyd developers</li>
+	<li>new release based on CI 1.5.0 (not compatible with prec
+	versions)</li>
+</ul>
+
+<h2>Varsion 0.8</h2>
+<p>Release Date: September 29, 2006</p>
+<ul>
+	<li>the first rapyd_guide is done, sorry for the delay.</li>
+	<li>debug, core classes, now it's possible to change components
+	template "runtime" (see "themes" in the guide)</li>
+	<li>debug, fixed some compatibility problems with postgres on
+	dataset (and extended classes) and pagination (thanks thierry)</li>
+	<li>debug, fixed some problems on dataset (and extended classes)
+	when "orderby" is present (thanks thierry)</li>
+	<li>new release based on CI 1.4.1 (no more patches needed for
+	rapyd in CI files, thanks Rick)</li>
+</ul>
+
+<h2>Varsion 0.7.2</h2>
+<p>Release Date: December 8, 2006</p>
+<ul>
+	<li>debug, fixed some problem on PHP5 (datagrid).</li>
+	<li>upgrade, tinyMCE (editorField class), now is replaced by
+	TinyFCK (TinyMCE with FCKEditor file manager! plugin) <a
+		href="http://p4a.sourceforge.net/tinyfck" target="_blank">p4a.sourceforge.net/tinyfck</a></li>
+	<li>new field class, color picker (esadecimal es: #FF0000)</li>
+</ul>
+
+<h2>Varsion 0.7.1</h2>
+<p>Release Date: July 7, 2006</p>
+<ul>
+	<li>debug, now is php5 compatible.</li>
+	<li>debug, now samples controller file is encoded 8-bit</li>
+	<li>now rapyd_ci.zip is again distributed as "library" (witdhout
+	CI 1.3.3)</li>
+</ul>
+
+
+</div>
+<!-- END CONTENT -->
+
+
+<script type="text/javascript">create_footer();</script>
+
+</body>
+</html>

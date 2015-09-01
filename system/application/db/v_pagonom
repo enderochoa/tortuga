@@ -1,0 +1,13 @@
+
+SELECT b.numero,a.numero opago,a.fecha,a.total2 asig,a.retenomina rete,a.status,a.observa descrip
+FROM odirect a
+LEFT JOIN nomi b ON a.nomina=b.numero
+WHERE a.status LIKE 'K%'
+
+UNION ALL
+
+SELECT  nomi.numero, odirect.numero opago, nomi.fecha, nomi.asig, nomi.rete, nomi.status, nomi.descrip
+FROM nomi 
+LEFT JOIN odirect ON nomi.opago=odirect.numero 
+WHERE odirect.numero IS NULL
+ORDER BY fecha desc,opago desc,numero desc

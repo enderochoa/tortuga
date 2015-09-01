@@ -1,0 +1,1 @@
+select `b`.`fecha` AS `fecha`,`b`.`status` AS `status`,`a`.`cuenta` AS `cuenta`,`c`.`denominacion` AS `denominacion`,sum((`a`.`debe` - `a`.`haber`)) AS `monto`,sum(`a`.`debe`) AS `debe`,sum(`a`.`haber`) AS `haber` from ((`casi` `b` join `itcasi` `a` on((`a`.`comprob` = `b`.`comprob`))) left join `cpla` `c` on((`a`.`cuenta` = `c`.`codigo`))) group by `a`.`cuenta`

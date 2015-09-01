@@ -1,0 +1,1 @@
+select `ingpresup`.`codigopres` AS `codigo`,`ingpresup`.`denominacion` AS `denominacion`,`ingpresup`.`tipo` AS `tipo` from `ingpresup` order by `ingpresup`.`codigopres`

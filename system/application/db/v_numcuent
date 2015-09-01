@@ -1,0 +1,1 @@
+select `a`.`codbanc` AS `codigo`,`a`.`banco` AS `descrip`,`b`.`nomb_banc` AS `descrip2`,`a`.`numcuent` AS `numcuent` from (`banc` `a` join `tban` `b` on((`a`.`tbanco` = `b`.`cod_banc`))) union all select `sprv`.`proveed` AS `proveed`,`sprv`.`nombre` AS `nombre`,`sprv`.`contacto` AS `contacto`,`sprv`.`numcuent` AS `numcuent` from `sprv`

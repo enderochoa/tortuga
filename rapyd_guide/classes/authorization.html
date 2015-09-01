@@ -1,0 +1,217 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+
+<title>Rapyd Library Guide</title>
+
+<style type='text/css' media='all'>
+@import url('../userguide.css');
+</style>
+<link rel='stylesheet' type='text/css' media='all'
+	href='../userguide.css' />
+
+<script type="text/javascript" src="../nav/nav.js"></script>
+<script type="text/javascript" src="../nav/prototype.lite.js"></script>
+<script type="text/javascript" src="../nav/moo.fx.js"></script>
+<script type="text/javascript" src="../nav/syntax.js"></script>
+<script type="text/javascript" src="../nav/syntax_php.js"></script>
+<link type="text/css" href="../syntax.css" rel="stylesheet" />
+</head>
+<body>
+
+<!-- START NAVIGATION -->
+<script type="text/javascript">create_header('../');</script>
+<!-- END NAVIGATION -->
+
+
+<!-- START BREADCRUMB -->
+<table cellpadding="0" cellspacing="0" border="0" style="width: 100%">
+	<tr>
+		<td id="breadcrumb"><a href="http://www.rapyd.com/">Rapyd
+		Library Home</a> &nbsp;&#8250;&nbsp; <a href="../index.html">Rapyd
+		Guide</a> &nbsp;&#8250;&nbsp; Rapyd Auth Class</td>
+		<td id="searchbox"><script type="text/javascript">create_search();</script>
+		</td>
+	</tr>
+</table>
+<!-- END BREADCRUMB -->
+
+<br clear="all" />
+
+
+<!-- START CONTENT -->
+<div id="content">
+
+
+<h1>Rapyd Auth Class</h1>
+
+<p class="important"><strong>Important:</strong>&nbsp; It require
+some tables (see "index" page of samples), and is optional.<br />
+</p>
+
+<p>Rapyd Auth class (and his helper) give you a simple way to manage
+user authentication.<br />
+</p>
+
+
+<h2>Reference</h2>
+
+<kbd>$this->rapyd->auth</kbd> (by default is instanced with rapyd, on
+library load).
+
+
+<h5>Methods</h5>
+
+
+<p><strong> $this->rapyd->auth->trylogin($username,
+$password, $cookie = true, $max_role=1); </strong></p>
+<p>Try to authenticate the user, with $username and $password. the
+password will be cheked by the trylogin() "encoded":<br />
+Using f.e. CI encryption, $this->encrypt->hash($password, 'md5').<br />
+<br />
+The function return a boolean, and store user data (encrypted) with
+rapyd_session class:<br />
+"user_name" , "email", "name", "role_id", "user_id", "ip_address"<br />
+<br />
+If $cookie = true, username and password will be stored also in a
+cookie, so next browser session it's possible to do auto-login.</p>
+<textarea name="code" class="php:nogutter:nocontrols" rows="15"
+	cols="100">
+
+  //if there isn't a cookie with username and password, we build a login form
+  
+  $this->rapyd->auth->trylogin_bycookie();
+   
+  if (!$this->rapyd->auth->is_logged()){
+
+    ...
+
+    //we use a DataForm to build a login box.. and we place authentication "on_success" 
+    //(when all validation rules are ok)
+
+    ...
+      if ($form->on_success())
+      {
+        $this->rapyd->auth->trylogin( $this->input->post("user_"), $this->input->post("pass_"));
+      }
+    ...
+    
+  } else {
+  
+    //show protected content
+    
+  }
+  
+  ...
+</textarea>
+
+
+<p><strong> $this->rapyd->auth->trylogin_bycookie() </strong></p>
+<p>if the trylogin() was executed before and with param $cookie =
+true, trylogin_bycookie() simply do:<br />
+$this->rapyd->auth->trylogin($username, $password) using cookie values.
+</p>
+<br />
+
+<p><strong> $this->rapyd->auth->is_logged() </strong></p>
+<p>Return a boolean, prevent hacking attemps checking ip address.</p>
+<br />
+
+<p><strong> $this->rapyd->auth->logout() </strong></p>
+<p>remove all user info, user session vars and cookie.</p>
+<br />
+
+<p><strong> $this->rapyd->auth->get_role() </strong></p>
+<p>get role_id from user session</p>
+<br />
+
+
+<p><strong> $this->rapyd->auth->user_exists($username) </strong></p>
+<p>boolean username exist?</p>
+<br />
+
+<p><strong> $this->rapyd->auth->is_active($username) </strong></p>
+<p>boolean user is active? (enum field y/n)</p>
+<br />
+
+
+<p><strong> $this->rapyd->auth->get_user_id() </strong></p>
+<p>get user_id from user session</p>
+<br />
+
+<p><strong> $this->rapyd->auth->get_user_data($key=null) </strong></p>
+<p>get all user session vars or (if you pass $key) only one.</p>
+<br />
+
+<p><strong> $this->rapyd->auth->check_role($role_id,
+$strict=false) </strong></p>
+<p>check if user has $role_id (or, if strict==false) or his role is
+more important (lower number)</p>
+<br />
+
+
+
+<p><strong>
+$this->rapyd->auth->has_permission($permission_id) </strong></p>
+<p>really minimum acl (using roles, not groups):<br />
+</p>
+
+
+<strong>tables</strong>
+
+<ul>
+	<li>users</li>
+	<li>security_role
+	<div><img src="../images/roles.gif"
+		style="float: left; margin-right: 5px" /> predefined rules.. but you
+	can manually add/remove roles.<br />
+	Important: they are hierarchical, so role_id=1 is "God".</div>
+	<div style="clear: left"></div>
+
+
+	</li>
+
+	<li>security_permission
+	<div><img src="../images/permissions.gif"
+		style="float: left; margin-right: 5px" /> permissions, the first
+	permission (*) is special, means "all permissions" they are not
+	hierarchical, you can manually add your custom permissions, the "name"
+	is not used at this moment.</div>
+	<div style="clear: left"></div>
+	</li>
+	<li>security_role_permission
+	<div><img src="../images/role_permission.gif"
+		style="float: left; margin-right: 5px" /> ok a little bit of acl, for
+	each role it's possible to relate permissions, and to set if it is
+	allowed or denied.<br />
+	In this image, "root" user/s, is allowed to "all permissions"</div>
+	<div style="clear: left"></div>
+	</li>
+	<li>security_user_permission
+	<div><img src="../images/user_permission.gif"
+		style="float: left; margin-right: 5px" /> for each user it's possible
+	to relate permissions, and to set if he is allowed or not.<br />
+	In this image, user 44, is not allowed to "see porno content"</div>
+	<div style="clear: left"></div>
+	</li>
+</ul>
+
+
+
+<h5>Helpers</h5>
+
+<p><strong>is_logged();</strong></p>
+<p><strong>check_role($role_id, $strict=false);</strong></p>
+<p><strong>get_role();</strong></p>
+<p><strong>get_user_id();</strong></p>
+<p><strong>get_user_data($key=null);</strong></p>
+<p><strong>has_permission($permission_id);</strong></p>
+
+</div>
+<!-- END CONTENT -->
+
+
+<script type="text/javascript">create_footer();</script>
+
+</body>
+</html>

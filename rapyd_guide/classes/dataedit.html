@@ -1,0 +1,307 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+
+<title>Rapyd Library Guide</title>
+
+<style type='text/css' media='all'>
+@import url('../userguide.css');
+</style>
+<link rel='stylesheet' type='text/css' media='all'
+	href='../userguide.css' />
+
+<script type="text/javascript" src="../nav/nav.js"></script>
+<script type="text/javascript" src="../nav/prototype.lite.js"></script>
+<script type="text/javascript" src="../nav/moo.fx.js"></script>
+<script type="text/javascript" src="../nav/syntax.js"></script>
+<script type="text/javascript" src="../nav/syntax_php.js"></script>
+<link type="text/css" href="../syntax.css" rel="stylesheet" />
+</head>
+<body>
+
+<!-- START NAVIGATION -->
+<script type="text/javascript">create_header('../');</script>
+<!-- END NAVIGATION -->
+
+
+<!-- START BREADCRUMB -->
+<table cellpadding="0" cellspacing="0" border="0" style="width: 100%">
+	<tr>
+		<td id="breadcrumb"><a href="http://www.rapyd.com/">Rapyd
+		Library Home</a> &nbsp;&#8250;&nbsp; <a href="../index.html">Rapyd
+		Guide</a> &nbsp;&#8250;&nbsp; DataEdit Class</td>
+		<td id="searchbox"><script type="text/javascript">create_search();</script>
+		</td>
+	</tr>
+</table>
+<!-- END BREADCRUMB -->
+
+<br clear="all" />
+
+
+<!-- START CONTENT -->
+<div id="content">
+
+
+<h1>DataEdit Class</h1>
+
+<img src="../images/dataedit.gif" />
+
+<p>DataEdit extends <a href="dataform.html">DataForm</a>, it is a
+convenient and small CRUD application.<br />
+DataEdit is similar to CI Scaffolding, it can manage a DB Table, and you
+can build editing form with your custom fields (like in DataForm).<br />
+It has a <a href="../general/views.html">view</a> (the same of
+DataForm).</p>
+
+<p>In a DataEdit, most of properties you need to set are <a
+	href="fields.html">form fields</a>.<br />
+So please take a look to <a href="fields.html">Field classes</a>.</p>
+
+
+<h3>Component Status/Actions/URI</h3>
+
+<table cellpadding="0" cellspacing="1" border="0" style="width: 100%"
+	class="tableborder">
+	<tr>
+		<th>status</th>
+		<td>show</td>
+		<td>modify</td>
+		<td>create</td>
+		<td>delete</td>
+	</tr>
+	<tr>
+		<th>actions</th>
+		<td>idle</td>
+		<td>update</td>
+		<td>insert</td>
+		<td>do_delete</td>
+	</tr>
+</table>
+<p>Assuming we have a DataEdit built in a method called "crud"
+inside a controller called "admin", we can:</p>
+
+<h5>Status&amp;URI</h5>
+<p>show record (display fields readonly):</p>
+<code> /admin/crud/<strong>show</strong>/<strong>pkvalue</strong>
+<br />
+&nbsp;or <br />
+/admin/crud/<strong>show</strong>/<strong>pk1value</strong>/<strong>pk2value</strong><br />
+</code>
+
+<p>modify record (display editable fields, preload current record
+values):</p>
+<code> /admin/crud/<strong>modify</strong>/<strong>pkvalue</strong>
+<br />
+&nbsp;or <br />
+/admin/crud/<strong>modify</strong>/<strong>pk1value</strong>/<strong>pk2value</strong><br />
+</code>
+
+<p>delete record (display a confirm delete dialog):</p>
+<code> /admin/crud/<strong>delete</strong>/<strong>pkvalue</strong>
+<br />
+&nbsp;or <br />
+/admin/crud/<strong>delete</strong>/<strong>pk1value</strong>/<strong>pk2value</strong><br />
+</code>
+
+<p>create new record (display editable and empty fields):</p>
+<code> /admin/crud/<strong>create</strong> </code>
+
+<h5>Actions&amp;URI</h5>
+
+<p>idle action (do nothing), is the default action, there are no
+associated URI.</p>
+
+<p>update action (execute the update and redirect to "show" status
+URI):</p>
+<code> /admin/crud/<strong>update</strong>/<strong>pkvalue</strong>
+<br />
+&nbsp;or <br />
+/admin/crud/<strong>update</strong>/<strong>pk1name</strong>/<strong>pk2value</strong><br />
+</code>
+
+<p>do_delete action (execute a delete and redirect to the "back_uri"
+URI):</p>
+<code> /admin/crud/<strong>do_delete</strong>/<strong>pkvalue</strong>
+<br />
+&nbsp;or <br />
+/admin/crud/<strong>do_delete</strong>/<strong>pk1name</strong>/<strong>pk2value</strong><br />
+</code>
+
+<p>insert action (insert the new record and redirect to "show"
+status URI):</p>
+<code> /admin/crud/<strong>insert</strong> </code>
+
+
+
+<h3>Sample</h3>
+<textarea name="code" class="php:nogutter:nocontrols" rows="15"
+	cols="100">
+
+class Article extends Controller{
+ 
+ //..
+
+function Grid()
+{
+  //a list of articles that point to detail by this uri:
+  // article/crud/show/1
+  // or
+  // article/crud/modify/1
+}
+
+function Crud()
+{
+    $this->rapyd->load("dataedit");
+
+    $edit = new DataEdit("Article Detail", "articles");
+    $edit->back_uri = "article/grid/back";
+
+    $edit->title = new inputField("Title", "title");
+    $edit->title->rule = "trim|required|max_length[20]";
+    
+    $edit->body = new textareaField("Body", "body");
+    $edit->body->rule = "required";
+    $edit->body->rows = 10;    
+
+    $edit->checkbox = new checkboxField("Public", "public", "y","n");
+    
+    $edit->datefield = new dateField("Date", "datefield","eu"); 
+    
+    $edit->buttons("modify", "save", "undo", "delete", "back");
+    $edit->build();
+    
+    
+    $data["edit"] = $edit->output;
+    $data["rapyd_head"] = $this->rapyd->get_head();
+  
+    $this->load->view('crud_view', $data);
+}
+
+}
+ </textarea>
+
+<p class="important"><strong>Important:</strong>&nbsp; DataEdit
+extends DataForm, so inherit all properties and some methods.</p>
+
+
+
+
+<h2>DataEdit Reference</h2>
+
+<p><dfn>$edit = new DataEdit($title, $tablename);</dfn></p>
+<p>string: <kbd>$title</kbd> (can be empty) a simple label for
+component output (can be html formatted).</p>
+<p>mixed: <kbd>$tablename</kbd> is the table source/destination of
+data. Can be a string (table name), or a <a href="dataobject.html">DataObject</a></p>
+
+<p class="important"><strong>Important:</strong>&nbsp; If you need
+to edit a specific record in secure mode, you can use a "pre-loaded"
+DataObject:</p>
+
+<textarea name="code" class="php:nogutter:nocontrols" rows="15"
+	cols="100">
+  ..
+  $do = new DataObject("articles");
+  $do->load(5);  //record where pk==5
+  
+  $edit = new DataEdit("Article Detail", $do);
+  $edit->back_uri = "article/grid/back"; 
+  ..
+</textarea>
+
+
+
+<h5>Settings</h5>
+
+<table cellpadding="0" cellspacing="1" border="0" style="width: 100%"
+	class="tableborder">
+	<tr>
+		<th>Property</th>
+		<th>Default&nbsp;Value</th>
+		<th>Options</th>
+		<th>Description</th>
+	</tr>
+	<tr>
+		<td><strong>attributes</strong></td>
+		<td>array("id"=>1*)</td>
+		<td>array</td>
+		<td>all attributes you need to add to the form.<br />
+		* if "id" key is omitted, by default will be a static identifier
+		(autoinc) of current instance of DataForm</td>
+	</tr>
+</table>
+
+<h5>Methods</h5>
+
+<p><strong>$edit->buttons($button[,$button..])</strong></p>
+<p>append an action button<br />
+possible params are:<br />
+"modify", "save", "undo", "delete", "back"<br />
+(note: rapyd support multilanguage, so you can customize labels in
+\system\application\rapyd\language)<br />
+</p>
+<br />
+
+<em>inherited from DataForm:</em> <br />
+
+<p><strong>$edit->button($name, $caption, $action,
+$position="BL")</strong></p>
+<p>append an html button.<br />
+params:<br />
+- string $name, button name&amp;id<br />
+- string $caption, button caption<br />
+- string $action, the onclick event action<br />
+- string $position, position of button, can be: "TR" (tor-right), "BL"
+(bottom-left), "BR" (bottom-right).</p>
+<br />
+
+<p><strong>$edit->script($script, $status="create")</strong></p>
+<p>append javascript statement (simply a
+&lt;script&gt;$script&lt;/script&gt; code).<br />
+params:<br />
+- string $script, the javascript code<br />
+- string $status, the code is added only when DataForm fields have this
+<a href="fields.html#status">status</a>.</p>
+<br />
+
+
+<p><strong>$edit->build();</strong></p>
+<p>build and eventually process the actions.<br />
+you can retrieve component output as: $edit->output.</p>
+
+
+
+<h5>Output</h5>
+
+<table cellpadding="0" cellspacing="1" border="0" style="width: 100%"
+	class="tableborder">
+	<tr>
+		<th>Property</th>
+		<th>Type</th>
+		<th>Description</th>
+	</tr>
+	<tr>
+		<td><strong>output</strong></td>
+		<td>html</td>
+		<td>html of the form/dialog, disponible only after a "build()"</td>
+	</tr>
+	<tr>
+		<td></td>
+		<td></td>
+		<td></td>
+	</tr>
+</table>
+
+
+
+
+
+</div>
+<!-- END CONTENT -->
+
+
+<script type="text/javascript">create_footer();</script>
+
+</body>
+</html>

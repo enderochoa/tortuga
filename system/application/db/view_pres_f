@@ -1,0 +1,5 @@
+select a.fanulado,a.fapagado,a.decreto,a.compromiso,a.fecha,a.des,a.observa,a.cod_prov,a.numero,a.status,a.modo,a.codigoadm,a.tipo,a.codigopres,a.ordinal,a.faudis,a.ftrasla,a.fapartado,a.fcomprome,a.fcausado,a.fopago,a.fpagado,a.frendi,a.apartado,a.comprometido,a.causado,a.opago,a.pagado,a.aumento,a.disminucion,a.traslados,a.asignacion,a.capartado,a.ccomprometido,a.ccausado,a.copago,a.cpagado
+
+,`b`.`descrip` AS `denofondo` 
+
+from (`view_pres_s2` `a` join `fondo` `b` on((`a`.`tipo` = `b`.`fondo`)))

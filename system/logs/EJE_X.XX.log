@@ -1,0 +1,13 @@
+
+SELECT MID(codigopres,1,4) codigo,b.denominacion,
+SUM(asignacion) asignacion,
+SUM(IF( faudis<=20150827,aumento-disminucion,IF( ftrasla <=20150827,traslados,0))) modificaciones, 
+SUM(asignacion+IF( faudis<=20150827,aumento-disminucion,0)+IF( ftrasla <=20150827,traslados,0)) final,
+SUM(IF( fcomprome<=20150827,comprometido,0)) comprometido, 
+SUM(IF( fcausado<=20150827,causado,0)) causado,
+SUM(IF( fopago<=20150827,opago,0)) opago,
+SUM(IF( fpagado<=20150827,pagado,0)) pagado,
+SUM((asignacion+IF( faudis<=20150827,aumento-disminucion,0)+IF( ftrasla <=20150827,traslados,0))-IF( fcomprome<=20150827,comprometido,0)) disponible
+FROM view_pres a
+LEFT JOIN ppla b ON MID(codigopres,1,4)=b.codigo 
+ GROUP BY MID(codigopres,1,4) 

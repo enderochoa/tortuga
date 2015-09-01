@@ -1,0 +1,5 @@
+SELECT `proveed`, `nombre`, `rif`, `contacto`
+FROM `sprv`
+WHERE `sprv`.`nombre` LIKE '%sso%'
+ORDER BY `sprv`.`proveed` asc
+LIMIT 20

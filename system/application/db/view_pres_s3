@@ -1,0 +1,8 @@
+select ocompra,todo.fanulado,todo.fapagado,todo.decreto,todo.compromiso,todo.fecha,todo.des,todo.observa,todo.cod_prov,todo.numero,todo.status,todo.modo,todo.codigoadm,todo.tipo,todo.codigopres,todo.ordinal,todo.faudis,todo.ftrasla,todo.fapartado,todo.fcomprome,todo.fcausado,todo.fopago,todo.fpagado,todo.frendi,todo.apartado,todo.comprometido,todo.causado,todo.opago,todo.pagado,todo.aumento,todo.disminucion,todo.traslados,todo.asignacion
+,((((`todo`.`asignacion` + `todo`.`aumento`) - `todo`.`disminucion`) + `todo`.`traslados`) - `todo`.`apartado`) AS `capartado`
+,((((`todo`.`asignacion` + `todo`.`aumento`) - `todo`.`disminucion`) + `todo`.`traslados`) - `todo`.`comprometido`) AS `ccomprometido`
+,((((`todo`.`asignacion` + `todo`.`aumento`) - `todo`.`disminucion`) + `todo`.`traslados`) - `todo`.`causado`) AS `ccausado`
+,((((`todo`.`asignacion` + `todo`.`aumento`) - `todo`.`disminucion`) + `todo`.`traslados`) - `todo`.`opago`) AS `copago`
+,((((`todo`.`asignacion` + `todo`.`aumento`) - `todo`.`disminucion`) + `todo`.`traslados`) - `todo`.`pagado`) AS `cpagado` 
+
+from `view_pres_s1` `todo`

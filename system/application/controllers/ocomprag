@@ -1,0 +1,805 @@
+<?php
+require_once(BASEPATH.'application/controllers/presupuesto/common.php');
+class Ocompra extends Common {
+
+	var $url="presupuesto/ocompra/";
+
+	function Ocompra(){
+		parent::Controller();
+		$this->load->library("rapyd");
+		$this->formatopres=$this->datasis->traevalor('FORMATOPRES');
+		$this->flongpres  =strlen(trim($this->formatopres));
+		//$this->datasis->modulo_id(302,1);
+	}
+	
+	function index(){
+		redirect("presupuesto/ocompra/filteredgrid");
+	}
+
+	function filteredgrid(){
+		$this->datasis->modulo_id(70,1);
+		$this->rapyd->load("datafilter","datagrid");
+		$this->rapyd->uri->keep_persistence();
+		
+		$mSPRV=array(
+				'tabla'   =>'sprv',
+				'columnas'=>array(
+				'proveed' =>'C&oacute;odigo',
+				'nombre'=>'Nombre',
+				'contacto'=>'Contacto'),
+				'filtro'  =>array('proveed'=>'C&oacute;digo','nombre'=>'Nombre'),
+				'retornar'=>array('proveed'=>'cod_prov' ),
+				'titulo'  =>'Buscar Beneficiario');
+
+		$bSPRV=$this->datasis->p_modbus($mSPRV,"proveed");
+
+		$filter = new DataFilter("Filtro de Ordenes de Compra");
+
+		$filter->db->select("a.reverso reverso,a.numero numero,a.fecha fecha,a.tipo tipo,a.status status,a.cod_prov cod_prov,a.beneficiario beneficiario,b.nombre uejecuta2,c.nombre proveed");
+		$filter->db->from("ocompra a");                  
+		$filter->db->join("uejecutora b" ,"a.uejecutora=b.codigo");
+		$filter->db->join("sprv c"       ,"c.proveed=a.cod_prov");
+		//$filter->db->where("a.status !=", "T");
+		//$filter->db->where("a.status !=", "O");
+		
+		$filter->numero = new inputField("Numero", 'numero');
+		$filter->numero->size = 6;
+
+		$filter->tipo = new dropdownField("Orden de ", "tipo");
+		$filter->tipo->db_name = 'a.tipo';
+		$filter->tipo->option("","");
+		$filter->tipo->option("Compra"  ,"Compra");
+		$filter->tipo->option("Servicio","Servicio");
+		$filter->tipo->style="width:100px;";
+		
+		$filter->fecha = new dateonlyField("Fecha", "fecha");
+		$filter->fecha->size=12;
+		
+		$filter->uejecutora = new dropdownField("U.Ejecutora", "uejecutora");
+		$filter->uejecutora->option("","Seccionar");
+		$filter->uejecutora->options("SELECT codigo,nombre FROM uejecutora ORDER BY nombre");
+		$filter->uejecutora->onchange = "get_uadmin();";
+		//$filter->uejecutora->rule = "required";
+		
+		$filter->cod_prov = new inputField("Beneficiario", 'cod_prov');
+		$filter->cod_prov->size = 6;
+		$filter->cod_prov->append($bSPRV);
+		//$filter->cod_prov->rule = "required";
+		
+		$filter->reverso = new inputField("Reverso de", "reverso");
+		$filter->reverso->size=20;
+		
+		$filter->status = new dropdownField("Estado","status");
+		$filter->status->option("","");
+		$filter->status->option("P","Sin Comprometer");
+		$filter->status->option("C","Comprometido");
+		$filter->status->option("T","Causado");
+		$filter->status->option("O","Ordenado Pago");
+		$filter->status->option("E","Pagado");
+		$filter->status->option("A","Anulado");
+		$filter->status->option("X","Reversado");
+		$filter->status->style="width:150px";
+		
+		$filter->buttons("reset","search");
+		$filter->build();
+		$uri = anchor('presupuesto/ocompra/dataedit/show/<#numero#>','<str_pad><#numero#>|8|0|STR_PAD_LEFT</str_pad>');
+		$uri_2 = anchor('presupuesto/ocompra/dataedit/create/<#numero#>','Duplicar');
+		
+		function sta($status){
+			switch($status){
+				case "P":return "Sin Comprometer";break;
+				case "C":return "Comprometido";break;
+				case "T":return "Causado";break;
+				case "O":return "Ordenado Pago";break;
+				case "E":return "Pagado";break;
+				case "A":return "Anulado";break;
+				case "X":return "Reversado";break;
+			}
+		}
+				
+		$grid = new DataGrid("Lista de Ordenes de compras o Servicios");
+		$grid->order_by("numero","desc");
+		$grid->per_page = 20;
+		$grid->use_function('substr','str_pad','sta');
+		
+		$grid->column("N&uacute;mero"   ,$uri);
+		$grid->column("Tipo"            ,"tipo"                                        ,"align='center'");
+		$grid->column("Fecha"           ,"<dbdate_to_human><#fecha#></dbdate_to_human>","align='center'");
+		$grid->column("Unidad Ejecutora","uejecuta2");
+		$grid->column("Beneficiario"    ,"proveed");
+		$grid->column("Estado"          ,"<sta><#status#></sta>"                       ,"align='center'");
+		$grid->column("Reverso de"      ,"reverso"                                     ,"align='center'");
+		$grid->column("Duplicar"        ,$uri_2                                        ,"align='center'");
+ 
+		if($this->datasis->puede(162))$grid->add("presupuesto/ocompra/dataedit/create");
+		
+		$grid->build();
+		
+		$data['content'] = $filter->output.$grid->output;
+		if($this->datasis->puede(162))
+			$data['title']   = " Comprometer ";
+		else
+			$data['title']   = " Ordenes de Compra o Servicio ";
+
+		$data["head"]    = $this->rapyd->get_head();
+		$this->load->view('view_ventanas', $data);	
+	}
+
+	function dataedit($status='',$numero=''){
+		$this->datasis->modulo_id(70,1);
+		$this->rapyd->load('dataobject','datadetails');
+		
+		$mSPRV=array(
+				'tabla'   =>'sprv',
+				'columnas'=>array(
+				'proveed' =>'C&oacute;odigo',
+				'rif' =>'RIF',
+				'nombre'=>'Nombre',
+				'contacto'=>'Contacto'),
+				'filtro'  =>array('proveed'=>'C&oacute;digo','nombre'=>'Nombre','rif'=>'RIF'),
+				'retornar'=>array('proveed'=>'cod_prov', 'nombre'=>'nombrep','reteiva'=>'reteiva_prov' ),
+				'script'=>array('cal_total()'),
+				'titulo'  =>'Buscar Beneficiario');
+			
+		$bSPRV=$this->datasis->p_modbus($mSPRV,"proveed");
+		
+		$modbus=array(
+			'tabla'   =>'v_presaldo',
+			'columnas'=>array(
+				'codigo'      =>'C&oacute;digo',
+				'ordinal'     =>'Ord',
+				'denominacion'=>'Denominaci&oacute;n',
+				'saldo'       =>'Saldo'
+				),
+			'filtro'  =>array('codigo' =>'C&oacute;digo','denominacion'=>'Denominaci&oacute;n'),
+			'retornar'=>array('codigo'=>'partida_<#i#>','ordinal'=>'ordinal_<#i#>'),//,'denominacion'=>'denomi_<#i#>'
+			'p_uri'=>array(4=>'<#i#>',5=>'<#fondo#>',6=>'<#estadmin#>',),
+			'where'=>'fondo = <#fondo#> AND codigoadm = <#estadmin#> AND movimiento = "S" AND saldo > 0',
+			'titulo'  =>'Busqueda de partidas');
+		$btn=$this->datasis->p_modbus($modbus,'<#i#>/<#fondo#>/<#estadmin#>');
+		
+		$do = new DataObject("ocompra");
+		$do->rel_one_to_many('itocompra', 'itocompra', array('numero'=>'numero'));
+		$do->pointer('sprv' ,'sprv.proveed=ocompra.cod_prov','sprv.nombre as nombrep','LEFT');
+		
+		if($status=="create" && !empty($numero)){
+			$do->load($numero);
+			$do->set('numero', '');		
+			$do->set('status', 'F1');
+			$do->pk    =array('numero'=>'');
+			//$do->loaded=0;
+			for($i=0;$i < $do->count_rel('itodirect');$i++){
+				$do->set_rel('itodirect','id'    ,'',$i);			
+				$do->set_rel('itodirect','numero','',$i);			
+			}
+		}
+		
+		$edit = new DataDetails("Orden de Compra", $do);
+		$edit->back_url = site_url("presupuesto/ocompra/filteredgrid");
+		$edit->set_rel_title('itocompra','Rubro <#o#>');
+		
+		$edit->pre_process('insert'  ,'_valida');
+		$edit->pre_process('update'  ,'_valida');
+		//$edit->post_process('insert'  ,'_post');
+		//$edit->post_process('update'  ,'_post');
+		$edit->post_process('insert','_post_insert');
+		$edit->post_process('update','_post_update');
+		$edit->post_process('delete','_post_delete');
+		
+		$st=$edit->_dataobject->get('status');		
+		$a='';
+		switch($st){
+			case 'P':$a="Sin Comprometer";break;
+			case 'C':$a="Comprometida";break;
+			case 'T':$a="Causada";break;
+			case 'O':$a="Ordenado Pago";break;
+			case 'E':$a="Pagado";break;
+		}
+		$edit->status = new freeField("Estado", 'estado',$a);
+	
+		$edit->numero  = new inputField("N&uacute;mero", "numero");
+		$edit->numero->mode="autohide";
+		$edit->numero->when=array('show');
+		
+		$edit->tipo = new dropdownField("Orden de", "tipo");
+		$edit->tipo->option("Compra"       ,"Compra"    );
+		$edit->tipo->option("Servicio"     ,"Servicio"  );
+		$edit->tipo->option("Compromiso"   ,"Compromiso");
+		$edit->tipo->style="width:200px;";
+
+		$edit->fecha = new  dateonlyField("Fecha",  "fecha");
+		$edit->fecha->insertValue = date('Y-m-d');
+		$edit->fecha->size =12;
+		
+		$edit->status = new dropdownField("Estado","status");
+		$edit->status->option("","");
+		$edit->status->option("P","Sin Comprometer");
+		$edit->status->option("C","Comprometido");
+		$edit->status->option("T","Causado");
+		$edit->status->option("O","Ordenado Pago");
+		$edit->status->option("E","Pagado");
+		$edit->status->option("A","Anulado");
+		$edit->status->option("R","Reversado");
+		$edit->status->when=array('show');
+
+		$edit->uejecutora = new dropdownField("Unidad Ejecutora", "uejecutora");
+		$edit->uejecutora->option("","Seccionar");
+		$edit->uejecutora->options("SELECT codigo, nombre FROM uejecutora ORDER BY nombre");
+		//$edit->uejecutora->onchange = "get_uadmin();";
+		//$edit->uejecutora->rule = "required";
+		
+		$edit->estadmin = new dropdownField("Estructura Administrativa","estadmin");
+		$edit->estadmin->option("","Seleccione");
+		//$edit->estadmin->rule='required';
+		$edit->estadmin->options("SELECT b.codigo, CONCAT_WS(' ',b.codigo,b.denominacion) AS val FROM presupuesto AS a JOIN estruadm AS b ON a.codigoadm=b.codigo  GROUP BY b.codigo");
+		
+		$edit->fondo = new dropdownField("Fondo", "fondo");
+		//$edit->fondo->rule = "required";
+		$edit->fondo->style="width:150px;";
+		$estadmin=$edit->getval('estadmin');
+		if($estadmin!==false){
+			$edit->fondo->options("SELECT tipo,tipo a  FROM presupuesto WHERE codigoadm='$estadmin' GROUP BY tipo");
+		}else{
+			$edit->fondo->option("","Seleccione una estructura administrativa primero");
+		}
+		
+		$edit->cod_prov = new inputField("Beneficiario", 'cod_prov');
+		$edit->cod_prov->size     = 6;		
+		$edit->cod_prov->rule     = "required";
+		$edit->cod_prov->append($bSPRV);
+		$edit->cod_prov->readonly=true;
+		
+		$edit->nombrep = new inputField("Nombre Beneficiario", 'nombrep');
+		$edit->nombrep->size = 50;
+		$edit->nombrep->readonly = true;
+		$edit->nombrep->pointer = true;
+		
+		$edit->reteiva_prov  = new inputField("N&uacute;mero", "reteiva_prov");
+		$edit->reteiva_prov->size=1; 
+		//$edit->reteiva_prov->mode="autohide";
+		$edit->reteiva_prov->when=array('modify','create');
+
+		//$edit->beneficiario = new inputField("Beneficiario", 'beneficiario');
+		//$edit->beneficiario->size = 50;
+		//$edit->beneficiario->rule = "required";
+		
+		$edit->creten = new dropdownField("Codigo ISLR","creten");
+		$edit->creten->option("","");
+		$edit->creten->options("SELECT codigo,CONCAT_WS(' ',codigo,activida) FROM rete ORDER BY codigo");
+		$edit->creten->style="width:300px;";
+		$edit->creten->onchange ='cal_islr();';
+
+		$edit->observa = new textAreaField("Observaciones", 'observa');
+		$edit->observa->cols = 60;
+		$edit->observa->rows = 3;
+		
+		//$edit->tcantidad = new inputField("tcantidad", 'tcantidad');
+		//$edit->tcantidad->size = 8;
+		
+		$edit->subtotal = new inputField("Sub Total", 'subtotal');
+		$edit->subtotal->css_class='inputnum';
+		$edit->subtotal->size = 8;
+		
+		$edit->ivaa = new inputField("IVA Sobre Tasa", 'ivaa');
+		$edit->ivaa->css_class='inputnum';
+		$edit->ivaa->size = 8;
+		
+		$edit->ivag = new inputField("IVA Tasa General", 'ivag');
+		$edit->ivag->css_class='inputnum';
+		$edit->ivag->size = 8;
+		
+		$edit->ivar = new inputField("IVA Tasa reducida", 'ivar');
+		$edit->ivar->css_class='inputnum';
+		$edit->ivar->size = 8;
+		
+		$edit->exento = new inputField("Exento", 'exento');
+		$edit->exento->css_class='inputnum';
+		$edit->exento->size = 8;
+		
+		$edit->reteiva = new inputField("Retencion de IVA", 'reteiva');
+		$edit->reteiva->css_class='inputnum';
+		$edit->reteiva->size = 8;
+
+		$edit->reten = new inputField("Retencion de ISLR", 'reten');
+		$edit->reten->css_class='inputnum';
+		$edit->reten->size = 8;
+
+		$edit->total2 = new inputField("Total", 'total2');
+		$edit->total2->css_class='inputnum';
+		$edit->total2->size = 8;
+		
+		$edit->itpartida = new inputField("(<#o#>) Partida", "partida_<#i#>");
+		//$edit->itpartida->rule='required|callback_itpartida';//callback_repetido|
+		$edit->itpartida->size=12;
+		$edit->itpartida->append('<img src="/tortuga/assets/default/images/system-search.png"  alt="Busqueda de partidas" title="Busqueda de partidas" border="0" onclick="modbusdepen(<#i#>)"/>');
+		$edit->itpartida->db_name='partida';
+		$edit->itpartida->rel_id ='itocompra';		
+		
+		//$edit->itordinal = new dropdownField("(<#o#>) Ordinal", "ordinal_<#i#>");
+		//$edit->itordinal->db_name= 'ordinal';
+		//$edit->itordinal->rel_id = 'itocompra';		
+		//$edit->itordinal->style="width:80px";
+		//$edit->itordinal->option("","");
+    //$edit->itordinal->options("SELECT ordinal, ordinal a FROM ordinal ");//WHERE ppla='partida_<#i#>'
+    
+		$edit->itordinal = new inputField("(<#o#>) Ordinal", "ordinal_<#i#>");
+		$edit->itordinal->db_name  ='ordinal';
+		$edit->itordinal->maxlength=3;
+		$edit->itordinal->size     =5;		
+		$edit->itordinal->rel_id   ='itocompra';		
+		
+		$edit->itdescripcion = new inputField("(<#o#>) Descripci&oacute;n", "descripcion_<#i#>");
+		$edit->itdescripcion->db_name  ='descripcion';
+		$edit->itdescripcion->maxlength=80;
+		$edit->itdescripcion->size     =20;
+		//$edit->itdescripcion->rule     = 'required';
+		$edit->itdescripcion->rel_id   ='itocompra';
+		
+		$edit->itunidad = new dropdownField("(<#o#>) Unidad", "unidad_<#i#>");
+		$edit->itunidad->db_name= 'unidad';
+		$edit->itunidad->rule   = 'required';
+		$edit->itunidad->rel_id = 'itocompra';
+		$edit->itunidad->options("SELECT unidades AS id,unidades FROM unidad ORDER BY unidades");
+		$edit->itunidad->style="width:80px";
+		
+		$edit->itcantidad = new inputField("(<#o#>) Cantidad", "cantidad_<#i#>");
+		$edit->itcantidad->css_class='inputnum';
+		$edit->itcantidad->db_name  ='cantidad';
+		$edit->itcantidad->rel_id   ='itocompra';
+		$edit->itcantidad->rule     ='numeric';
+		$edit->itcantidad->onchange ='cal_importe(<#i#>);';
+		$edit->itcantidad->size     =4;
+    
+		$edit->itprecio = new inputField("(<#o#>) Precio", "precio_<#i#>");
+		$edit->itprecio->css_class='inputnum';
+		$edit->itprecio->db_name  ='precio';
+		$edit->itprecio->rel_id   ='itocompra';
+		$edit->itprecio->rule     ='callback_positivo';
+		$edit->itprecio->onchange ='cal_importe(<#i#>);';
+		$edit->itprecio->size     =8;
+
+		$edit->itiva = new dropdownField("(<#o#>) IVA", "iva_<#i#>");
+		$edit->itiva->db_name  ='iva';
+		$edit->itiva->rel_id   ='itocompra';
+		$edit->itiva->onchange ='cal_importe(<#i#>);';
+		$edit->itiva->options($this->_ivaplica());
+		$edit->itiva->option("0"  ,"0%");
+		$edit->itiva->style    ="width:80px";
+    
+		$edit->itimporte = new inputField("(<#o#>) Importe", "importe_<#i#>");
+		$edit->itimporte->css_class='inputnum';
+		$edit->itimporte->db_name  ='importe';
+		$edit->itimporte->rel_id   ='itocompra';
+		$edit->itimporte->rule     ='numeric';
+		$edit->itimporte->onchange ='cal_importe(<#i#>);';
+		//$edit->itimporte->readonly =true;
+		$edit->itimporte->size     =8;
+		
+		$status=$edit->get_from_dataobjetct('status');
+		if($status=='P'){
+			$action = "javascript:window.location='" .site_url('presupuesto/ocompra/actualizar/'.$edit->rapyd->uri->get_edited_id()). "'";
+			if($this->datasis->puede(154))$edit->button_status("btn_status",'Comprometer',$action,"TR","show");
+			if($this->datasis->puede(158))$edit->buttons("modify");
+			if($this->datasis->puede(159))$edit->buttons("save");
+			$action = "javascript:window.location='" .site_url('presupuesto/ocompra/anular/'.$edit->rapyd->uri->get_edited_id()). "'";
+			if($this->datasis->puede(157))$edit->button_status("btn_anular",'Anular',$action,"TR","show");
+		}elseif($status=='C'){
+			$action = "javascript:window.location='" .site_url('presupuesto/ocompra/reversar/'.$edit->rapyd->uri->get_edited_id()). "'";
+			if($this->datasis->puede(160))$edit->button_status("btn_rever",'Descomprometer',$action,"TR","show");
+		}else{
+			if($this->datasis->puede(159))$edit->buttons("save");
+		}
+		
+		$edit->buttons("undo","back","add_rel");
+		$edit->build();
+
+		//SELECT codigo,base1,tari1,pama1 FROM rete
+		$query = $this->db->query('SELECT codigo,base1,tari1,pama1 FROM rete');
+		
+		$rt=array();
+		foreach ($query->result_array() as $row){
+			$pivot=array('base1'=>$row['base1'],
+			             'tari1'=>$row['tari1'],
+			             'pama1'=>$row['pama1']);
+			$rt['_'.$row['codigo']]=$pivot;
+		}
+		$rete=json_encode($rt);
+
+		$conten['rete']=$rete;
+		$ivaplica=$this->ivaplica2();		
+		$conten['ivar'] = $ivaplica['redutasa'];
+		$conten['ivag'] = $ivaplica['tasa'];
+		$conten['ivaa'] = $ivaplica['sobretasa'];
+		
+		$smenu['link']   = barra_menu('110');
+		$data['smenu']   = $this->load->view('view_sub_menu', $smenu,true);
+		$conten["form"]  = &$edit;
+		$data['content'] = $this->load->view('view_ocompra', $conten,true);
+		
+		$data['title']   = " Orden de Compra o Servicio ";
+		$data["head"]    = $this->rapyd->get_head().script('jquery.js').script("plugins/jquery.numeric.pack.js").script("plugins/jquery.json.min.js");
+		$this->load->view('view_ventanas', $data);
+	}
+	
+	function ivaplica2($mfecha=NULL){
+		if(empty($mfecha)) $mfecha=date('Ymd');
+		//$CI =& get_instance();
+		$qq = $this->db->query("SELECT tasa, redutasa, sobretasa FROM civa WHERE fecha < '$mfecha' ORDER BY fecha DESC LIMIT 1");
+		$rr = $qq->row_array();
+		//$aa = each($rr);
+		return $rr;
+	}
+	
+	function repetido($partida){
+		if(isset($this->__rpartida)){
+			if(in_array($partida, $this->__rpartida)){
+				$this->validation->set_message('repetido',"El rublo %s ($partida) esta repetido");
+				return false;	
+			}
+		}
+		$this->__rpartida[]=$partida;
+		return true;
+	}
+	
+	function itpartida($partida){
+		$estadmin   = $this->db->escape($this->input->post('estadmin'));
+		$fondo      = $this->db->escape($this->input->post('fondo'));
+		$partida    = $this->db->escape($partida);
+		$partidaiva = $this->datasis->traevalor("PARTIDAIVA");
+		
+		$cana=$this->datasis->dameval("SELECT COUNT(*) FROM presupuesto WHERE (asignacion+aumento-disminucion+(traslados))>0 AND codigoadm=$estadmin AND codigopres=$partida AND tipo=$fondo  ");
+					
+		if($cana>0){
+			return true;
+		}else{
+			$this->validation->set_message('itpartida',"La partida %s ($partida) No pertenece al la estructura administrativa o al fondo seleccionado, o el monto es menor a cero(0)");
+			return false;	
+		}
+	}
+	
+	function actualizar($id){
+		$this->rapyd->load('dataobject');
+		
+		$do = new DataObject("ocompra");
+		$do->rel_one_to_many('itocompra', 'itocompra', array('numero'=>'numero'));
+		$do->load($id);
+		
+		$error      = "";
+		$codigoadm  = $do->get('estadmin');
+		$fondo      = $do->get('fondo');
+		$cod_prov   = $do->get('cod_prov');
+		$subtotal   = $do->get('subtotal');
+		
+		if(empty($cod_prov))
+			$error.="<div class='alert'><p>El Campo Beneficiario no puede estar vac&iacute;o</p></div>";
+		
+		if($subtotal==0)
+			$error.="<div class='alert'><p>El Campo Subtotal no puede ser cero(0)</p></div>";
+			
+		if(empty($error)){
+			$sta=$do->get('status');
+			if($sta=="P"){
+				$ivan=0;
+				for($i=0;$i < $do->count_rel('itocompra');$i++){
+					$codigopres  = $do->get_rel('itocompra','partida',$i);
+					$ordinal     = $do->get_rel('itocompra','ordinal',$i);		
+					$iva         = $do->get_rel('itocompra','iva'    ,$i);
+					$importe     = $do->get_rel('itocompra','importe',$i);
+					$ivan       += $importe*$iva/100;
+					
+					$error.=$this->chequeapresup($codigoadm,$fondo,$codigopres,$ordinal,$importe,$iva,'round($monto,2) > round(($presupuesto-$comprometido),2)',"El Monto ($importe) es mayor al disponible para la partida ($codigoadm) ($fondo) ($codigopres)");//
+				}
+				
+				$error.=$this->chequeapresup($codigoadm,$fondo,'PARTIDAIVA','',$ivan,0,'round($monto,2) > round(($presupuesto-$comprometido),2)',"El Monto ($ivan) es mayor al disponible para la partida de IVA");
+				
+				if(empty($error)){
+					$ivan=0;
+					for($i=0;$i < $do->count_rel('itocompra');$i++){
+						$codigopres  = $do->get_rel('itocompra','partida',$i);					
+						$importe     = $do->get_rel('itocompra','importe',$i);
+						$ordinal     = $do->get_rel('itocompra','ordinal',$i);		
+						$iva         = $do->get_rel('itocompra','iva'    ,$i);
+						$ivan       += $importe*$iva/100;
+						
+						$error.=$this->afectapresup($codigoadm,$fondo,$codigopres,$ordinal,$importe,$iva, 1 ,array("comprometido"));
+					}
+					
+					if(empty($error))
+					$error.=$this->afectapresup($codigoadm,$fondo,'PARTIDAIVA','',$ivan,0, 1 ,array("comprometido"));
+					
+					if(empty($error)){
+						$do->set('status','C');
+						$do->set('fcomprome',date('Ymd'));
+						$do->save();
+					}
+				}
+			}
+		}
+		
+		$this->sp_presucalc($codigoadm);
+		
+		if(empty($error)){
+			logusu('ocompra',"Comprometio Orden de Compra Nro $id");
+			redirect("presupuesto/ocompra/dataedit/show/$id");
+		}else{
+			logusu('ocompra',"Comprometio Orden de Compra Nro $id. con ERROR:$error ");
+			$data['content'] = $error.anchor("presupuesto/ocompra/dataedit/show/$id",'Regresar');
+			$data['title']   = " Orden de Compra ";
+			$data["head"]    = $this->rapyd->get_head().script('jquery.js').script("plugins/jquery.numeric.pack.js");
+			$this->load->view('view_ventanas', $data);
+		}
+	}
+	
+	
+	function reversar($id){
+	
+		$error=$this->co_reversar($id);
+		
+		if(empty($error)){
+			$this->sp_presucalc($codigoadm);
+			logusu('ocompra',"Descomprometio Orden de Compra Nro $id");
+			
+			if($this->redirect)redirect("presupuesto/ocompra/dataedit/show/$id");
+		}else{
+			logusu('ocompra',"Descomprometio Orden de Compra Nro $id. con ERROR:$error ");
+			$data['content'] = $error.anchor("/presupuesto/ocompra/dataedit/show/$id",'Regresar');
+			$data['title']   = " Reversar Compromiso ";
+			$data["head"]    = $this->rapyd->get_head();
+			$this->load->view('view_ventanas', $data);
+		}
+	}
+	
+	function anular($id){
+		$this->rapyd->load('dataobject');
+				
+		$do = new DataObject("ocompra");
+		$do->load($id);
+		$do->set('status','A');
+		
+		$do->save();
+		
+		logusu('ocompra',"Anulo Orden de Compra Nro $id");
+		redirect("presupuesto/ocompra/dataedit/show/$id");		
+	}
+
+	function _ivaplica($mfecha=NULL){
+    if(empty($mfecha)) $mfecha=date('Ymd');
+    $qq = $this->datasis->damerow("SELECT tasa AS g, redutasa AS r, sobretasa AS a FROM civa WHERE fecha < '$mfecha' ORDER BY fecha DESC LIMIT 1");
+    $rr=array();
+    foreach ($qq AS $val){
+            $rr[$val]=$val.'%';
+    }
+    $rr['0']='0%';
+    return $rr;
+	}
+
+	function _valida($do){
+	
+		$error        = '';
+		$rr           = $this->ivaplica2();		
+		$reteiva_prov = $do->get('reteiva_prov');
+		$creten       = $do->get('creten');
+		$tipo         = $do->get('tipo'  );
+		$fondo        = $do->get('fondo' );
+		$estadmin     = $do->get('estadmin');
+
+		$usr=$this->session->userdata('usuario');
+		$name = $this->datasis->dameval("SELECT us_nombre FROM usuario WHERE us_codigo ='$usr' ");
+		$do->set('user',$usr);
+		$do->set('username',$name);
+
+		if($tipo == 'Compra'){
+			$do->set('creten','');
+			$do->set('reten' ,0);
+		}	
+		
+		$rete=$this->datasis->damerow("SELECT base1,tari1,pama1 FROM rete WHERE codigo='$creten'");
+				
+		$error        = '';
+		$giva=$aiva=$riva=$exento=$reteiva=$subtotal=$mivag=$mivar=$mivaa=$tivag=$tivar=$tivaa=$subt=0;
+		for($i=0;$i < $do->count_rel('itocompra');$i++){
+			$partida    = $do->get_rel('itocompra','partida'    ,$i);
+			$cantidad   = $do->get_rel('itocompra','cantidad'   ,$i);
+			$precio     = $do->get_rel('itocompra','precio'     ,$i);
+			$piva       = $do->get_rel('itocompra','iva'        ,$i);
+			$ordinal    = $do->get_rel('itocompra','ordinal'    ,$i);			
+			$importe    = round($do->get_rel('itocompra'  ,'importe'      ,$i),2);
+			
+			if($tipo=='Compromiso'){
+				 $do->set_rel('itocompra'  ,'cantidad',1        ,$i);
+				 $do->set_rel('itocompra'  ,'precio'  ,$importe ,$i);
+				 $do->set_rel('itocompra'  ,'iva'     ,0        ,$i);
+			}else{
+				$importe    = $precio * $cantidad;
+				$do->set_rel('itocompra','importe' ,$importe,$i);
+			}
+			
+			$subtotal+=$importe;
+			
+			if($piva==$rr['tasa']     ){
+				$giva+=($rr['tasa']     *$importe)/100;
+				$mivag+=$importe;
+			}
+			if($piva==$rr['redutasa'] ){
+				$riva+=($rr['redutasa'] *$importe)/100;
+				$mivar+=$importe;
+			}
+			if($piva==$rr['sobretasa']){
+				$aiva+=($rr['sobretasa']*$importe)/100;
+				$mivaa+=$importe;
+			}
+						
+			if($piva==0)$exento+=$importe;
+			
+			if($rete && $tipo == 'Servicio'){
+				if(substr($creten,0,1)=='1')$reten=round($importe*$rete['base1']*$rete['tari1']/10000,2);
+				else $reten=round(($importe-$rete['pama1'])*$rete['base1']*$rete['tari1']/10000,2);
+				if($reten < 0)$reten=0;
+				$do->set_rel('itocompra','preten' , $reten  ,$i   );
+			}
+			
+			if(!empty($ordinal)){
+				$cana=$this->datasis->dameval("SELECT COUNT(*) FROM presupuesto a JOIN ordinal c ON (((`c`.`codigoadm` = `a`.`codigoadm`) and (`a`.`tipo` = `c`.`fondo`) and (`a`.`codigopres` = `c`.`codigopres`))) WHERE (a.asignacion+a.aumento-a.disminucion+(a.traslados))>0 AND a.codigoadm='$estadmin' AND a.codigopres='$partida' AND a.tipo='$fondo' AND c.ordinal = '$ordinal'  ");
+				if($cana<=0){
+					
+					$error = ("El Ordinal ($ordinal) No pertenece a la partida seleccionada ($partida)");
+					$do->error_message_ar['pre_upd']=$error;
+					$do->error_message_ar['pre_ins']=$error;				
+					return false;
+				}
+			}
+		}
+			//print_r($do);
+			
+			
+		$reten = 0;
+		if($reteiva_prov!=75)$reteiva_prov=100;
+		$partidaiva=$this->datasis->traevalor("PARTIDAIVA");
+		$reteiva=(($giva+$riva+$aiva)*$reteiva_prov)/100;
+
+		if($rete && $tipo == 'Servicio'){
+			$do->set('breten',$rete['tari1']);
+			if(substr($creten,0,1)=='1'){
+				$reten=$subtotal*$rete['base1']*$rete['tari1']/10000;
+			}
+			else{
+				$reten=($subtotal-$rete['pama1'])*$rete['base1']*$rete['tari1']/10000;		
+			}
+			if($reten < 0)$reten=0;
+			$do->set('reten'     ,    $reten     );
+			
+		}
+		
+		$total2=$giva+$riva+$aiva+$subtotal;
+		$total =$total2-$reteiva-$reten;
+		
+		$impm=$impt=0;
+		//if($total2 >= $this->datasis->traevalor('IMPTIMBREMONTO')){
+		//	$imptimbre    = $this->datasis->traevalor('IMPTIMBRE');
+		//	$total       -=($subtotal*$imptimbre/100);
+		//	$impt         = $subtotal*$imptimbre/100;
+		//}
+		//if($total2 >= $this->datasis->traevalor('IMPMUNIMONTO')){
+		//	$impmunicipal = $this->datasis->traevalor('IMPMUNICIPAL');
+		//	$total       -= ($subtotal*$impmunicipal/100);
+		//	$impm         =$subtotal*$impmunicipal/100;
+		//}
+		
+		//$do->set('impmunicipal'  , $impm                );
+		//$do->set('imptimbre'     ,  $impt               );		
+		
+	if($tipo=='Compromiso'){
+			$impm     = 0;
+		  $impt     = 0;
+		  $tiva     = 0;
+		  $giva     = 0;
+		  $riva     = 0;
+		  $aiva     = 0;
+		  $mivag    = 0;
+		  $mivar    = 0;
+		  $mivaa    = 0;
+		  $exento   = 0;
+		  $reteiva  = 0;
+		  $total    = $subtotal;
+		  $total2   = $subtotal;
+		  $do->set('reten'         , 0    );
+			$do->set('reteiva'       , 0    );
+			$do->set('factura'       , ''   );
+			$do->set('controlfac'    , ''   );
+			$do->set('fechafac'      , ''   );			
+		}
+		
+		$do->set('ivag'          , $giva                );
+		$do->set('ivar'          , $riva                );
+		$do->set('ivaa'          , $aiva                );
+		$do->set('tivag'         , $rr['tasa']          );
+		$do->set('tivar'         , $rr['redutasa']      );
+		$do->set('tivaa'         , $rr['sobretasa']     );
+		$do->set('mivag'         , $mivag               );
+		$do->set('mivar'         , $mivar               );
+		$do->set('mivaa'         , $mivaa               );
+		$do->set('status'        , "P"                  );
+		$do->set('subtotal'      , $subtotal            );
+		$do->set('exento'        , $exento              );
+		$do->set('reteiva'       , $reteiva             );
+		$do->set('total'         , $total               );
+		$do->set('total2'        , $total2              );
+		
+		
+	}
+	
+	
+	function tari1(){
+		$creten=$this->db->escape($this->input->post('creten'));
+		$a=$this->datasis->damerow("SELECT base1,tari1,pama1 FROM rete WHERE codigo=$creten");
+		echo json_encode($a);
+	}
+	
+	
+	function positivo($valor){
+		if ($valor <= 0){
+			$this->validation->set_message('positivo',"El campo Precio debe ser positivo");
+			return FALSE;
+		}
+  	return TRUE;
+	}
+	
+	function _post($do){
+		$id=$do->get('numero');
+		redirect("presupuesto/ocompra/actualizar/$id");
+	}
+	
+	
+	function ordinal(){
+		$partida=$this->input->post('partida');
+		echo "<option value=''></option>";
+		if($partida!==false){
+		
+			$query=$this->db->query("SELECT ordinal, ordinal denominacion FROM ordinal WHERE codigopres='$partida'");
+			if($query){
+				if($query->num_rows()>0){
+					//echo "<option value=''>Seleccionar</option>";
+					foreach($query->result() AS $fila ){
+						echo "<option value='".$fila->ordinal."'>".$fila->denominacion."</option>";
+					}
+				}
+			}
+		}
+	}
+	
+	function reversarall(){
+		$query = $this->db->query("SELECT * FROM ocompra WHERE status = 'C' ");
+		$result = $query->result();
+		 foreach ($result AS $items){ 
+		 	$numero =$items->numero;
+		 	$this->reversar($numero);
+		 }
+	}
+	
+	function actualizarall(){
+		$query = $this->db->query("SELECT * FROM ocompra WHERE status = 'P' ");
+		$result = $query->result();
+		 foreach ($result AS $items){ 
+		 $numero =$items->numero;
+		 	$this->actualizar($numero);
+		 }
+	}
+	
+	function _post_insert($do){
+		$numero = $do->get('numero');
+		logusu('ocompra',"Creo Orden de Compra Nro $numero");
+		//redirect($this->url."actualizar/$numero");
+	}
+	
+	function _post_update($do){
+		$numero = $do->get('numero');
+		logusu('ocompra'," Modifico Orden de Compra Nro $numero");
+		//redirect($this->url."actualizar/$numero");
+	}
+	function _post_delete($do){
+		$numero = $do->get('numero');
+		logusu('ocompra'," Elimino Orden de Compra Nro $numero");
+	}
+}
+
+?>

@@ -1,0 +1,249 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+
+<title>Rapyd Library Guide</title>
+
+<style type='text/css' media='all'>
+@import url('../userguide.css');
+</style>
+<link rel='stylesheet' type='text/css' media='all'
+	href='../userguide.css' />
+
+<script type="text/javascript" src="../nav/nav.js"></script>
+<script type="text/javascript" src="../nav/prototype.lite.js"></script>
+<script type="text/javascript" src="../nav/moo.fx.js"></script>
+<script type="text/javascript" src="../nav/syntax.js"></script>
+<script type="text/javascript" src="../nav/syntax_php.js"></script>
+<link type="text/css" href="../syntax.css" rel="stylesheet" />
+</head>
+<body>
+
+<!-- START NAVIGATION -->
+<script type="text/javascript">create_header('../');</script>
+<!-- END NAVIGATION -->
+
+
+<!-- START BREADCRUMB -->
+<table cellpadding="0" cellspacing="0" border="0" style="width: 100%">
+	<tr>
+		<td id="breadcrumb"><a href="http://www.rapyd.com/">Rapyd
+		Library Home</a> &nbsp;&#8250;&nbsp; <a href="../index.html">Rapyd
+		Guide</a> &nbsp;&#8250;&nbsp; DataFilter Class</td>
+		<td id="searchbox"><script type="text/javascript">create_search();</script>
+		</td>
+	</tr>
+</table>
+<!-- END BREADCRUMB -->
+
+<br clear="all" />
+
+
+<!-- START CONTENT -->
+<div id="content">
+
+
+<h1>DataFilter Class</h1>
+
+<img src="../images/datafilter.gif" />
+
+<p>DataFilter is basically a form-filter heper, it can be used to
+build the WHERE clause of a SELECT statement, in conjunction with CI
+Active Record Class<br />
+It has a <a href="../general/views.html">view</a> (the same of
+DataForm).</p>
+
+<p>In a DataFilter, most of properties you need to set are <a
+	href="fields.html">form fields</a>.<br />
+So please take a look to <a href="fields.html">Field classes</a>.</p>
+
+
+
+<h3>Sample (SQL helper)</h3>
+<textarea name="code" class="php:nogutter:nocontrols" rows="15"
+	cols="100">
+
+class Article extends Controller{
+ 
+ //..
+
+function Search()
+{
+    $this->rapyd->load("datafilter");
+    
+    $filter = new DataFilter("Article Filter", "articles");
+    $filter->title = new inputField("Title", "title");
+    
+    $filter->ispublic = new dropdownField("Public", "public");
+    $filter->ispublic->option("","");
+    $filter->ispublic->options(array("y"=>"Yes","n"=>"No"));
+    
+    $filter->buttons("reset","search");    
+    $filter->build();
+    
+    $result = $filter->db->get();
+    $sql = $filter->db->last_query();
+    
+    $data["output"] = $filter->output. $sql;
+    $data["recordset"] = $result;    
+    $data["rapyd_head"] = $this->rapyd->get_head();
+  
+    $this->load->view('search_view', $data);
+}
+
+}
+</textarea>
+
+
+<h3>Sample (joined to a DataGrid, from samples controller)</h3>
+<textarea name="code" class="php:nogutter:nocontrols" rows="15"
+	cols="100">
+
+class Crudsamples extends Controller{
+ 
+ //..
+
+  function filteredgrid()
+  {  
+    $this->rapyd->load("datafilter","datagrid");
+    
+    //filter
+    $filter = new DataFilter("Article Filter");
+    $filter->db->select("articles.*, authors.*");
+    $filter->db->from("articles");
+    $filter->db->join("authors","authors.author_id=articles.author_id","LEFT");
+
+    $filter->title = new inputField("Title", "title");
+    
+    $filter->ispublic = new dropdownField("Public", "public");
+    $filter->ispublic->option("","");
+    $filter->ispublic->options(array("y"=>"Yes","n"=>"No"));
+
+    $filter->buttons("reset","search");    
+    $filter->build();
+    
+    //grid
+    $grid = new DataGrid("Article List");
+    $grid->per_page = 5;
+    $grid->use_function("substr");
+    $grid->column_orderby("title","title","title");
+    $grid->column("author","<#firstname#>, <#lastname#>");
+    ...
+    $grid->build();
+    
+    $data["filtered_grid"] = $filter->output . $grid->output;
+    $data["rapyd_head"] = $this->rapyd->get_head();
+    ..
+}
+
+}
+</textarea>
+
+
+<p class="important"><strong>Important:</strong>&nbsp; DataFilter
+extends DataForm, so inherit all properties and some methods.</p>
+
+
+
+
+<h2>DataFilter Reference</h2>
+
+<p><dfn>$filter = new DataFilter($title [,$datasource]);</dfn></p>
+<p>string: <kbd>$title</kbd> (can be empty) a simple label for
+component output (can be html formatted).</p>
+<p>mixed: <kbd>$datasource</kbd> is a source of data. See rapyd <a
+	href="../general/concepts.html#data">datasource</a> concept.</p>
+
+
+<h5>Settings</h5>
+
+<table cellpadding="0" cellspacing="1" border="0" style="width: 100%"
+	class="tableborder">
+	<tr>
+		<th>Property</th>
+		<th>Default&nbsp;Value</th>
+		<th>Options</th>
+		<th>Description</th>
+	</tr>
+	<tr>
+		<td><strong>attributes</strong></td>
+		<td>array("id"=>1*)</td>
+		<td>array</td>
+		<td>all attributes you need to add to the form.<br />
+		* if "id" key is omitted, by default will be a static identifier
+		(autoinc) of current instance of DataForm</td>
+	</tr>
+</table>
+
+<h5>Methods</h5>
+
+<p><strong>$edit->buttons($button[,$button..])</strong></p>
+<p>append action buttons<br />
+possible params are:<br />
+"reset", "search"<br />
+(note: rapyd support multilanguage, so you can customize labels in
+\system\application\rapyd\language)<br />
+</p>
+<br />
+
+<em>inherited from DataForm:</em> <br />
+<p><strong>$filter->button($name, $caption, $action,
+$position="BL")</strong></p>
+<p>append html button.<br />
+params:<br />
+- string $name, button name&amp;id<br />
+- string $caption, button caption<br />
+- string $action, the onclick event action<br />
+- string $position, position of button, can be: "TR" (tor-right), "BL"
+(bottom-left), "BR" (bottom-right).</p>
+<br />
+
+<p><strong>$filter->script($script, $status="create")</strong></p>
+<p>append javascript statement (simply a
+&lt;script&gt;$script&lt;/script&gt; code).<br />
+params:<br />
+- string $script, the javascript code<br />
+- string $status, the code is added only when DataForm fields have this
+<a href="fields.html#status">status</a>.</p>
+<br />
+
+
+
+<p><strong>$filter->build();</strong></p>
+<p>build output and eventually process actions (means: prepare a sql
+SELECT statement with the built WHERE).</p>
+
+
+<h5>Output</h5>
+
+<table cellpadding="0" cellspacing="1" border="0" style="width: 100%"
+	class="tableborder">
+	<tr>
+		<th>Property</th>
+		<th>Type</th>
+		<th>Description</th>
+	</tr>
+	<tr>
+		<td><strong>output</strong></td>
+		<td>html</td>
+		<td>html of the form, disponible only after a "build()"</td>
+	</tr>
+	<tr>
+		<td></td>
+		<td></td>
+		<td></td>
+	</tr>
+</table>
+
+
+
+
+
+</div>
+<!-- END CONTENT -->
+
+
+<script type="text/javascript">create_footer();</script>
+
+</body>
+</html>

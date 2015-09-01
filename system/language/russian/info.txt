@@ -1,0 +1,4 @@
+Russian language files for CodeIgniter 1.51
+Translated by Shulga Alexei
+
+Found an error/typo? email me alexei.shulga at gmail.com

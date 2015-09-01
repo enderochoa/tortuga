@@ -1,0 +1,123 @@
+body {
+	margin: 0;
+	padding: 0;
+}
+
+#container {
+	background: url(vline.jpg) 125px repeat-y;
+	margin: 0 auto;
+	top: 0;
+	padding: 0;
+}
+
+#header {
+	background: url(templete_01.jpg) no-repeat;
+	background-color: #7C2121;
+	height: 77px;
+	text-align: right;
+	margin: 0px;
+	padding: 0;
+}
+
+#header h1 { /*padding:10;*/
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	margin: 0;
+	color: #794434;
+	border-color: #000000;
+	font-weight: bold;
+}
+
+#menu {
+	background-color: #4F1010;
+	height: 15px;
+}
+
+#linea {
+	background-color: #B2B2B2;
+	height: 10px;
+}
+
+#micelanias {
+	float: left;
+	width: 130px;
+	padding-bottom: 10px;
+	padding-top: 10px;
+	height: 350px;
+}
+
+#pie {
+	clear: both;
+	background: url(templete_16.jpg) right no-repeat;
+	background-position: right top;
+	background-color: #4F1010;
+	color: #FFFFFF;
+	height: 66px;
+	font-weight: bold;
+	font-size: 10px;
+	text-align: center;
+}
+
+#contenido {
+	float: left;
+	top: auto;
+	margin-bottom: 20px;
+	width: 100%;
+	min-width: 580px;
+}
+
+#form_usr {
+	margin: 5px;
+	float: right;
+	text-align: center;
+}
+
+#form_usr form {
+	margin: 0px;
+	font-size: 12px;
+	font-weight: bold;
+}
+
+#form_usr form input {
+	font-size: inherit;
+	font-weight: inherit;
+	background-image: url(form_fon.jpg);
+	border: 0;
+}
+
+#home {
+	text-align: center;
+	margin: 2px;
+	padding: 2px;
+	width: 100%;
+}
+
+#home h1 { /*padding:10;*/
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 20px;
+	margin: 0;
+	color: #006600;
+	border-color: #000000;
+	font-weight: bold;
+}
+
+.mininegro { /*padding:10;*/
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8px;
+	margin: 5px;
+	font-weight: bold;
+}
+
+.miniblanco { /*padding:10;*/
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8px;
+	margin: 5px;
+	font-weight: bold;
+	font-color: white;
+}
+
+.minipanel { /*padding:10;*/
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	margin: 5px;
+	/*	font-weight:bold; */
+}

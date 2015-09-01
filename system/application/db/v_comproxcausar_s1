@@ -1,0 +1,11 @@
+select `a`.`numero` AS `ocompra`,a.compromiso ,NULL AS `opago`,b.esiva,`b`.`codigoadm` AS `codigoadm`,`b`.`partida` AS `codigopres`,`b`.`fondo` AS `fondo`,sum(`b`.`importe`) AS `compras`,0 AS `pagos` 
+from (`ocompra` `a` 
+join `itocompra` `b` on((`a`.`numero` = `b`.`numero`))) 
+where (`a`.`status` = 'C') 
+group by `b`.`numero`,`b`.`codigoadm`,`b`.`partida`,`b`.`fondo` ,b.esiva='N'
+union all 
+select `a`.`ocompra` AS `ocompra`,'' compromiso,`a`.`numero` AS `opago`,a.esiva,`a`.`codigoadm` AS `codigoadm`,`a`.`partida` AS `partida`,`a`.`fondo` AS `fondo`,0 AS `compras`,sum(`a`.`importe`) AS `pagos` 
+from (`itodirect` `a` 
+join `odirect` `b` on((`a`.`numero` = `b`.`numero`))) 
+where (`b`.`status` in ('C2','C3')) 
+group by `a`.`ocompra`,`a`.`codigoadm`,`a`.`partida`,`a`.`fondo`,a.esiva='N'

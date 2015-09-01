@@ -1,0 +1,367 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+
+<title>Rapyd Library Guide</title>
+
+<style type='text/css' media='all'>
+@import url('../userguide.css');
+</style>
+<link rel='stylesheet' type='text/css' media='all'
+	href='../userguide.css' />
+
+<script type="text/javascript" src="../nav/nav.js"></script>
+<script type="text/javascript" src="../nav/prototype.lite.js"></script>
+<script type="text/javascript" src="../nav/moo.fx.js"></script>
+<script type="text/javascript" src="../nav/syntax.js"></script>
+<script type="text/javascript" src="../nav/syntax_php.js"></script>
+<link type="text/css" href="../syntax.css" rel="stylesheet" />
+</head>
+<body>
+
+<!-- START NAVIGATION -->
+<script type="text/javascript">create_header('../');</script>
+<!-- END NAVIGATION -->
+
+
+<!-- START BREADCRUMB -->
+<table cellpadding="0" cellspacing="0" border="0" style="width: 100%">
+	<tr>
+		<td id="breadcrumb"><a href="http://www.rapyd.com/">Rapyd
+		Library Home</a> &nbsp;&#8250;&nbsp; <a href="../index.html">Rapyd
+		Guide</a> &nbsp;&#8250;&nbsp; DataForm Class</td>
+		<td id="searchbox"><script type="text/javascript">create_search();</script>
+		</td>
+	</tr>
+</table>
+<!-- END BREADCRUMB -->
+
+<br clear="all" />
+
+
+<!-- START CONTENT -->
+<div id="content">
+
+
+<h1>DataForm Class</h1>
+
+<img src="../images/dataform.gif" />
+
+<p>DataForm is basically a form helper, but it can also be used to
+retrieve, update or insert new records "directly" (joined with <a
+	href="dataobject.html">DataObject</a>).<br />
+It has a <a href="../general/views.html">view</a>.<br />
+Dataform is ancestor of <a href="datafilter.html">DataFilter</a> &amp; <a
+	href="dataedit.html">DataEdit</a> classes</p>
+
+<p>In a DataForm, most of properties you need to set are <a
+	href="fields.html">form fields</a>.<br />
+So please take a look to <a href="fields.html">Field classes</a>.</p>
+
+<h3>Sample (form helper)</h3>
+<textarea name="code" class="php:nogutter:nocontrols" rows="15"
+	cols="100">
+
+class Article extends Controller{
+ 
+ //..
+
+function Acquire()
+{
+  $this->rapyd->load('dataform');
+
+  $form = new DataForm("article/acquire/process");
+
+  $form->title = new inputField("Title", "title");
+  $form->title->rule = "trim|required|max_length[20]";
+  
+  $form->body = new textareaField("Body", "body");
+  $form->body->rule = "required";
+  $form->body->rows = 10;    
+
+  $form->checkbox = new checkboxField("Public", "public", "y","n");
+  $form->submit("btnsubmit","SUBMIT");
+  $form->build_form();
+
+  if  ($form->on_show()) {
+    //do something
+  }
+
+  if ($form->on_success()){
+   //do something else (for example process post)
+  }
+  
+  if ($form->on_error()){
+   //do something else (display suggestions.. etc)
+   //note: validation messages are integrated, so you don't have to do anything (just make fields rules).
+  }
+
+  $data["form_output"] = $form->output;
+  $data["rapyd_head"] = $this->rapyd->get_head();
+  
+  $this->load->view('article_acquire', $data);
+}
+ </textarea>
+
+
+
+<h3>Sample (form helper with customizable output)</h3>
+<textarea name="code" class="php:nogutter:nocontrols" rows="15"
+	cols="100">
+
+class User extends Controller{
+ 
+ //..
+
+function Login()
+{
+  $this->rapyd->load('dataform');
+
+  $form = new DataForm("user/login/process");
+  
+  $form->email = new inputField("email", "email");
+  $form->email->rule = "required|valid_email";
+  
+  $form->pass = new inputField("pass", "pass");
+  $form->pass->rule = "required";  
+
+  $form->submit = new submitField("login","btn_submit");  
+  $form->build(); 
+
+
+  if ($form->on_success()){
+   //try login and/or redirect
+  }
+  
+  $data["rapyd_head"] = $this->rapyd->get_head();
+  $data["form"] =&  $form;
+  $this->load->view('login_view', $data);
+  
+}
+...
+
+
+//And in the view you can use:
+
+<?=$form->form_open?>
+
+<?=$form->error_string?>
+  <table>
+    <tr>
+		<td>email:</td>
+		<td><?=$form->email->output?></td>
+	</tr>  
+    <tr>
+		<td>password:</td>
+		<td><?=$form->pass->output?></td>
+	</tr>
+  </table>
+  <?=$form->submit->output?>
+  <?=$form->submit->form_scripts?>
+
+<?=$form->form_close?>
+
+</textarea>
+
+
+<h3>Sample (store new records / preload form data)</h3>
+<textarea name="code" class="php:nogutter:nocontrols" rows="15"
+	cols="100">
+
+class Article extends Controller{
+ 
+ //..
+
+function Acquire()
+{
+  $this->rapyd->load('dataobject','dataform');
+
+  $do = new DataObject("articles");
+  /*
+   if you need to preload and update record where pk=5:
+   $do->load(5); 
+   else the post will be an "insert"
+  */
+
+  //note the second param
+  $form = new DataForm("article/acquire/process", $do);
+
+  $form->title = new inputField("Title", "title");
+  $form->title->rule = "trim|required|max_length[20]";
+  
+  $form->body = new textareaField("Body", "body");
+  $form->body->rule = "required";
+  $form->body->rows = 10;    
+
+  $form->checkbox = new checkboxField("Public", "public", "y","n");
+  $form->submit("btnsubmit","SUBMIT");
+  $form->build_form();
+
+  if  ($form->on_show() || $form->on_error()) {
+    $data["content"] = $form->output;
+  }
+
+  if ($form->on_success()){
+    $data["content"] = "New Article Saved";
+  }
+    
+  $data["rapyd_head"] = $this->rapyd->get_head();
+  
+  $this->load->view('article_acquire', $data);
+}
+</textarea>
+
+
+
+
+
+
+<h2>DataForm Reference</h2>
+
+<p><dfn>$form = new DataForm($process_uri [,$dataobject]);</dfn></p>
+<p>string: <kbd>$process_uri</kbd> (can be null) is the uri that
+trig the process action.<br />
+If it's used in a controller at this uri: "controller/method"..<br />
+it must have one more segment (for example "controller/method/<strong>process</strong>").
+</p>
+<p>object: <kbd>$dataobject</kbd> is the source/destination of data.
+See <a href="dataobject.html">DataObject</a></p>
+
+<h5>Settings</h5>
+
+<table cellpadding="0" cellspacing="1" border="0" style="width: 100%"
+	class="tableborder">
+	<tr>
+		<th>Property</th>
+		<th>Default&nbsp;Value</th>
+		<th>Options</th>
+		<th>Description</th>
+	</tr>
+	<tr>
+		<td><strong>attributes</strong></td>
+		<td>array("id"=>1*)</td>
+		<td>array</td>
+		<td>all attributes you need to add to the form.<br />
+		* if "id" key is omitted, by default will be a static identifier
+		(autoinc) of current instance of DataForm</td>
+	</tr>
+</table>
+
+<h5>Methods</h5>
+
+<p><strong>$form->button($name, $caption, $action,
+$position="BL")</strong></p>
+<p>append an html button.<br />
+params:<br />
+- string $name, button name&amp;id<br />
+- string $caption, button caption<br />
+- string $action, the onclick event action<br />
+- string $position, position of button, can be: "TR" (tor-right), "BL"
+(bottom-left), "BR" (bottom-right).</p>
+<br />
+
+<p><strong>$form->submit($name, $caption, $position="BL")</strong></p>
+<p>append an html button.<br />
+params:<br />
+append an html submit button.<br />
+params:<br />
+- string $name, button name&amp;id<br />
+- string $caption, button caption<br />
+- string $position, position of button, can be: "TR" (tor-right), "BL"
+(bottom-left), "BR" (bottom-right).</p>
+<br />
+
+
+<p><strong>$form->script($script, $status="create")</strong></p>
+<p>append javascript statement (simply a
+&lt;script&gt;$script&lt;/script&gt; code).<br />
+params:<br />
+- string $script, the javascript code<br />
+- string $status, the code is added only when DataForm fields have this
+<a href="fields.html#status">status</a>.</p>
+<br />
+
+
+<p><strong>$form->on_show()</strong></p>
+<p>return a boolean: if the DataForm status is "show" or not.</p>
+<br />
+
+<p><strong>$form->on_error()</strong></p>
+<p>return a boolean: if the DataForm status is "error" (validation
+not passed) or not.</p>
+<br />
+
+
+<p><strong>$form->on_success()</strong></p>
+<p>return a boolean: if the DataForm status is "success" (procedded
+and validation passed) or not.</p>
+<br />
+
+
+<p><strong>$form->build();</strong></p>
+<p>build and eventually process the form.<br />
+it do not prepare an html output but just run the build method on each
+field.<br />
+then you can retrieve field output as: $form->field->output. and you can
+display and organize your custom form output.</p>
+
+
+<p><strong>$form->build_form();</strong></p>
+<p>like build() but it prepare/build a global html output.</p>
+
+
+<h5>Output</h5>
+
+<table cellpadding="0" cellspacing="1" border="0" style="width: 100%"
+	class="tableborder">
+	<tr>
+		<th>Property</th>
+		<th>Type</th>
+		<th>Description</th>
+	</tr>
+	<tr>
+		<td><strong>output</strong></td>
+		<td>html</td>
+		<td>html of the form, disponible only after a "build_form"</td>
+	</tr>
+	<tr>
+		<td></td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td><strong>form_open</strong></td>
+		<td>html</td>
+		<td>&lt;form ...&gt; tag</td>
+	</tr>
+	<tr>
+		<td><strong>form_close</strong></td>
+		<td>html</td>
+		<td>&lt;/form&gt; tag</td>
+	</tr>
+	<tr>
+		<td><strong>form_scripts</strong></td>
+		<td>html</td>
+		<td>output is the cumulative javascript code you add to form
+		(using $form->script())</td>
+	</tr>
+	<tr>
+		<td><strong>error_string</strong></td>
+		<td>string</td>
+		<td>all validation errors (but you can display each field/error
+		using $this->validation->fieldname)</td>
+	</tr>
+</table>
+
+
+
+
+
+</div>
+<!-- END CONTENT -->
+
+
+<script type="text/javascript">create_footer();</script>
+
+</body>
+</html>

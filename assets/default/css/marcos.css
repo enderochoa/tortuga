@@ -1,0 +1,51 @@
+.marco1 {
+	padding: 8px;
+	background-color: #f5f5f5;
+	border: 1px solid #999999;
+}
+
+.marco1 IMG {
+	border: 1px solid #000000;
+}
+
+.marco2 {
+	padding: 8px;
+	background-color: #f5f5f5;
+	border-bottom: 1px solid #999999;
+	border-right: 1px solid #999999;
+}
+
+.marco3 {
+	padding: 8px 8px 20px 8px;
+	background-color: #ffffff;
+	border: 1px solid #999999;
+}
+
+.blur {
+	background-color: #ccc; /*shadow color*/
+	color: inherit;
+	margin-left: 4px;
+	margin-top: 4px;
+}
+
+.shadow,.content {
+	position: relative;
+	bottom: 2px;
+	right: 2px;
+}
+
+.shadow {
+	background-color: #666; /*shadow color*/
+	color: inherit;
+}
+
+.content {
+	background-color: #fff; /*background color of content*/
+	color: #000; /*text color of content*/
+	border: 1px solid #000; /*border color*/
+	padding: .5em 2ex;
+}
+
+.content IMG {
+	border: 1px solid #000000;
+}

@@ -1,0 +1,381 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+
+<title>Rapyd Library Guide</title>
+
+<style type='text/css' media='all'>
+@import url('../userguide.css');
+</style>
+<link rel='stylesheet' type='text/css' media='all'
+	href='../userguide.css' />
+
+<script type="text/javascript" src="../nav/nav.js"></script>
+<script type="text/javascript" src="../nav/prototype.lite.js"></script>
+<script type="text/javascript" src="../nav/moo.fx.js"></script>
+<script type="text/javascript" src="../nav/syntax.js"></script>
+<script type="text/javascript" src="../nav/syntax_php.js"></script>
+<link type="text/css" href="../syntax.css" rel="stylesheet" />
+</head>
+<body>
+
+<!-- START NAVIGATION -->
+<script type="text/javascript">create_header('../');</script>
+<!-- END NAVIGATION -->
+
+
+<!-- START BREADCRUMB -->
+<table cellpadding="0" cellspacing="0" border="0" style="width: 100%">
+	<tr>
+		<td id="breadcrumb"><a href="http://www.rapyd.com/">Rapyd
+		Library Home</a> &nbsp;&#8250;&nbsp; <a href="../index.html">Rapyd
+		Guide</a> &nbsp;&#8250;&nbsp; Concepts</td>
+		<td id="searchbox"><script type="text/javascript">create_search();</script>
+		</td>
+	</tr>
+</table>
+<!-- END BREADCRUMB -->
+
+<br clear="all" />
+
+
+<!-- START CONTENT -->
+<div id="content">
+
+<h1>Concepts</h1>
+
+<ul>
+	<li><a href="#rapyd">Load Rapyd</a></li>
+	<li><a href="#load">Load Classes</a></li>
+	<li><a href="#instancing">Class Instancing</a></li>
+	<li><a href="#output">Component Output</a></li>
+	<li><a href="#data">Data Source</a></li>
+	<li><a href="#pattern">Functions/Fields Pattern</a></li>
+</ul>
+
+
+<a name="rapyd"></a>
+<h2>Load Rapyd</h2>
+
+<p>Rapyd is a CI library.<br />
+So to use rapyd you need to "load" the library (where you prefer, in the
+controller or in a model) using ci load class:</p>
+<textarea name="code" class="php:nogutter:nocontrols" cols="100">
+class Samples extends Controller {
+
+function Samples()
+{
+  parent::Controller(); 
+
+  $this->load->library("rapyd");
+
+  ...
+</textarea>
+
+<p>Note, isn't necessary to load library in the constructor, it's
+your choise.<br />
+Then you have included basic functionalities (some support functions),
+and the main rapyd object in the CI base object.<br />
+You have now this reference: <dfn>$this->rapyd</dfn></p>
+
+
+<a name="load"></a>
+<h2>Load Classes</h2>
+
+<p>You can load components/classes in rapyd "like" CI load
+libraries, using <dfn>load()</dfn> method (of rapyd instance), you can
+use multiple arguments to load more than one class per time.</p>
+
+<textarea name="code" class="php:nogutter:nocontrols" cols="100">
+class Samples extends Controller {
+  ...
+  function mysample()
+  {
+    $this->rapyd->load("datafilter","datagrid");
+  ...
+</textarea> <a name="instancing"></a>
+<h2>Class Instancing</h2>
+<p>Unlike CI, Rapyd does not instance the loaded classes.<br />
+A class-load for rapyd is a simple "inclusion" of class file (and all
+needed files).<br />
+So you need to instance "normally" rapyd classes:</p>
+<textarea name="code" class="php:nogutter:nocontrols" cols="100">
+$this->rapyd->load("datagrid");
+
+$grid = new DataGrid("Article List", "articles");
+$grid->per_page = 5;
+... 
+</textarea> <a name="output"></a>
+<h2>Component Output</h2>
+<p>The <dfn>build()</dfn> method is the most common method in rapyd
+classes.<br />
+It perform actions and build/fill output property <dfn>$component->output</dfn>.<br />
+</p>
+<textarea name="code" class="php:nogutter:nocontrols" cols="100">
+
+..
+$grid->build();
+
+$data["grid_output"] = $grid->output;
+$data["rapyd_head"] = $this->rapyd->get_head();
+</textarea>
+
+<p>Many components needs custom javascript / css inclusions so the
+the only propterty "output" isn't enough.<br />
+<dfn>$this->rapyd->get_head()</dfn> return needed html inclusions (for
+all instanced components) so you can populate a view head $var easily.<br />
+</p>
+
+<textarea name="code" class="php:nogutter:nocontrols" cols="100">
+
+<!--
+<html>
+<head>
+..
+<?=$rapyd_head?>
+</head>
+<body>
+
+  <h2>DataGrid</h2>
+
+  <?=$grid_output?>
+  
+</body>
+</html> 
+-->
+  
+</textarea> <a name="data"></a>
+<h2>Data Source</h2>
+<p>Rapyd components works with CI Active Record library, but for
+some components associative arrays are also supported (limited
+functionalities).</p>
+<p class="important"><strong>New from 0.9.8 and higher
+version :</strong>&nbsp; All "Data" components works referencing to an<strong>
+independent</strong> CI Active Record object instance that support now differents
+connections group.<br />
+<br />
+This means that Rapyd components no more use the CI default AR: <strong>$this-&gt;db</strong>
+(in the controller code), now they use an idenpendent but common to all
+components AR from Rapyd global object <strong>$this-&gt;rapyd-&gt;db</strong>.
+This new Rapyd AR add no changes in the internal components db object
+($grid-&gt;db for example) but it change the way to work on the external
+AR before to load the component (previously the CI AR $this-&gt;db and
+now $this-&gt;rapyd-&gt;db). The sample code below show you the old and
+new way to work with it.<br />
+<br />
+The main change is that this rapyd AR is automatically loaded when you
+load your first component in code but it is not loaded before <em>(when
+you load the rapyd global object)</em>, whereas the previous version used the
+CI AR that is always loaded when the database is loaded.<br />
+<br />
+Rapyd and its new AR now support differents connections groups from your
+database config file than the CI defaut one. A new Rapyd Config var and
+a new Rapyd property allow Rapyd global object to work on a different
+database connection than the CI default one and also allow you to change
+it at run time.<br />
+<br />
+With this new Rapyd AR structure we have added the ability to connect
+the dropdownField to a diffenrent database than the DataForm or DataEdit
+database connection, this way the dropdow options list can be build on
+external data content. (See the dropdowField doc).</p>
+<p>Basically, to a "Data" component (Set,Grid,Table) can be passed a
+source like:</p>
+<ul>
+	<li>a NULL value (means: "use current Rapyd Active Record object
+	or load it if the currently loaded component is the first loaded")</li>
+	<li>a (string) tablename (means: "use all records of this table")</li>
+	<li>a sql query (SELECT, or a partial SELECT query)</li>
+	<li>a multidimensional associative array (only supported by
+	DataGrid and DataTable)</li>
+</ul>
+
+
+<textarea name="code" class="php:nogutter:nocontrols" rows="30"
+	cols="100">
+$this->rapyd->load("datagrid");
+
+//get all from table "articles"
+$grid = new DataGrid("Article List", "articles");
+... 
+
+//it's the same of
+$grid = new DataGrid("Article List", "(SELECT * FROM articles)");
+... 
+
+//and it's the same of
+
+  //(deprecated old syntax)
+  $this->db->select(*);
+  $this->db->from("articles");
+  $grid = new DataGrid("Article List");
+  ...
+
+  //New syntax with the rapyd AR
+  $this->rapyd->load_db();
+  $this->rapyd->db->select(*);
+  $this->rapyd->db->from("articles");
+  $grid = new DataGrid("Article List");
+  ...
+
+  //or
+  $this->rapyd->load_db();
+  $this->rapyd->db->select(*);
+  $this->rapyd->db->from("articles");
+  ...
+  $filter = new DataFilter("Article Filter");
+  ...
+  $grid = new DataGrid("Article List");
+  ...
+  //note: never reload the rapyd AR between the components instanciation because the $this->rapyd->db AR is reset each time you load it and so you will loose the 'select' and 'from' instruction.
+
+  
+  //the mixed way (suggested)
+  $grid = new DataGrid("Article List","articles");
+  $grid->db->where("...");
+  $grid->db->......;
+
+...
+</textarea>
+<p class="important"><strong>Important:</strong>&nbsp; The last
+sample is the suggested way to perform complex queryes (joins.. where..
+etc) by CI AR with minimun syntax</p>
+
+<p><strong><u>NEW Rapyd data connection features:</u></strong></p>
+<p>Now in addition of the new <dfn>load_db()</dfn> method <em>(that
+preload the Rapyd AR when it is needed)</em>, Rapyd library have a <dfn>set_connection()</dfn>
+method <em>(that allow us to switch the rapyd current database
+connection group)</em>.This new feature work with a new Rapyd config var <dfn>$rpd['data_conn']='';</dfn>
+with this setting you can connect Rapyd default AR on a different
+connection group than the CI default one.</p>
+<p class="important"><strong>Warning: </strong> All the connection
+group that you need to use with Rapyd had to be set in the CI <strong>database.php</strong>
+config file. Rapyd connection feature doesn't support array definition
+for connection group, whereas CI database connection can use it.</p>
+<p>All Rapyd components including DataObject work with this feature
+and so if you use more than one component on a page they can be
+connected to differents databases. <br />
+By default Rapyd config file set the Rapyd AR connection group to the
+default CI connection group.<br />
+If the Rapyd current connection group is different than the <strong>CI
+default one</strong>, you can connect Rapyd to the CI default connection group by
+using the an empty string as connection group name like this <dfn>$this-&gt;rapyd-&gt;set_connection('');</dfn>
+<br />
+If the Rapyd current connection group is different than the <strong>Rapyd
+default one</strong>, you can connect back Rapyd to its default connection group
+by using the a null value as connection group name like this <dfn>$this-&gt;rapyd-&gt;set_connection(null);</dfn>
+or no connection string <dfn>$this-&gt;rapyd-&gt;set_connection();</dfn>
+because it is the default action.</p>
+<p class="important"><strong>Important:</strong> the independent AR
+and the switching connection features are separate features, so even if
+the Rapyd AR is connected to the CI default connection group (the Rapyd
+default setting, like in the previous versions) the Rapyd AR is always
+idependent of the CI AR. In this case <strong>$this-&gt;db</strong> and
+<strong>$this-&gt;rapyd-&gt;db</strong> are differents database object
+using the same connection settings....</p>
+
+<textarea name="code" class="php:nogutter:nocontrols" rows="30"
+	cols="100">
+//CI database.php config file.
+$active_group = "default";
+
+$db['default']['hostname'] = "localhost";
+$db['default']['username'] = "root";
+$db['default']['password'] = "";
+$db['default']['database'] = "default_db";
+$db['default']['dbdriver'] = "mysql";
+...
+
+$db['rapyd']['hostname'] = "localhost";
+$db['rapyd']['username'] = "root";
+$db['rapyd']['password'] = "";
+$db['rapyd']['database'] = "rapyd_ci";
+$db['rapyd']['dbdriver'] = "mysql";
+...
+
+$db['external']['hostname'] = "80.154.235.32";
+$db['external']['username'] = "root";
+$db['external']['password'] = "";
+$db['external']['database'] = "rapyd_online";
+$db['external']['dbdriver'] = "mysql";
+...
+//Rapyd can now work with this 3 connections groups.
+
+//Rapyd rapyd.php config file.
+$rpd['data_conn']='';
+//by default Rapyd use the CI default connection so the "default" connection group and so point to the local 'default_db' database.
+$rpd['data_conn']='rapyd';
+//This way Rapyd use the 'rapyd' connection group by default and so point to the local 'rapyd_ci' database.
+
+//In your Controller file.
+...
+$this->rapyd->set_connection('external');
+//this way all the components loaded thereafter will use the 'external' connection group and so point the 'rapyd_online' database on the external host.
+</textarea>
+<p class="important"><strong>Important:</strong> Each time you
+switch the Rapyd connection the Rapyd AR is unset to be sure that all
+the components loaded next use the new connection. So you may need to
+reload it manually in some cases.</p>
+
+<p><a name="pattern">&nbsp;</a></p>
+<h2>Functions/Fields Pattern</h2>
+
+<p>This is one of the most criticable approach of rapyd, because
+it's not not MVC compliant, but is an easy solution to keep code
+concise, easy to be maintained.</p>
+<p>The pattern concept is: in many components, you can (in some
+cases you "must") pass a "field pattern" instead a "field name":</p>
+
+<textarea name="code" class="php:nogutter:nocontrols" cols="100">
+...
+$grid->use_function("substr");
+$grid->column("Body","body");  //field name
+$grid->column("Body", "<substr><#body#>|0|20</substr>..");  //field pattern
+... 
+</textarea>
+
+<p>Field pattern concurs to format output by a php function
+(built-in or user-defined or method callback), to concatenate more than
+one field.. etc.<br />
+a pattern syntax example is:</p>
+
+<textarea name="code" class="php:nogutter:nocontrols" rows="4"
+	cols="100">
+    bla bla .. <p>blabla <p> <fuctionname><#fieldname#>|param2|param3|...</fuctionname>
+   </textarea>
+<p>As you can see, a grid output can be managed entirely from a
+controller/model. You do not need to iterate.. or build html in your
+views.<br />
+The Callback feature, can to compute a column easily</p>
+<textarea name="code" class="php:nogutter:nocontrols" cols="100">
+class Orders extends Controller{ 
+..
+  function orders_list()
+  {
+    ...
+    $grid->use_function("callback_discount");
+    $grid->column("discount", "<callback_discount><#price#>|<#disc_percentage#></callback_discount>..");  //field pattern
+    ... 
+  }
+  ..
+  function discount($price,$disc_percentage)
+  {
+    return round($price*$disc_percentage/100, 2) . " &euro;";
+  }
+..
+}
+</textarea>
+
+
+<p>Each function you want to use must be declared by <strong>use_function</strong>
+method.<br />
+In <strong>application/config/rapyd.php</strong> you can setup an array
+of allowed functions.<br />
+"use_function" is needed for security and performance reasons.</p>
+</div>
+<!-- END CONTENT -->
+
+
+<script type="text/javascript">create_footer();</script>
+
+</body>
+</html>

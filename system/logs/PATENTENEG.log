@@ -1,0 +1,9 @@
+SELECT todo.*,date_format(fvencimiento,'%Y') ano FROM (
+SELECT a.utribu,a.fvencimiento,a.local, a.cedula, a.razon, a.dir_neg, a.observa, a.repre, a.repreced, nro, archivo, b.nombre negocio, c.nombre localizacion
+FROM (patente a)
+JOIN negocio b ON a.negocio=b.codigo
+JOIN local c ON a.local=c.codigo
+WHERE a.local  ='01'ORDER BY a.fvencimiento desc
+)todo
+GROUP BY nro
+ORDER BY negocio, LPAD(archivo, 7, '0'), razon

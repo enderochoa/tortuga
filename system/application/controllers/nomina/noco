@@ -1,0 +1,161 @@
+<?php
+//contratos
+class Noco extends Controller {
+	
+	var $qformato;
+	
+	function noco(){
+		parent::Controller();
+		$this->load->library("rapyd");
+	}
+	
+	function index(){
+		redirect($this->url."filteredgrid");
+	}
+	
+	function filteredgrid() {		
+		$this->rapyd->load("datagrid","datafilter");
+		
+		
+		$filter = new DataFilter("Filtro de noco");
+		$filter->db->select("codigo,tipo,nombre,CONCAT_WS('',observa1,observa2 ) AS observa");
+		$filter->db->from('noco');
+		
+		$filter->nombre = new inputField("Nombre", "nombre");
+		$filter->nombre->size=40;
+		
+		$filter->status = new dropdownField("Status", "tipo");  
+		$filter->status->option("S","Semanal");
+		$filter->status->option("Q","Quincenal");
+		$filter->status->option("M","Mensual");
+		$filter->status->option("O","Otro");
+		$filter->status->style='width:100px';
+		
+		$filter->buttons("reset","search");
+		$filter->build();
+    
+		$uri = anchor('nomina/noco/dataedit/show/<#codigo#>','<#codigo#>');
+    
+		$grid = new DataGrid();
+		$grid->order_by("nombre","asc");
+		$grid->per_page = 20;
+		
+		$grid->column("C&oacute;digo",$uri);
+		$grid->column("T&iacute;tulo","nombre");
+		$grid->column("Observaci&oacute;n","observa");
+		$grid->column("Tipo" ,"tipo" ,"align='center'");
+		
+		$grid->add("nomina/noco/dataedit/create");
+		$grid->build();
+		//echo $grid->db->last_query();
+		
+		$data['content'] =$filter->output.$grid->output;
+		$data["head"]    = $this->rapyd->get_head();
+		$data['title']   =' Contratos ';
+		$this->load->view('view_ventanas', $data);
+	}
+	
+	function dataedit(){
+		echo "hola";
+		
+ 		$this->rapyd->load"datadetails",'dataobject');
+ 		$modbus=array(
+			'tabla'   =>'conc',
+			'columnas'=>array(
+				'concepto' =>'Concepto',
+				'tipo'=>'tipo',
+				'descrip'=>'Descripci&oacute;n'),
+			'filtro'  =>array('descrip'=>'Descripci&oacute;n'),
+			'retornar'=>array('concepto'=>'concepto<#i#>','descrip'=>'descrip<#i#>','tipo'=>'tipo<#i#>'),
+			'titulo'  =>'Buscar Cconcepto',
+			'p_uri'=>array(4=>'<#i#>')
+			);
+ 		
+ 		
+ 		$do = new DataObject("noco");
+		$do->rel_one_to_many('itnoco', 'itnoco', array('codigo'=>'codigo'));
+		$do->rel_pointer('itnoco','conc' ,'itnoco.concepto=conc.concepto',"conc.formulap,conc.tipo tipop,conc.descrip descripp","LEFT");
+		
+		$edit = new DataDetails($this->tits, $do);
+		$edit->back_url = site_url($this->url."filteredgrid");
+		$edit->set_rel_title('itnoco','Rubro <#o#>');
+ 		
+		//$edit->post_process("insert","_guarda_detalle");
+		//$edit->post_process("update","_actualiza_detalle");
+		//$edit->post_process("delete","_borra_detalle");
+		//$edit->pre_process('delete','_pre_del');
+		
+		$edit->back_url = site_url($this->url."filteredgrid");
+		
+		$edit->codigo = new inputField("C&oacute;dig", "codigo");
+		$edit->codigo->size = 10;
+		$edit->codigo->rule= "required";
+		$edit->codigo->mode="autohide";
+		$edit->codigo->maxlength=8;
+		
+		$edit->nombre  = new inputField("Nombre", "nombre");
+		$edit->nombre->maxlength=60;
+
+		$edit->tipo = new dropdownField("Tipo", "tipo");
+		$edit->tipo->style="width:110px";
+		$edit->tipo->option("S","Semanal");
+		$edit->tipo->option("Q","Quincenal");
+		$edit->tipo->option("M","Mensual");
+		$edit->tipo->option("O","Otro");
+		
+		$edit->observa1  = new inputField("Observacione", "observa1");
+		$edit->observa1->maxlength=60;
+		
+		$edit->observa2  = new inputField("Observaci&oacute;n", "observa2");
+		$edit->observa2->maxlength=60;
+		
+		$edit->itorden = new inputField2("Orden", "orden_<#i#>");
+		$edit->itorden->size=11;
+		$edit->itorden->db_name='orden';
+		$edit->itorden->readonly=TRUE;
+		$edit->itorden->rel_id       ='itnoco';
+		
+		$edit->itcodigo = new inputField2("C&oacute;digo", "concepto_<#i#>");
+		$edit->itcodigo->size=11;
+		$edit->itcodigo->db_name='concepto';
+		$edit->itcodigo->append($this->datasis->p_modbus($modbus,'<#i#>'));
+		$edit->itcodigo->readonly=TRUE;
+		$edit->itcodigo->rel_id       ='itnoco';
+
+		$edit->itdescrip = new inputField("Descripci&oacute;n", "descripp_<#i#>");
+		$edit->itdescrip->size=45;
+		$edit->itdescrip->db_name='descripp';
+		$edit->itdescrip->pointer=true;
+		$edit->itdescrip->type='inputhidden';
+		$edit->itdescrip->->rel_id       ='itnoco';
+
+		$edit->ittipo = new inputField("Tipo", "tipop_<#i#>");
+		$edit->ittipo->size=2;
+		$edit->ittipo->db_name='tipop';
+		$edit->ittipo->pointer=true;
+		$edit->ittipo->type='inputhidden'
+		$edit->ittipo->->rel_id       ='itnoco';
+		
+		$edit->itformula = new inputField("Formula", "formulap_<#i#>");
+		$edit->itformula->size=2;
+		$edit->itformula->db_name='tipop';
+		$edit->itformula->pointer=true;
+		$edit->itformula->type='inputhidden';
+		$edit->itformula->rel_id       ='itnoco';
+
+		$edit->buttons("add_rel","modify", "save", "undo", "delete", "back");
+		$edit->build();
+		
+		//$conten["form"]  =&  $edit;
+		//$data['content'] = $this->load->view('view_noco', $conten,true);
+		$data['content'] = $edit->output;
+		$data['title']   = "Contratos Laborales";
+		$data["head"]    = $this->rapyd->get_head().script('jquery.js').script('jquery-ui.js').script("plugins/jquery.numeric.pack.js").script('plugins/jquery.meiomask.js').style('vino/jquery-ui.css');
+		$this->load->view('view_ventanas', $data);
+	}
+
+	
+	
+	
+}
+?>

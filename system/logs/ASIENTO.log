@@ -1,0 +1,13 @@
+SELECT * FROM ( SELECT '' id,'' fecha,'' numero,'' origen,'' cuenta,'' referen,'SALDO' concepto2,0 debe,0 haber,'' ccosto,'' sucursal, '' comprob,mbanc_id, DATE_SUB(20120201,INTERVAL 1 DAY) fechab, '' mbanc_fecha, 'SALDO' concepto, '' comprobante, SUM(a.debe-a.haber) saldo,'' as compdesc, '' status, '' as cpladesc 
+FROM itcasi as a 
+JOIN casi as b ON a.comprob=b.comprob 
+WHERE b.fecha >= 20130101  AND b.fecha<20140423 AND a.cuenta>='1.01.102.001' AND a.cuenta<='1.01.102.001.001' UNION ALL SELECT a.*, b.fecha fechab, d.fecha mbanc_fecha, a.concepto concepto2, a.comprob comprobante, a.debe-a.haber saldo, b.descrip as compdesc, b.status, c.denominacion as cpladesc
+FROM itcasi as a
+LEFT JOIN mbanc as d ON a.mbanc_id=d.id
+JOIN casi as b ON a.comprob=b.comprob
+LEFT JOIN cpla as c ON a.cuenta=c.codigo
+WHERE b.fecha >=20140423
+AND b.fecha <=20140423
+AND a.cuenta >= '1.01.102.001'
+AND a.cuenta <= '1.01.102.001.001'
+ORDER BY cuenta, mbanc_fecha, concepto2)todo ORDER BY cuenta, mbanc_fecha, comprob,concepto2

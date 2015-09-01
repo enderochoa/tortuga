@@ -1,0 +1,110 @@
+.little {	color: #9B9B9B; font-family: Verdana, Arial, Helvetica;	font-size: 8pt; }
+.alert { color: #DD0000; font-family: Verdana, Arial, Helvetica;	font-size: 8pt; }
+.alert p {margin:0;}
+
+.micro, .micro a { font: 9px "Trebuchet ms",Verdana,Tahoma,Arial,sans-serif; color: #bbb; font-weight: normal;}
+.normal {	color: #9B9B9B;	font-family: Verdana, Arial, Helvetica;	font-size: 9pt;}
+
+.mainbackground { }
+.pagenav {	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;	font-size: 12px;	font-weight: bold; }
+.pagenav a {	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;	font-size: 11px;	font-weight: bold; }
+.mainheader {
+	clear:both;
+	border-bottom: 1px solid #ECECEC;
+	height:22px;
+	padding:4px;
+	color: #6B5130;
+	font-family: Lucida Grande, Verdana, Geneva, Sans-serif;
+	font-size: 12px;
+	font-weight: bold;
+}
+.mainfooter {
+	clear:both;
+	border-color: #92B8CB;
+	border-top:1px solid #ECECEC;
+	height:22px;
+	padding:4px;
+	color: #6B5130;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	font-weight: bold;
+}
+.littletablerow {		color: #153D51;	border-bottom: 1px solid #ECECEC;	 font-family: Lucida Grande, Verdana, Geneva, Sans-serif;	font-size: 12px;}
+.littletablerowth { color: #153D51;	border-bottom: 1px solid #ECECEC;	 font-family: Lucida Grande, Verdana, Geneva, Sans-serif;	font-size: 12px; font-weight: bold;}
+.littletableheader {
+	background: #ffffff;
+	border-bottom: 1px solid #ECECEC;
+	color: #6B5130;
+	font-family: "Lucida Grande", Verdana, Geneva, Sans-serif;
+	font-size: 12px;
+	padding-left:5px;
+	font-style: oblique;
+	font-weight: bold;
+}
+.tableheader {
+	background: #D4D2D0;
+	border-bottom: 1px solid #cccccc;
+	color: #6B5130;
+	font-family: "Lucida Grande", Verdana, Geneva, Sans-serif;
+	font-size: 12px;
+	font-weight: bold;
+}
+.tableheader_clean {
+	background: #F1F1F1;
+	color: #6B5130;
+	font-family: "Lucida Grande", Verdana, Geneva, Sans-serif;
+	font-size: 12px;
+	font-weight: bold;
+}
+.tablerow {	border-bottom: 1px solid #D0D0D0;	color: #153D51;	font-family: Verdana, Arial, Helvetica;	font-size: 11px;	font-weight: normal;}
+tr.odd {background-color:F5F5F5;}
+tr.even {background-color:#CBDFF5;}
+td.grup {
+	background-color:#F0F0F0;
+	font-weight: bold;
+	font-size:12px;
+	color:#6B5130;
+}
+
+form { margin:0; padding: 0;} 
+.input, .select, .password, .textarea  {
+	font-family: Lucida Grande, Verdana, Geneva, Sans-serif;
+	font-size: 12px;
+	margin: 0;
+	padding: 2px;
+	border: 1px solid #D4D2D0;
+	border-left:2px solid #D4D2D0;
+	background-color: #F5F5F5;
+}
+.inputnum  {font-family: Lucida Grande, Verdana, Geneva, Sans-serif;	font-size: 12px; margin: 0;padding: 2px; border: 1px solid #92B8CB; border-left:2px solid #92B8CB; text-align: right;}
+.button {  }
+.button_red {	background-color: #FF3300;	 border: 1px solid #CC3300; color: White;	font-family: Verdana, Arial, Helvetica;	font-size: 10px; font-weight: normal;	text-decoration: none;}
+.littlebutton {
+	background-color: #BED6E0;
+	border: 1px solid #92B8CB;
+	color: #6B5130;
+	font-family: Lucida Grande, Verdana, Geneva, Sans-serif;
+	font-size: 12px;
+	text-decoration: none;
+}
+
+body.mceContentBody { background: #000; color: #fff; }
+
+#tags ul.subsection_tabs {list-style:none; margin:0; padding:0; clear:both; border-bottom:1px solid #ccc; height:20px;clear:both; }
+#tags ul.subsection_tabs li {float:left;margin-right:7px; text-align:center;}
+#tags ul.subsection_tabs li a {display:block; height:20px; padding:0 6px 0 6px; background-color:#fff; color:#666; width:80px;}
+#tags ul.subsection_tabs li a:hover { color:#666;}
+#tags ul.subsection_tabs li a.active {background-color:#ddd;}
+#tags ul.register_tabs {border-bottom:none;}
+#tags ul.register_tabs li a.active {background-color:#6d7a81; color:#fff;}
+#tags a {text-decoration:none; font-weight:bold; color:#2777a1;}
+#tags a:hover {color:#1b9de2;}
+
+
+
+.bordetabla {margin-top: 2px; border: 1px solid #7799BE; background-color: #F7F7F7;}
+.titulotabla {background-color: #C6D7EC;border: 1px solid #FFFFFF;}
+.subtitulotabla {font-family: Verdana, Arial, Helvetica;	font-size: 12px;border: 1px solid #FFFFFF;font-weight:bold}
+
+
+

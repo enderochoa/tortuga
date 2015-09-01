@@ -1,0 +1,17 @@
+#!/bin/bash
+#Script para generar el instalador
+#
+# @autor Andres Hocevar
+script="PD9waHAKJHBhdHJvbmVzPSRfU0VSVkVSWydhcmd2J107CgppZihjb3VudCgkcGF0cm9uZXMpPDIpewoJZWNobyAiRmFsdGEgZWwgbm9tYnJlIGRlbCBhcmNoaXZvXG4iOwoJcmV0dXJuIHRydWU7Cn0KCiRhcmNoPSRwYXRyb25lc1sxXTsKaWYoIWZpbGVfZXhpc3RzKCRhcmNoKSl7CgllY2hvICJBcmNoaXZvIG5vIGV4aXN0ZVxuIjsKCXJldHVybiB0cnVlOwp9CgokaGFuZGxlID0gQGZvcGVuKCRhcmNoLCAncicpOwokc2FsPScnOwppZiAoJGhhbmRsZSkgewoJJGJhbj1mYWxzZTsKCSRhYT0kYmI9MDsKCXdoaWxlICgoJGJ1ZmZlciA9IGZnZXRzKCRoYW5kbGUpKSAhPT0gZmFsc2UpIHsKCQlpZigkYmFuIHx8IHByZWdfbWF0Y2goIi9mdW5jdGlvbiBpbnN0YWxhW3JdezAsMX1cKFwpL2kiLCRidWZmZXIpKXsKCQkJJGFhKz1zdWJzdHJfY291bnQoJGJ1ZmZlciwgJ3snKTsKCQkJJGJiKz1zdWJzdHJfY291bnQoJGJ1ZmZlciwgJ30nKTsKCQkJaWYoKCRhYS0kYmIpPT0wICYmICRiYW4pIGJyZWFrOwoJCQlpZigkYmFuKSAkc2FsIC49ICRidWZmZXI7CgkJCSRiYW49dHJ1ZTsKCQl9Cgl9CglmY2xvc2UoJGhhbmRsZSk7Cn0KaWYoc3RybGVuKCRzYWwpPjApewogICAgZWNobyAiXG5cblx0XHQvLyRhcmNoIFxuIjsKICAgIGVjaG8gJHNhbDsKfQpyZXR1cm4gZmFsc2U7Cj8+Cg=="
+echo "<?php"
+echo "class Instalador extends Controller {"
+echo "	function Instalador(){"
+echo "		parent::Controller();"
+echo "	}"
+echo "	function index(){"
+for file in $(find . -name \*.php)
+do
+  echo $script | base64 -d | php -q -- $file
+done
+echo "	}"
+echo "}"

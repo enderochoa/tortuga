@@ -1,0 +1,29 @@
+body {
+	font-family: "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	font-weight: normal;
+	color: #000000;
+	text-decoration: none;
+	text-align: left;
+	background-color: #FFFFFF;
+	padding: 5px;
+}
+
+.testoArancio16{
+	font-family: "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+	font-size: 16px;
+	font-weight: bold;
+	color: #EC9403;
+	text-decoration: none;
+	text-align: left;
+}
+
+
+.testoArancio14{
+	font-family: "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	font-weight: bold;
+	color: #F3880A;
+	text-decoration: none;
+	text-align: left;  
+}

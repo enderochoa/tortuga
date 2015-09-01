@@ -1,0 +1,8 @@
+select `b`.`denominacion` AS `denopart`,`c`.`denominacion` AS `denoadm`,`d`.`descrip` AS `denofondo`,`e`.`nombre` AS `nombre`
+,a.fanulado,a.fapagado,a.decreto,a.compromiso,a.fecha,a.des,a.observa,a.cod_prov,a.numero,a.status,a.modo,a.codigoadm,a.tipo fondo,a.codigopres,a.ordinal,a.faudis,a.ftrasla,a.fapartado,a.fcomprome,a.fcausado,a.fopago,a.fpagado,a.frendi,a.apartado,a.comprometido,a.causado,a.opago,a.pagado,a.aumento,a.disminucion,a.traslados,a.asignacion,a.capartado,a.ccomprometido,a.ccausado,a.copago,a.cpagado
+
+from ((((`view_pres_s3` `a` 
+join `presupuesto` `b` on(((`a`.`codigoadm` = `b`.`codigoadm`) and (`a`.`codigopres` = `b`.`codigopres`) and (`a`.`tipo` = `b`.`tipo`)))) 
+left join `estruadm` `c` on((`b`.`codigoadm` = `c`.`codigo`))) 
+left join `fondo` `d` on((`b`.`tipo` = `d`.`fondo`))) 
+left join `sprv` `e` on((`a`.`cod_prov` = `e`.`proveed`)))

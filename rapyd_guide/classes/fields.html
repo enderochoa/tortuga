@@ -1,0 +1,579 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+
+<title>Rapyd Library Guide</title>
+
+<style type='text/css' media='all'>
+@import url('../userguide.css');
+</style>
+<link rel='stylesheet' type='text/css' media='all'
+	href='../userguide.css' />
+
+<script type="text/javascript" src="../nav/nav.js"></script>
+<script type="text/javascript" src="../nav/prototype.lite.js"></script>
+<script type="text/javascript" src="../nav/moo.fx.js"></script>
+<script type="text/javascript" src="../nav/syntax.js"></script>
+<script type="text/javascript" src="../nav/syntax_php.js"></script>
+<link type="text/css" href="../syntax.css" rel="stylesheet" />
+</head>
+<body>
+
+<!-- START NAVIGATION -->
+<script type="text/javascript">create_header('../');</script>
+<!-- END NAVIGATION -->
+
+
+<!-- START BREADCRUMB -->
+<table cellpadding="0" cellspacing="0" border="0" style="width: 100%">
+	<tr>
+		<td id="breadcrumb"><a href="http://www.rapyd.com/">Rapyd
+		Library Home</a> &nbsp;&#8250;&nbsp; <a href="../index.html">Rapyd
+		Guide</a> &nbsp;&#8250;&nbsp; Field Classes</td>
+		<td id="searchbox"><script type="text/javascript">create_search();</script>
+		</td>
+	</tr>
+</table>
+<!-- END BREADCRUMB -->
+
+<br clear="all" />
+
+
+<!-- START CONTENT -->
+<div id="content">
+
+
+<h1>Field Classes</h1>
+
+<img src="../images/fields.gif" />
+
+<p>Rapyd Fields are a set of classes that can be used in DataForm
+(and extended components DataEdit &amp; DataFilter).<br />
+Basically each class is a single items of a form.<br />
+</p>
+
+<p>//spiagare stati e azioni status</p>
+
+<p>Field list</p>
+
+<ul>
+	<li><a href="#inputField">input</a></li>
+	<li><a href="#passwordField">password</a></li>
+	<li><a href="#dropdownField">dropdown</a></li>
+	<li><a href="#textareaField">textarea</a></li>
+	<li><a href="#checkboxField">checkbox</a></li>
+	<li><a href="#dateField">datetime</a></li>
+	<li><a href="#editorField">editor</a></li>
+	<li><a href="#autoUpdateField">autoupdate</a></li>
+	<li><a href="#buttons">submit, reset &amp; button</a></li>
+	<li><a href="#uploadField">upload</a></li>
+	<li><a href="#freeField">free</a></li>
+	<li><a href="#containerField">container</a></li>
+	<li><a href="#iframeField">iframe</a></li>
+	<li><a href="#colorpickerField">colorpicker</a></li>
+	<li><a href="#htmlField">html</a></li>
+	<li><a href="#captchaField">captcha</a></li>
+	<li><a href="#radiogroupField">radio group</a></li>
+</ul>
+
+
+<h2>Fields Reference</h2>
+
+<p><dfn>$field = new xxxField($label, $fieldname);</dfn></p>
+<p>string: <kbd>$label</kbd> (can be null) is a simple label.<br />
+string: <kbd>$fieldname</kbd> is the field name (if you use the object
+to store/read from db, it must be the <strong>db</strong> field name).</p>
+
+<h5>Common Settings</h5>
+
+<table cellpadding="0" cellspacing="1" border="0" style="width: 100%"
+	class="tableborder">
+	<tr>
+		<th>Property</th>
+		<th>Default&nbsp;Value</th>
+		<th>Options</th>
+		<th>Description</th>
+	</tr>
+	<tr>
+		<td><strong>status</strong></td>
+		<td>show</td>
+		<td>show,create,modify,hidden</td>
+		<td>field status</td>
+	</tr>
+
+	<tr>
+		<td><strong>data</strong></td>
+		<td>None</td>
+		<td>a dataobject</td>
+		<td>the way to bind field with database is to assign a dataobject<br />
+		needed to retrieve field value and perform actions (insert/update)</td>
+	</tr>
+	<tr>
+		<td><strong>mode</strong></td>
+		<td>None</td>
+		<td>readonly,autohide</td>
+		<td>the "mode" change field status in different situations:<br />
+		- readonly force field status to be even "show"<br />
+		- autohide force field status to be "show" when it is "modify"</td>
+	</tr>
+	<tr>
+		<td><strong>when</strong></td>
+		<td>None</td>
+		<td>array</td>
+		<td>limit field output to the passed array of status. example: if
+		you pass array("show","create") the "modify" status will not show the
+		field</td>
+	</tr>
+	<tr>
+		<td><strong>rule</strong></td>
+		<td>None</td>
+		<td>string</td>
+		<td>CI validation rules/callback delimited by | (pipe)<br />
+		</td>
+	</tr>
+	<tr>
+		<td><strong>insertValue</strong></td>
+		<td>None</td>
+		<td>mixed</td>
+		<td>the default value, when field status is "create" (new record)</td>
+	</tr>
+	<tr>
+		<td><strong>updateValue</strong></td>
+		<td>None</td>
+		<td>mixed</td>
+		<td>the default value, when field status is "modify" (current
+		record)<br />
+		note: when field is binded to a database it override current field
+		value</td>
+	</tr>
+	<tr>
+		<td><strong>group</strong></td>
+		<td>None</td>
+		<td>string</td>
+		<td>used only in conjunction with DataForm and extended
+		components,<br />
+		the "group" is a string (the label of the group) used to group similar
+		fields</td>
+	</tr>
+	<tr>
+		<td><strong>in</strong></td>
+		<td>None</td>
+		<td>string</td>
+		<td>used only in conjunction with DataForm and extended
+		components,<br />
+		the "in" property can be used to declare the field as child of
+		another, so the output will be built <strong>in</strong>side another
+		field.<br />
+		You must pass the "instance" name</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td><strong>size</strong></td>
+		<td>45</td>
+		<td>numeric</td>
+		<td>size of a input/text based field (inputField, passwordField,
+		dateField,...)</td>
+	</tr>
+	<tr>
+		<td><strong>cols</strong></td>
+		<td>42</td>
+		<td>numeric</td>
+		<td>number of cols in a textarea based field (textareaField,
+		editorField, htmlField)</td>
+	</tr>
+	<tr>
+		<td><strong>rows</strong></td>
+		<td>15</td>
+		<td>numeric</td>
+		<td>number of rows in a textarea based field (textareaField,
+		editorField, htmlField)</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td><strong>delete_file</strong></td>
+		<td>true</td>
+		<td>boolean</td>
+		<td>applicable to "uploadField". If true the file unlink will be
+		executed.</td>
+	</tr>
+</table>
+
+<h5>Common Methods</h5>
+
+
+<p><strong>$field->append($extra_text)</strong></p>
+<p>string: <kbd>$extra_text</kbd> append and extra text to the field
+output</p>
+<br />
+
+<p><kbd>0.9.8 extended Feature:</kbd><br />
+<strong>$field->options($options,$data_conn=null)</strong></p>
+<p>mixed: <kbd>$options</kbd> populate options (of a field with
+multiple values like a dropdown) by given array or sql query.<br />
+- array sample: array($value1=>$description1, $value2=>$description2,
+..)<br />
+- query sample: "SELECT category_id, name FROM categories"<br />
+string (optional):<kbd>$data_conn</kbd> allow us to retreive data from
+an other connection group than the Rapyd default one.If you don't use
+this argument the options list is retreived from the Rapyd current
+connection group.</p>
+<p class="important"><strong>Imporant:</strong> Like in other Rapyd
+database stuff, <strong>options()</strong> method use an independent AR
+than the CI default one, but it not use the Rapyd common AR <strong>$this-&gt;rapyd-&gt;db</strong>
+. See the <strong>Data Source</strong> Concept in the <strong>General
+Concepts</strong> page to understand<strong> $data_conn</strong> argument.</p>
+<p><strong><br />
+$field->option($value,$description)</strong></p>
+<p>append a option (on a field with multiple values like a dropdown)
+<br />
+mixed: <kbd>$value</kbd> option value .<br />
+string: <kbd>$description</kbd> option description .</p>
+<br />
+
+
+
+
+<p><strong>$field->build()</strong></p>
+<p>build field, exec queries if needed, and fill <strong>$field->output</strong>
+html result</strong></p>
+
+<h5>Samples</h5>
+
+<a name="inputField"> </a>
+<h3>inputField</h3>
+<p>An simple form input.<br />
+In this sample, a dataobject is used to bind field with an article
+(id=1) from "articles" table. <br />
+</p>
+
+<textarea name="code" class="php:nogutter:nocontrols" rows="5"
+	cols="100">
+$this->rapyd->load("dataobject","fields");
+
+$do = new DataObject("articles");
+$do->load(1);
+
+$title = new inputField("Title", "title");
+$title->append("This is an extra text for the field");
+$title->data = $do; 
+$title->status = "modify"; 
+$title->build(); 
+
+$data["output"] = $title->output;
+$data["rapyd_head"] = $this->rapyd->get_head();
+</textarea>
+
+<p>It seems complex but, you will use fields in forms
+(DataForm/DataFilter/DataEdit classes). So, see fields sintax/samples
+there.<br />
+Nexts samples are provided without many of needed properties/methods
+(status,data,build..), and each field is instanced as a "form" property.
+</p>
+
+<br />
+
+<a name="passwordField"> </a>
+<h3>passwordField</h3>
+<p>An Input, where type = password, with possibility to encrypt
+data, hide value in view state, and empty value in modify state.<br />
+contributed by Nick Crossland.</p>
+
+<textarea name="code" class="php:nogutter:nocontrols" rows="10"
+	cols="100">
+$form->pass = new passwordField("Password", "pass");
+$form->pass->encrypt = false;
+$form->pass->rule = "required|min_length[5]";
+</textarea> <br />
+
+<a name="dropdownField"> </a>
+<h3>dropdownField</h3>
+<p>A Select.</p>
+
+<textarea name="code" class="php:nogutter:nocontrols" rows="10"
+	cols="100">
+$form->staticdd = new dropdownField("Public", "public");
+$form->staticdd->option("y","Si");
+$form->staticdd->option("n","No");
+$form->staticdd->rule = "required";    
+
+$form->dynamicdd = new dropdownField("Category", "category_id");
+$form->dynamicdd->option("","");
+$form->dynamicdd->options("SELECT category_id, label FROM categories ");
+$form->dynamicdd->onchange = "a_custom_javascript_function();";
+</textarea> <br />
+
+<a name="textareaField"> </a>
+<h3>textareaField</h3>
+<p>A Textarea.<br />
+</p>
+
+<textarea name="code" class="php:nogutter:nocontrols" rows="10"
+	cols="100">
+$form->textarea = new textareaField("Abstract", "abstract");
+$form->textarea->cols = 70;
+$form->textarea->rows = 4;
+$form->textarea->rule = "required";
+$form->textarea->group = "Contents";
+</textarea> <br />
+
+<a name="checkboxField"> </a>
+<h3>checkboxField</h3>
+<p>A Checkbox.<br />
+</p>
+
+<textarea name="code" class="php:nogutter:nocontrols" rows="10"
+	cols="100">
+$form->checkbox = new checkboxField("Public", "public", "y","n"); 
+$form->checkbox->insertValue = "y";
+</textarea>
+<p>extra params ("y","n") are:<br />
+mixed: <kbd>$checked_value</kbd> value assumed if field is checked
+(viceversa, the value needed into db to display it checked).<br />
+mixed: <kbd>$unchecked_value</kbd> value assumed if is field is checked.
+</p>
+
+
+<br />
+
+<a name="dateField"> </a>
+<h3>dateField</h3>
+<p>A Date-Picker DHTML calendar based on jscalendar (rapyd 3th party
+library).<br />
+</p>
+
+<textarea name="code" class="php:nogutter:nocontrols" rows="10"
+	cols="100">
+$form->datetime = new dateField("Creation date", "created","d/m/Y");
+$form->datetime->insertValue = date("Y-m-d H:i:s");
+</textarea>
+
+<p>third params is a php date format.<br />
+You can replace the default format changing the const RAPYD_DATE_FORMAT
+in <dfn>rapyd/language/{your_language}.php</dfn></p>
+<p>you can use a <strong>valid</strong> php date format, or ICU
+short date code: <pre>
+'eu' => 'd/m/Y', back compatibility (non standard ICU, and so deprecated)
+'us' => 'n/j/y', back compatibility (non standard ICU, and so deprecated)
+'en_US' => 'n/j/y',
+'en_GB' => 'd/m/Y',
+'it_IT' => 'd/m/y',
+'it_CH' => 'd.m.y',
+'fr_FR' => 'd/m/y',
+'fr_CH' => 'd.m.y',
+'fr_BE' => 'j/m/y',
+'de_DE' => 'd.m.y',
+'sk_SK' => 'j.n.Y',
+'pl_PL' => 'y-m-d',
+'hu_HU' => 'Y.m.d.',
+'sv_SE' => 'Y-m-d'
+).
+</pre></p>
+<p class="important"><strong>Important:</strong>&nbsp; insertValue
+and updateValue must be passed in iso/db format like the sample.</p>
+
+
+
+<br />
+
+<a name="editorField"> </a>
+<h3>editorField</h3>
+<p>A wysiwyg DHTML editor (like a small Word application), derived
+from TinyMCE, and TinyFCK<br />
+</p>
+
+<p><textarea name="code" class="php:nogutter:nocontrols" rows="6"
+	cols="100">
+$form->wysiwyg = new editorField("Description", "description");
+$form->wysiwyg->cols = 70;
+$form->wysiwyg->rows = 20;
+</textarea> <strong>NEW:</strong> from the 0.9.8 version, the editor field allow us
+to set the file path of the added images. <br />
+When you edit your content with the tinyMCE of the editorField you can
+link images that will be uploaded on your server, with the previous
+version of Rapyd the file path of the uploaded image was fixed to <dfn>DOCUMENT_ROOT/uploads/images/image</dfn>,
+from the 0.9.8 version the default path is <dfn>DOCUMENT_ROOT/uploads/image</dfn>
+and you can change this default path with the new editorField property
+as follow. <br />
+
+<textarea name="code" class="php:nogutter:nocontrols" rows="7"
+	cols="100">
+$form->wysiwyg = new editorField("Description", "description");
+$form->wysiwyg->cols = 70;
+$form->wysiwyg->rows = 20;
+$form->wysiwyg->upload_path = '/my_upload/some_content/';
+</textarea> In this case the uploaded image will be in <dfn>DOCUMENT_ROOT/my_upload/some_content/image</dfn>
+directory.</p>
+<p class="important"><strong>Notes:</strong> <br />
+1- The tinyMCE editor (used by the editorField) always add a subfolder
+into the path set by the property, this subfolder name depend on the
+file type; here<strong> '/image'</strong> (we can't change this
+subfolder name). So if you want to upload your images into the<strong>
+DOCUMENT_ROOT/my_upload/image</strong> you have to set the editor <strong>upload_path</strong>
+property to <strong>/my_upload/</strong>.<br />
+<br />
+2- If you update an old rapyd version with the 0.9.8 or higher, and keep
+your uploaded images in the old default path you should manually set the
+<strong>upload_path</strong> to <dfn>/uploads/images/</dfn> for that the
+next uploaded images will be put into the <dfn>DOCUMENT_ROOT/uploads/images/image</dfn>
+directory (the old default path) or to move your images into the new
+default path: <dfn>DOCUMENT_ROOT/uploads/image</dfn>.</p>
+
+<p><a name="autoUpdateField"> </a></p>
+<h3>autoUpdateField</h3>
+<p>Not properly a hidden field, it can store &amp; update passed
+values<br />
+In the sample it is used to store (widhout output) a datetime, "last
+record update"</p>
+
+<textarea name="code" class="php:nogutter:nocontrols" rows="10"
+	cols="100">
+$form->systemfield  = new autoUpdateField("modified",  null, date("Y-m-d")); 
+</textarea>
+
+<p>Note: it's a field without output and params are:<br />
+string: <kbd>$fieldname</kbd><br />
+mixed: <kbd>$insert_value</kbd><br />
+mixed: <kbd>$update_value</kbd></p>
+
+<br />
+
+<a name="buttons"> </a>
+<h3>resetField, submitField &amp; buttonField</h3>
+<p>Buttons, to exec actions.</p>
+
+<textarea name="code" class="php:nogutter:nocontrols" rows="10"
+	cols="100">
+$form->submit = new submitField("Ok", "submitbtn");
+$form->reset = new resetField("Cancel", "resetbtn");
+$form->button = new buttonField("Button", "normalbtn");
+</textarea>
+
+<p class="important"><strong>Note:</strong>&nbsp; components like
+DataEdit and DataFilter have custom way/methods to build buttons</p>
+
+<br />
+
+<a name="uploadField"> </a>
+<h3>uploadField</h3>
+<p>A Input (file type), to upload files. It is based upon CI Upload
+library.<br />
+In the sample, the "thumb" property is used to make a resized thumbnail
+(max 63x91 pixels), using CI image_lib (image manipulation class)<br />
+</p>
+
+<textarea name="code" class="php:nogutter:nocontrols" rows="10"
+	cols="100">
+$form->img  = new uploadField("Image", "image");
+$form->img->upload_path = "/uploads/images/";
+$form->img->allowed_types = "jpg|gif";
+$form->img->thumb = array (63,91);
+</textarea>
+
+<p><strong>Note:</strong>&nbsp;you can pass as parameter all
+additionals configs of CI Upload class</p>
+
+
+
+<p class="important"><strong>Important:</strong>&nbsp; This field do
+not store the file as blob field, it save file in the passed
+"upload_path" and store the filename into db</p>
+
+
+<br />
+
+<a name="freeField"> </a>
+<h3>freeField</h3>
+<p>A empty field, it can display a passed html string, basic scope
+is to enable, inside forms (DataForm/DataEdit) a custom area to display
+complex/custom fields.</p>
+
+<textarea name="code" class="php:nogutter:nocontrols" rows="10"
+	cols="100">
+$form->free = new freeField("Free Field","free","this is a custom field"); 
+</textarea> <br />
+
+<a name="containerField"> </a>
+<h3>containerField</h3>
+<p>A div, it can contain a passed html string, basic scope is to
+enable, inside forms (DataForm/DataEdit) a custom area to display
+messages, custom and static fields.. etc.</p>
+
+<textarea name="code" class="php:nogutter:nocontrols" rows="10"
+	cols="100">
+$form->container = new containerField("alert","this is an alert text, it appears when field status is 'show'");
+$form->container->when = array("show");
+</textarea> <br />
+
+<a name="iframeField"> </a>
+<h3>iframeField</h3>
+<p>An iframe, basic scope is to enable master-detail editing.</p>
+
+<textarea name="code" class="php:nogutter:nocontrols" rows="10"
+	cols="100">
+$form->iframe = new iframeField("related", "controller/method/parameter","210");
+$form->iframe->when = array("show","modify");
+$form->iframe->group = "Related Records";
+</textarea> <br />
+
+<a name="colorpickerField"> </a>
+<h3>colorpickerField</h3>
+<p>A Color-Picker DHTML, based on colorpicker (rapyd 3th party
+library).</p>
+
+<textarea name="code" class="php:nogutter:nocontrols" rows="10"
+	cols="100">
+$form->color = new colorpickerField("Color", "color"); 
+</textarea> <br />
+
+<a name="htmlField"> </a>
+<h3>htmlField</h3>
+<p>Same of Textarea but in "show" status it has a better output
+layout, and in "create/modify" status a smaller font.</p>
+
+<textarea name="code" class="php:nogutter:nocontrols" rows="10"
+	cols="100">
+$form->html = new htmlField("Codice HTML", "html");
+$form->html->cols = 70;
+$form->html->rows = 10;
+</textarea> <br />
+
+<a name="captchaField"> </a>
+<h3>captchaField</h3>
+<p>build a captcha image and a input text (prevent form submission
+by bots/scripts).<br />
+Notes: this field always add "required" and the validation is
+autochecked by rapyd.<br />
+(so you don't have to specify: $form->captcha->rules=
+"required|callback...";)</p>
+
+<textarea name="code" class="php:nogutter:nocontrols" rows="10"
+	cols="100">
+$form->captcha = new captchaField("captcha", "captcha");
+</textarea> <br />
+
+<a name="radiogroupField"> </a>
+<h3>radiogroupField</h3>
+<p>a simple group of radio inputs.<br />
+like dropdownField, options() can be used to populate values.</p>
+
+<textarea name="code" class="php:nogutter:nocontrols" rows="10"
+	cols="100">
+    $filter->isactive = new radiogroupField("active", "active", array("y"=>"active","n"=>"unverified"));
+</textarea></div>
+<!-- END CONTENT -->
+
+
+<script type="text/javascript">create_footer();</script>
+
+</body>
+</html>

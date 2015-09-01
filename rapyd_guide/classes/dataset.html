@@ -1,0 +1,208 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+
+<title>Rapyd Library Guide</title>
+
+<style type='text/css' media='all'>
+@import url('../userguide.css');
+</style>
+<link rel='stylesheet' type='text/css' media='all'
+	href='../userguide.css' />
+
+<script type="text/javascript" src="../nav/nav.js"></script>
+<script type="text/javascript" src="../nav/prototype.lite.js"></script>
+<script type="text/javascript" src="../nav/moo.fx.js"></script>
+<script type="text/javascript" src="../nav/syntax.js"></script>
+<script type="text/javascript" src="../nav/syntax_php.js"></script>
+<link type="text/css" href="../syntax.css" rel="stylesheet" />
+</head>
+<body>
+
+<!-- START NAVIGATION -->
+<script type="text/javascript">create_header('../');</script>
+<!-- END NAVIGATION -->
+
+
+<!-- START BREADCRUMB -->
+<table cellpadding="0" cellspacing="0" border="0" style="width: 100%">
+	<tr>
+		<td id="breadcrumb"><a href="http://www.rapyd.com/">Rapyd
+		Library Home</a> &nbsp;&#8250;&nbsp; <a href="../index.html">Rapyd
+		Guide</a> &nbsp;&#8250;&nbsp; DataSet Class</td>
+		<td id="searchbox"><script type="text/javascript">create_search();</script>
+		</td>
+	</tr>
+</table>
+<!-- END BREADCRUMB -->
+
+<br clear="all" />
+
+
+<!-- START CONTENT -->
+<div id="content">
+
+
+<h1>DataSet Class</h1>
+
+<p>DataSet is a "support" class for an easy pagination.<br />
+It has all pagination <dfn>$config</dfn> options "derived" from CI
+pagination class (uri_segment, per_page..).<br />
+It work with a given <a href="../general/concepts.html#data">data
+source</a>.</p>
+
+
+
+<h2>Pagination in 20 seconds</h2>
+
+<p>Pagination is a simple task, and CI has quite simple way to
+generate a <a href="../../user_guide/libraries/pagination.html"
+	target="_blank"> page-navigation</a><br />
+But, DataSet is thinked to work little bit better with URIs (by
+detecting uri_segment, base_url..) perform DB queries, get needed subset
+of results, and to implement data sorting (orderby) logic:</p>
+
+It assume this uri sequence:<br />
+<code> <strong>/controller/function/[offset]</strong><br />
+<br />
+or<br />
+<br />
+<strong>/controller/function/orderby/fieldname/orientation*/[offset]</strong>
+</code> where<br />
+<ul>
+	<li>"function" is the method where DataSet was built</li>
+	<li>[offset] is numeric (and optional)</li>
+	<li>and orientation* is "desc" or "asc".</li>
+</ul>
+
+<h3>Sample</h3>
+<textarea name="code" class="php:nogutter:nocontrols" rows="15"
+	cols="100">
+
+  $this->rapyd->load("dataset");
+
+  $dataset = new DataSet("articles");
+  $dataset->per_page = 5;
+  $dataset->build();
+
+  $data["items"] = $dataset->data;
+  $data["navigator"] = $dataset->navigator; 
+
+ </textarea>
+
+
+
+
+<h2>DataSet Reference</h2>
+
+<p><dfn>$dataset = new DataSet($datasource);</dfn></p>
+<p>mixed: <kbd>$datasource</kbd> is a source of data. See rapyd <a
+	href="../general/concepts.html#data">datasource</a> concept.</p>
+
+
+<h5>Settings</h5>
+
+<table cellpadding="0" cellspacing="1" border="0" style="width: 100%"
+	class="tableborder">
+	<tr>
+		<th>Property</th>
+		<th>Default&nbsp;Value</th>
+		<th>Options</th>
+		<th>Description</th>
+	</tr>
+	<tr>
+		<td><strong>base_url</strong></td>
+		<td>Current URL</td>
+		<td>a URL</td>
+		<td>* url of the controller function of dataset (autodetected).</td>
+	</tr>
+	<tr>
+		<td><strong>uri_segment</strong></td>
+		<td>Last segment</td>
+		<td>numeric</td>
+		<td>* offset segment in the uri (autodetected).</td>
+	</tr>
+	<tr>
+		<td><strong>per_page</strong></td>
+		<td>No Default</td>
+		<td>numeric</td>
+		<td>* number of record per page. <br />
+		</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td><strong>num_links</strong></td>
+		<td>2</td>
+		<td>numeric</td>
+		<td>The number of "digit" links you would like before and after
+		the selected page number. For example, the number 2 will place two
+		digits on either side, as in the example links at the very top of this
+		page.</td>
+	</tr>
+	<tr>
+		<td>**</td>
+		<td>**</td>
+		<td>**</td>
+		<td>**</td>
+	</tr>
+</table>
+<p>(*) from CI pagination class.</p>
+<p>(**) If you need to customize nav links you can pass as parameter
+all <a href="../../user_guide/libraries/pagination.html" target="_blank">CI
+pagination configs</a></p>
+<p class="important"><strong>Important:</strong>&nbsp; Since 0.9.6
+the <strong>base_uri</strong> an <strong>uri_segment</strong> need to
+specify/count the "osp" (offset position) so:<br />
+base_uri will be like: "controller/function/osp" and<br />
+uri_segment will be: 4 not 3.</p>
+
+
+<h5>Methods</h5>
+
+<p><strong> $dataset->build(); </strong></p>
+
+<p>Exec queries if datasource is ActiveRecord, build array of data
+and the html of navigator<br />
+It fill <strong>$dataset->data</strong> and <strong>$dataset->navigator</strong>
+</p>
+
+
+<h5>Output</h5>
+
+<table cellpadding="0" cellspacing="1" border="0" style="width: 100%"
+	class="tableborder">
+	<tr>
+		<th>Property</th>
+		<th>Type</th>
+		<th>Description</th>
+	</tr>
+	<tr>
+		<td><strong>data</strong></td>
+		<td>array (multidimensional)</td>
+		<td>subset of results for current page, you can iterate it with
+		foreach in the view file</td>
+	</tr>
+	<tr>
+		<td><strong>navigator</strong></td>
+		<td>html</td>
+		<td>navigation links, same concepts of CI pagination class</td>
+	</tr>
+</table>
+
+
+
+
+
+</div>
+<!-- END CONTENT -->
+
+
+<script type="text/javascript">create_footer();</script>
+
+</body>
+</html>

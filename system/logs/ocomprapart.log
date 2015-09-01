@@ -1,0 +1,6 @@
+
+			SELECT a.codigoadm estadmin, b.fondo,a.partida,a.ordinal,
+			sum(a.importe) as monto
+			FROM itocompra a JOIN ocompra b ON a.numero=b.numero 
+			WHERE b.numero = 'OC00000127'
+			GROUP BY a.codigoadm, a.fondo ,a.partida

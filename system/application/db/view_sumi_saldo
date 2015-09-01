@@ -1,0 +1,1 @@
+select `t`.`caub` AS `caub`,`t`.`codigo` AS `codigo`,sum(`t`.`cantidad`) AS `cantidad`,`c`.`descrip` AS `descrip`,`d`.`descrip` AS `descripalma`,`c`.`unidad` AS `unidad` from ((`view_sumi_saldo2` `t` join `sumi` `c` on((`t`.`codigo` = `c`.`codigo`))) join `su_caub` `d` on((`t`.`caub` = `d`.`codigo`))) group by `t`.`caub`,`t`.`codigo`

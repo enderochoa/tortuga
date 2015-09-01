@@ -1,0 +1,24 @@
+	#tooltip.pretty {
+	font-family: Arial;
+	font-size:8pt;
+	border: none;
+	width: 235px;
+	padding:7px;
+	height: 100px;
+	opacity: 0.9;
+	background: url('shadow.png');
+}
+
+
+
+#tooltip.fancy {
+	background: url('shadow2.png');
+	padding-top: 5em;
+	height: 100px;
+}
+#tooltip.fancy.viewport-right {
+	background: url('shadow2-reverse.png');
+}
+
+#tooltip.right { width: 235px; }
+#fancy2 { float: right; }

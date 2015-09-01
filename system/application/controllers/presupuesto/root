@@ -1,0 +1,972 @@
+<?php	
+class Common extends Controller {
+	
+	var $redirect = true;	
+
+	function common(){
+		parent::Controller();
+		$this->load->library("rapyd");
+	}
+	
+	function chequeapresup($codigoadm,$fondo,$codigopres,$ordinal='',$importe,$iva,$formula,$msj=''){
+		$this->rapyd->load('dataobject');
+
+		$error='';
+		
+		$partidaiva=$this->datasis->traevalor("PARTIDAIVA");
+		
+		$presup = new DataObject("presupuesto");
+		
+		$pk=array('codigoadm'=>$codigoadm,'tipo'=>$fondo,'codigopres'=>$partidaiva);
+		$presup->load($pk);
+	
+		$asignacion   =$presup->get("asignacion");
+		
+
+		if($asignacion>0){
+
+			$monto  = $importe;
+			if($codigopres == 'PARTIDAIVA'){
+				$codigopres = $partidaiva;
+
+			}
+		}elseif($codigopres == 'PARTIDAIVA'){
+			$monto = 0;
+
+		}else{
+
+			$monto  = $importe+($importe*$iva/100);
+		}
+		
+		//$monto = 1*$monto;
+		
+
+		
+		if($monto != 0){
+$this->load->plugin('numletra');
+			$presup = new DataObject("presupuesto");
+						
+			$pk=array('codigoadm'=>$codigoadm,'tipo'=>$fondo,'codigopres'=>$codigopres);
+
+			$presup->load($pk);
+
+			$asignacion  =$presup->get("asignacion"  );
+			$aumento     =$presup->get("aumento"     );
+			$disminucion =$presup->get("disminucion" );
+			$traslados   =$presup->get("traslados"   );
+			$comprometido=$presup->get("comprometido");
+			$causado     =$presup->get("causado"     );
+			$opago       =$presup->get("opago"       );
+			$pagado      =$presup->get("pagado"      );
+			
+			$a = $opago -$pagado;
+			
+			$presupuesto = (($asignacion+$aumento-$disminucion)+($traslados));
+			$disp    =$presupuesto-$comprometido;
+
+			$monto2 =doubleval($monto);
+			$opago2 =doubleval($opago);
+			$pagado2=doubleval($pagado);
+			
+			$a=($opago2-$pagado2);
+			
+			echo "</br>".$monto2.numletra($monto2);		
+			
+			echo "</br>".$a.numletra($a);			
+			
+			if( $monto2 != $a){
+				echo "</br>aaa";
+			}else{
+				echo "</br>bbb";
+			}
+			
+			
+			//echo $formula;
+			//$retorna='$rt='.$formula.';';
+			//
+			//ob_start();
+			//eval($retorna);
+			//$_f=ob_get_contents();
+			//@ob_end_clean();
+			//
+			////echo "---------".$rt."-------------";
+			////exit("hello world");
+			if(true)
+				$error.= "<div class='alert'><p>$msj $a</p></div>";
+			
+			if(round($comprometido,2) > round($presupuesto,2))
+				$error.="<div class='alert'><p>Error en compromiso de presupuesto para la partida $codigoadm $fondo $codigopres. Por favor contacte al administrador del sistema</p></div>";
+				
+			if(round($causado,2)  > round($presupuesto,2))
+				$error.="<div class='alert'><p>Error en causacion de presupuesto para la partida $codigoadm $fondo $codigopres. Por favor contacte al administrador del sistema</p></div>";
+				
+			if(round($opago,2)  > round($presupuesto,2))
+				$error.="<div class='alert'><p>Error en Ordenado Pago de presupuesto para la partida $codigoadm $fondo $codigopres. Por favor contacte al administrador del sistema</p></div>";
+			
+			if(round($pagado,2)  > round($presupuesto,2))
+				$error.="<div class='alert'><p>Error en pagado de presupuesto para la partida $codigoadm $fondo $codigopres. Por favor contacte al administrador del sistema</p></div>";
+				
+			if(round($causado,2)  > round($comprometido,2))
+				$error.="<div class='alert'><p>Error en Causado de presupuesto para la partida $codigoadm $fondo $codigopres. Por favor contacte al administrador del sistema</p></div>";
+				
+			if(round($opago,2)  > round($causado,2))
+				$error.="<div class='alert'><p>Error en Ordenado Pago de presupuesto para la partida $codigoadm $fondo $codigopres. Por favor contacte al administrador del sistema</p></div>";
+				
+			if(round($pagado,2)  > round($opago,2))
+				$error.="<div class='alert'><p>Error en pagado de presupuesto para la partida $codigoadm $fondo $codigopres. Por favor contacte al administrador del sistema</p></div>";
+					
+			if(!empty($ordinal)){
+				$ord       = new DataObject("ordinal");
+				$pk=array('codigoadm'=>$codigoadm,'fondo'=>$fondo,'codigopres'=>$codigopres,'ordinal'=>$ordinal);
+				
+				$ord   ->load($pk);
+
+				$ordi = $ord   ->get('ordinal');
+				
+				$asignacion  =$ord->get("asignacion"  );
+				$aumento     =$ord->get("aumento"     );
+				$disminucion =$ord->get("disminucion" );
+				$traslados   =$ord->get("traslados"   );
+				$comprometido=$ord->get("comprometido");
+				$causado     =$ord->get("causado"     );
+				$opago       =$ord->get("opago"       );
+				$pagado      =$ord->get("pagado"      );
+				
+				$presupuesto = (($asignacion+$aumento-$disminucion)+($traslados));
+				$disp    =(($asignacion+$aumento-$disminucion)+($traslados))-$comprometido;
+				
+				ob_start();
+				eval($retorna);
+				$_f=ob_get_contents();
+				@ob_end_clean();
+				
+				if($rt)
+					$error.= "<div class='alert'><p>$msj para el ordinal $ordinal</p></div>";
+								
+				if(round($comprometido,2) > round($presupuesto,2))
+					$error.="<div class='alert'><p>Error en compromiso de presupuesto para la partida $codigoadm $fondo $codigopres ordinal $ordinal. Por favor contacte al administrador del sistema</p></div>";
+					
+				if(round($causado,2)  > round($presupuesto,2))
+					$error.="<div class='alert'><p>Error en causacion de presupuesto para la partida $codigoadm $fondo $codigopres ordinal $ordinal. Por favor contacte al administrador del sistema</p></div>";
+					
+				if(round($opago,2)  > round($presupuesto,2))
+					$error.="<div class='alert'><p>Error en Ordenado Pago de presupuesto para la partida $codigoadm $fondo $codigopres ordinal $ordinal. Por favor contacte al administrador del sistema</p></div>";
+				
+				if(round($pagado,2)  > round($presupuesto,2))
+					$error.="<div class='alert'><p>Error en pagado de presupuesto para la partida $codigoadm $fondo $codigopres ordinal $ordinal. Por favor contacte al administrador del sistema</p></div>";
+					
+				if(round($causado,2)  > round($comprometido,2))
+					$error.="<div class='alert'><p>Error en Causado de presupuesto para la partida $codigoadm $fondo $codigopres ordinal $ordinal. Por favor contacte al administrador del sistema</p></div>";
+					
+				if(round($opago,2)  > round($causado,2))
+					$error.="<div class='alert'><p>Error en Ordenado Pago de presupuesto para la partida $codigoadm $fondo $codigopres ordinal $ordinal. Por favor contacte al administrador del sistema</p></div>";
+					
+				if(round($pagado,2)  > round($opago,2))
+					$error.="<div class='alert'><p>Error en pagado de presupuesto para la partida $codigoadm $fondo $codigopres ordinal $ordinal. Por favor contacte al administrador del sistema</p></div>";
+				
+			}
+		}
+		if(empty($error)){
+			return '';
+		}else{
+			return $error;
+		}
+	}
+	
+	
+	function afectapresup($codigoadm,$fondo,$codigopres,$ordinal='',$importe,$iva, $opera ,$campos){
+	echo "entro";
+		$this->rapyd->load('dataobject');
+		
+		$error='';
+		
+		$partidaiva=$this->datasis->traevalor("PARTIDAIVA");
+		
+		$pre = new DataObject("presupuesto");
+		
+		$pk=array('codigoadm'=>$codigoadm,'tipo'=>$fondo,'codigopres'=>$partidaiva);
+		
+		$pre->load($pk);
+		
+		$asignacion  = $pre->get("asignacion");
+		if($codigopres == 'PARTIDAIVA'){
+			if($asignacion > 0){
+				$monto      = $importe;
+				$codigopres = $partidaiva;
+			}else
+				$monto      = 0;
+		}else{
+			if($asignacion > 0)
+				$monto      = $importe;
+			else 
+				$monto  = $importe+($importe*$iva/100);
+		}
+	
+		if($monto!=0){
+			$presup = new DataObject("presupuesto");
+				
+			$pk=array('codigoadm'=>$codigoadm,'tipo'=>$fondo,'codigopres'=>$codigopres);
+					
+			$presup->load($pk);
+					
+			if(($codigoadm != $presup->get('codigoadm')) || ($codigopres != $presup->get('codigopres')) || ($fondo != $presup->get('tipo')))
+				$error.="<div class='alert'><p>No se puede cargar la partida $codigoadm $fondo $codigopres</p></div>";
+		
+			$lcampos = array("aumento","disminucion","traslados","comprometido","causado","opago","pagado");
+			foreach($lcampos AS $cel=>$campo){
+				if(in_array($campo,$campos))
+				$presup->set($campo,($presup->get($campo)+($monto*$opera)));
+			}			
+				
+			if(!empty($ordinal)){
+				$ban = false;
+				$ord    = new DataObject("ordinal");
+	
+				$pk=array('codigoadm'=>$codigoadm,'fondo'=>$fondo,'codigopres'=>$codigopres,'ordinal'=>$ordinal);
+				$ord ->load($pk);
+
+				$ordi  = $ord->get('ordinal');
+				if($ordi==$ordinal){
+						$lcampos = array("aumento","disminucion","traslados","comprometido","causado","opago","pagado");
+					foreach($lcampos AS $cel=>$campo){
+						if(in_array($campo,$campos))
+						$ord->set($campo,($ord->get($campo)+($monto*$opera)));
+					}
+				}
+			}
+		}
+
+		if(empty($error) && $monto!=0){
+			$presup->save();	
+			if(!empty($ordinal))
+				$ord->save();				
+			return '';
+		}else{
+			return $error;
+		}
+	}
+	
+	function sp_presucalc($codigoadm){
+		$this->db->query("CALL sp_presucalc('$codigoadm')");
+		return true;
+	}
+	
+	function co_reversar($id){
+	
+		$this->rapyd->load('dataobject');
+		
+		$do = new DataObject("ocompra");
+		$do->rel_one_to_many('itocompra', 'itocompra', array('numero'=>'numero'));
+		$do->load($id);
+		$anular = true;
+		$error  = "";
+		
+		$codigoadm   = $do->get('estadmin' );
+		$fondo       = $do->get('fondo'    );
+		$fcomprome   = $do->get('fcomprome'); 
+		
+		$sta=$do->get('status');
+		
+		if($sta == "C"){		
+			$ivan=0;
+			for($i=0;$i < $do->count_rel('itocompra');$i++){
+				$codigopres  = $do->get_rel('itocompra','partida',$i);
+				$importe     = $do->get_rel('itocompra','importe',$i);
+				$iva         = $do->get_rel('itocompra','iva'    ,$i);
+				$ordinal     = $do->get_rel('itocompra','ordinal',$i);
+				$ivan       += $importe*$iva/100;
+				
+				$error.=$this->chequeapresup($codigoadm,$fondo,$codigopres,$ordinal,$importe,$iva,'$monto > ($comprometido-$causado)',"El Monto ($importe) es mayor al disponible para descomprometer para la partida ($codigopres)");
+			}
+			$error.=$this->chequeapresup($codigoadm,$fondo,'PARTIDAIVA','',$ivan,0,'$monto > ($comprometido -$causado)',"El Monto ($ivan) es mayor al disponible  para descomprometer para la partida de IVA");
+	
+			if(empty($error)){
+				$ivan=0;
+				for($i=0;$i < $do->count_rel('itocompra');$i++){
+					$codigopres  = $do->get_rel('itocompra','partida',$i);					
+					$importe     = $do->get_rel('itocompra','importe',$i);
+					$iva         = $do->get_rel('itocompra','iva'    ,$i);
+					$ordinal     = $do->get_rel('itocompra','ordinal',$i);
+					$ivan       += $importe*$iva/100;
+					
+					$error.=$this->afectapresup($codigoadm,$fondo,$codigopres,$ordinal,$importe,$iva, -1 ,array("comprometido"));
+				}
+				
+				if(empty($error))
+					$error.=$this->afectapresup($codigoadm,$fondo,'PARTIDAIVA','',$ivan,0, -1 ,array("comprometido"));
+				
+				if(empty($error)){
+					$do->set('status','P');
+					$do->save();
+				}
+				
+				
+				//if($creanueva){
+				//	if(date('m',strtotime($fcomprome)) != date('m')){
+				//	
+				//		$ocompra        = new DataObject("ocompra");
+				//		$ocompra        = $do;
+				//		$ocompra->pk    =array('numero'=>'');
+				//		$ocompra->loaded=0;
+				//		$ocompra->set('numero' ,'' );
+				//		for($i=0;$i < $ocompra->count_rel('itocompra');$i++){
+				//			$ocompra->set_rel('itocompra','id'    ,'',$i);			
+				//			$ocompra->set_rel('itocompra','numero','',$i);			
+				//		}
+	      //
+				//		$ocompra->set('status'   ,'W' );
+				//		$ocompra->set('reverso'  ,$id);
+				//		$ocompra->set('fcomprome',date('Ymd'));
+	      //
+				//		$ocompra->save();
+				//		$anular  =false;					
+				//	}
+				//	
+				//}
+				$anular  =false;
+			}
+		}else{
+			$error.="<div class='alert'><p>No se puede realizar la operacion para esta orden de compra $id</p></div>";
+		}
+		
+		if(empty($error))
+			return '';
+		else
+			return $error;
+	}
+	
+	function ca_reversar($id,$creanueva=true){
+
+		$ord = new DataObject("ordinal");
+		
+		$do = new DataObject("ocompra");
+		$do->rel_one_to_many('itocompra', 'itocompra', array('numero'=>'numero'));
+		$do->load($id);
+
+		$codigoadm   = $do->get('estadmin');
+		$fondo       = $do->get('fondo'   );
+		$fcausado    = $do->get('fcausado');
+		$error='';
+		$sta=$do->get('status');
+		if($sta=="T"){
+			$partidaiva=$this->datasis->traevalor("PARTIDAIVA");
+			$ivan=0;
+			for($i=0;$i < $do->count_rel('itocompra');$i++){
+				$codigopres  = $do->get_rel('itocompra','partida',$i);
+				$importe     = $do->get_rel('itocompra','importe',$i);
+				$iva         = $do->get_rel('itocompra','iva'    ,$i);
+				$ordinal     = $do->get_rel('itocompra','ordinal',$i);
+				$ivan       += $importe*$iva/100;
+				
+				$error.=$this->chequeapresup($codigoadm,$fondo,$codigopres,$ordinal,$importe,$iva,'$monto > ($causado-$opago)',"El Monto ($importe) es mayor al disponible para descausar para la partida ($codigopres)");
+			}
+			
+			$error.=$this->chequeapresup($codigoadm,$fondo,'PARTIDAIVA','',$ivan,0,'$monto > ($causado-$opago)',"El Monto ($ivan) es mayor al disponible  para descausar para la partida de IVA");
+			
+			if(empty($error)){
+				$ivan=0;
+				for($i=0;$i < $do->count_rel('itocompra');$i++){
+					$codigopres  = $do->get_rel('itocompra','partida',$i);					
+					$importe     = $do->get_rel('itocompra','importe',$i);
+					$iva         = $do->get_rel('itocompra','iva'    ,$i);
+					$ordinal     = $do->get_rel('itocompra','ordinal',$i);
+					$ivan       += $importe*$iva/100;
+					
+					$error.=$this->afectapresup($codigoadm,$fondo,$codigopres,$ordinal,$importe,$iva, -1 ,array("causado"));
+				}
+				
+				if(empty($error))
+					$error.=$this->afectapresup($codigoadm,$fondo,'PARTIDAIVA','',$ivan,0, -1 ,array("causado"));
+			
+				if(empty($error)){
+					$do->set('status','C');
+					$do->save();
+				}
+			}
+			
+			if($creanueva && empty($error)){
+				if(date('m',strtotime($fcausado)) != date('m')){
+					$ocompra        = new DataObject("ocompra");
+					$ocompra        = $do;
+					$ocompra->pk    =array('numero'=>'');
+					$ocompra->loaded=0;
+					$ocompra->set('numero' ,'' );
+					for($i=0;$i < $ocompra->count_rel('itocompra');$i++){
+						$ocompra->set_rel('itocompra','id'    ,'',$i);			
+						$ocompra->set_rel('itocompra','numero','',$i);			
+					}
+
+					$ocompra->set('status'   ,'X'        );
+					$ocompra->set('reverso'  ,$id        );
+					$ocompra->set('fcausado' ,date('Ymd'));
+
+					$ocompra->save();
+				}
+			}
+		}
+		
+		if(empty($error)){
+			$this->sp_presucalc($codigoadm);
+			return '';
+		}
+		else
+			return $error;
+	}
+	
+	
+	function ca_anular($id,$redi=true){
+		$this->rapyd->load('dataobject');
+			
+		$error='';
+		
+		$do = new DataObject("ocompra");
+		$do->load($id);
+		$fcausado = $do->get('fcausado');
+		
+		if(date('m',strtotime($fcausado)) != date('m')){
+			$error.= $this->ca_reversar($id );
+			if(empty($error))
+				$error.=$this->co_reversar($id,$anular,false);
+			if(empty($error)){
+				$do->set('status','X');
+				$do->save();
+			}
+		}else{
+			$error.=$this->ca_reversar($id);
+			if(empty($error))
+				$error.=$this->co_reversar($id);
+			if(empty($error)){
+				$do->set('status','A');
+				$do->set('anulado',date('Ymd'));
+				$do->save();
+			}
+			logusu('ocompra',"Anulo Orden de Compra Nro $id");
+		}
+		
+		if(empty($error)){			
+			logusu('causacion',"Reverso Causacion Orden de Compra Nro $id");
+			redirect("presupuesto/causacion/dataedit/show/$id");
+		}else{
+			logusu('causacion',"reverso Causacion Orden de Compra Nro $id. con ERROR:$error ");
+			$data['content'] = $error.anchor("presupuesto/causacion/dataedit/show/$id",'Regresar');
+			$data['title']   = " Causar Orden de Compra ";
+			$data["head"]    = $this->rapyd->get_head().script('jquery.js').script("plugins/jquery.numeric.pack.js");
+			$this->load->view('view_ventanas', $data);
+		}		
+	}
+	
+	function op_reversar($id,$creanueva=false){
+
+		$this->rapyd->load('dataobject');
+		
+		$odirect  = new DataObject("odirect");
+		$odirect -> rel_one_to_many('pacom', 'pacom', array('numero'=>'pago'));
+		$odirect -> load($id);
+
+		$ocompra   =  new DataObject("ocompra");
+		$ocompra   -> rel_one_to_many('pacom'    , 'pacom'     ,array('numero'=>'compra'));
+		$ocompra   -> rel_one_to_many('itocompra', 'itocompra' ,array('numero'=>'numero'));
+
+		$presup = new DataObject("presupuesto");
+		$partidaiva=$this->datasis->traevalor("PARTIDAIVA");	
+
+		$error   = "";
+		
+		$fopago = $odirect->get('fopago');
+
+		$sta=$odirect->get('status');
+		if(($sta=="F2")){
+			
+			//for($i=0;$i   < $odirect->count_rel('pacom');$i++){
+			//	$compra     = $odirect->get_rel('pacom','compra'   ,$i);
+	    //
+			//	$ocompra ->load($compra);
+	    //
+			//	$status    =  $ocompra->get('status');
+			//	if($status != 'O')
+			//	$error.="<div class='alert'><p>No se pueder dehacer el pago de la orden de compra (".str_pad($compra,8,'0',STR_PAD_LEFT).") debido a que no esta ordenado el pago</p></div>";
+			//}
+		
+			if(empty($error)){
+				$p_ivaa=$p_ivag=$p_ivar=$p_reteiva=$p_reten=$p_total=$p_exento=0;
+				for($i=0;$i   < $odirect->count_rel('pacom');$i++){
+					$compra     = $odirect->get_rel('pacom','compra'   ,$i);
+					$monto      = $odirect->get_rel('pacom','monto'    ,$i);
+
+					$p_total+=$monto;
+
+					$ocompra ->load($compra);
+
+					$codigoadm      =  $ocompra->get('estadmin');
+					$fondo          =  $ocompra->get('fondo');
+					$ivaa           =  $ocompra->get('ivaa');
+					$ivag           =  $ocompra->get('ivag');
+					$ivar           =  $ocompra->get('ivar');
+					$subtotal       =  $ocompra->get('subtotal');
+					$reteiva        =  $ocompra->get('reteiva');
+					$reteiva_prov   =  $ocompra->get('reteiva_prov');
+					$reten          =  $ocompra->get('reten');
+					$creten         =  $ocompra->get('creten');
+					$exento         =  $ocompra->get('exento');
+					$ivan           =  $ivag+$ivar+$ivaa;
+					$total          =  ($subtotal - $reten)+($ivan-($reteiva));
+
+					$abonado=0;
+					//for($j=0;   $j < $ocompra -> count_rel('pacom'); $j++){
+					//	$compra      = $ocompra -> get_rel('pacom','compra'   ,$j);
+					//	$monto2      = $ocompra -> get_rel('pacom','monto'    ,$j);
+					//	$abonado    += $monto2;
+					//	//echo "M".$i.":".$monto2."----";
+					//}
+					
+					echo $a = $total-$abonado;
+					if(true ){//la orden de compra e //0 == $a
+						$p_ivaa      -=  $ivaa   ;
+						$p_ivag      -=  $ivag   ;
+						$p_ivar      -=  $ivar   ;
+						$p_reteiva   -=  $reteiva;
+						$p_reten     -=  $reten  ;
+						$p_exento    -=  $exento ;
+
+						$partidaiva=$this->datasis->traevalor("PARTIDAIVA");
+						$ivan=0;
+						for($i=0;$i    < $ocompra->count_rel('itocompra');$i++){
+							$codigopres  = $ocompra->get_rel('itocompra','partida',$i);
+							$importe     = $ocompra->get_rel('itocompra','importe',$i);
+							$iva         = $ocompra->get_rel('itocompra','iva'    ,$i);
+							$ordinal     = $ocompra->get_rel('itocompra','ordinal',$i);
+							$ivan       += $importe*$iva/100;
+							
+							$error.=$this->chequeapresup($codigoadm,$fondo,$codigopres,$ordinal,$importe,$iva,'$monto > ($opago-$pagado)',"El Monto ($importe) es mayor al disponible para deshacer ordenado pago para la partida ($codigopres)");
+						}
+						
+						$error.=$this->chequeapresup($codigoadm,$fondo,'PARTIDAIVA','',$ivan,0,'$monto > ($opago-$pagado)',"El Monto ($ivan) es mayor al disponible  para deshacer ordenado pago para la partida de IVA");
+						
+						if(empty($error)){
+							$ivan=0;
+							for($i=0;$i    < $ocompra->count_rel('itocompra');$i++){
+								$codigopres  = $ocompra->get_rel('itocompra','partida',$i);
+								$importe     = $ocompra->get_rel('itocompra','importe',$i);
+								$iva         = $ocompra->get_rel('itocompra','iva'    ,$i);
+								$ordinal     = $ocompra->get_rel('itocompra','ordinal',$i);
+								$ivan       += $importe*$iva/100;
+								
+								$error.=$this->afectapresup($codigoadm,$fondo,$codigopres,$ordinal,$importe,$iva, -1 ,array("opago"));
+							}
+							
+							if(empty($error))
+								$error.=$this->afectapresup($codigoadm,$fondo,'PARTIDAIVA','',$ivan,0, -1 ,array("opago"));
+						
+							if(empty($error)){
+								$this->db->simple_query("UPDATE ocompra SET status='T' WHERE numero=$compra");
+								//$this->ca_anular($compra,false );
+								$error.=$this->ca_reversar($compra);
+								if(empty($error))
+									$error.=$this->co_reversar($compra);
+								if(empty($error))
+									$this->db->simple_query("UPDATE ocompra SET status='A',anulado=".date('Ymd')." WHERE numero=$compra");
+							}
+						
+						//$odirect->set_rel('pacom','monto',0  ,$i);
+						$odirect->set_rel('pacom','todos','' ,$i);
+						$this->sp_presucalc($codigoadm);
+					}
+        }
+        
+        if(empty($error)){
+					$odirect->set('ivag'    , 0   );
+					$odirect->set('ivar'    , 0   );
+					$odirect->set('ivaa'    , 0   );
+					$odirect->set('reten'   , 0   );
+					$odirect->set('creten'  , 0   );
+					$odirect->set('reteiva' , 0   );
+					$odirect->set('exento'  , 0   );
+					$odirect->set('status'  , 'F1');
+	
+					$odirect->save();
+				
+        }
+        
+        if(empty($error))
+        	return '';
+        else
+        	return $error;
+				//if(date('m',strtotime($fopago)) != date('m')){
+				//
+				//	$odirect->set('status'  , 'F5');
+				//	$odirect->save();
+        //
+				//	$do        = new DataObject("odirect");
+				//	$do        = $odirect;
+				//	$do->pk    =array('numero'=>'');
+				//	$do->loaded=0;
+				//	$do->set('numero' ,'' );
+				//	for($i=0;$i < $do->count_rel('pacom');$i++){
+				//		$do->set_rel('pacom','id'    ,'',$i);			
+				//		$do->set_rel('pacom','pago'  ,'',$i);
+				//		$com = $do->get_rel('pacom','compra'  ,$i);
+				//		
+				//		$do2 = new DataObject("ocompra");
+				//		$do2->load($com);
+				//		
+				//		$this->db->simple_query("UPDATE ocompra SET status='Y' WHERE numero = $com");
+				//		
+				//		//$do2->set('status'   ,'F'    );
+				//		//$do2-save();echo "G ";
+				//		echo "H ";
+				//		$ocompra        = new DataObject("ocompra");
+				//		$ocompra        = $do2;
+				//		$ocompra->pk    =array('numero'=>'');
+				//		$ocompra->loaded=0;
+				//		$ocompra->set('numero' ,'' );
+				//		for($i=0;$i < $ocompra->count_rel('itocompra');$i++){
+				//			$ocompra->set_rel('itocompra','id'    ,'',$i);			
+				//			$ocompra->set_rel('itocompra','numero','',$i);			
+				//		}
+				//		
+				//		$ocompra->set('status'   ,'Y'    );
+				//		$ocompra->set('reverso'  ,$com   );
+				//		///$ocompra->set('fopago'   ,date('Ymd'));
+	      //  echo "I ";
+				//		$ocompra->save();echo "J ";
+				//		$com_id =$ocompra->get('numero');
+        //
+				//		$do->set_rel('pacom','compra',$com_id,$i);
+				//	}
+        //
+				//	$do->set('status'   ,'F5'       );
+				//	$do->set('reverso'  ,$id        );
+				//	$do->set('fopago'   ,date('Ymd'));
+        //      echo "K ";
+				//	$do->save();
+				//	echo "aqui ya no";
+				//}
+				}
+			}
+		}elseif($sta=="H2"){
+			
+			//for($i=0;$i   < $odirect->count_rel('pacom');$i++){
+			//	$compra     = $odirect->get_rel('pacom','compra' ,$i);
+			//	$monto      = $odirect->get_rel('pacom','monto'  ,$i);
+	    //
+			//	$ocompra ->load($compra);
+	    //
+			//	$status    =  $ocompra->get('status' );
+			//	$total     =  $ocompra->get('total'  );
+			//	$abonado   =  $ocompra->get('abonado');
+			//	if($monto > $total-$abonado)
+			//		$error.="<div class='alert'><p>El monto adeudado para la orden de Compra (".str_pad($compra,8,'0',STR_PAD_LEFT).") es menor al monto a abonar en la orden de pago</p></div>";
+      //
+			//	if($status != '')
+			//		$error.="<div class='alert'><p>No se pueder ordenar el pago de la orden de compra (".str_pad($compra,8,'0',STR_PAD_LEFT).") debido a que no esta comprometida</p></div>";
+			//}
+			
+			if(empty($error)){
+				for($i=0;$i   < $odirect->count_rel('pacom');$i++){
+					$compra     = $odirect->get_rel('pacom','compra' ,$i);
+					$monto      = $odirect->get_rel('pacom','monto'  ,$i);
+		   
+					$ocompra ->load($compra);
+					
+					$abonado   =  $ocompra->get('abonado');
+		   						
+					$this->db->simple_query("UPDATE ocompra SET abonado=abonado-$monto WHERE numero=$compra");
+					//$ocompra->set('abonado',$abonado-$monto);
+					//$ocompra->save();
+				}
+			}
+			$odirect->set('status' , 'H1' );
+			$odirect->save();
+		}else{
+			$error.="<div class='alert'><p>No se Puede Completar la operacion s</p></div>";
+		}		
+		
+		
+		if(empty($error))
+			return '';
+		else
+			return $error;
+	}
+	
+	
+	function op_anular($id,$redi=true){
+		$this->rapyd->load('dataobject');
+	
+		$do  = new DataObject("odirect");
+		$do -> load($id);
+				
+		$error=$this->op_reversar($id,true);
+	
+		if(empty($error)){
+			$do->set('status','FA');
+			$do->save();
+			logusu('opago',"Anulo Orden de Pago Nro $id");
+			if($redi)redirect("presupuesto/opago/dataedit/show/$id");
+		}else{
+			logusu('opago',"Anulo Orden de Pago (de Compra) Nro $id. con ERROR:$error ");
+			$data['content'] = $error.anchor("presupuesto/opago/dataedit/show/$id",'Regresar');
+			$data['title']   = " Orden de Pago ";
+			$data["head"]    = $this->rapyd->get_head().script('jquery.js').script("plugins/jquery.numeric.pack.js");
+			$this->load->view('view_ventanas', $data);
+		}
+	}
+	
+	function pd_reversar($id){
+		$this->rapyd->load('dataobject');
+		
+		$do = new DataObject("odirect");
+		$do->rel_one_to_many('itodirect', 'itodirect', array('numero'=>'numero'));
+		$do->load($id);
+		
+		$error      = "";
+		$codigoadm  = $do->get('estadmin');
+		$fondo      = $do->get('fondo');
+		$fopago     = $do->get('fopago');
+					
+		if(empty($error)){
+			$sta=$do->get('status');
+			if($sta=="B2"){
+				$ivan=0;
+				for($i=0;$i  < $do->count_rel('itodirect');$i++){				
+					$codigopres  = $do->get_rel('itodirect','partida',$i);
+					$iva         = $do->get_rel('itodirect','iva'    ,$i);
+					$importe     = $do->get_rel('itodirect','importe',$i);
+					$ordinal     = $do->get_rel('itodirect','ordinal',$i);
+					$ivan       += $importe*$iva/100;
+					
+					$error.=$this->chequeapresup($codigoadm,$fondo,$codigopres,$ordinal,$importe,$iva,'$monto > ($opago-$pagado)',"El Monto ($importe) es mayor al disponible para la partida ($codigoadm) ($fondo) ($codigopres)");
+				}
+				$error.=$this->chequeapresup($codigoadm,$fondo,'PARTIDAIVA','',$ivan,0,'$monto > ($opago-$pagado)',"El Monto ($ivan) es mayor al disponible para la partida de IVA");
+
+				if(empty($error)){
+					$ivan = 0;
+					for($i=0;$i  < $do->count_rel('itodirect');$i++){					
+						$codigopres  = $do->get_rel('itodirect','partida',$i);
+						$iva         = $do->get_rel('itodirect','iva'    ,$i);
+						$importe     = $do->get_rel('itodirect','importe',$i);
+						$ordinal     = $do->get_rel('itodirect','ordinal',$i);
+						$ivan       += $importe*$iva/100;
+						
+						$error.=$this->afectapresup($codigoadm,$fondo,$codigopres,$ordinal,$importe,$iva, -1 ,array("comprometido","causado","opago"));
+					}
+				}
+					
+				if(empty($error))
+				$error.=$this->afectapresup($codigoadm,$fondo,'PARTIDAIVA','',$ivan,0, -1 ,array("comprometido","causado","opago"));
+				
+				if(empty($error)){
+					if(date('m',strtotime($fopago)) != date('m')){
+						$odirect  = new DataObject("odirect");
+						$odirect  = $do;
+						$odirect->unset_pk();
+						$odirect->loaded=0;							
+						$odirect->set('status'   ,'BX'       );
+						$odirect->set('reverso'  ,$id        );
+						$odirect->set('fopago'   ,date('Ymd'));
+						$odirect->save();
+					}
+					
+				}
+			}
+
+		}
+		
+		$this->sp_presucalc($codigoadm);
+		if(empty($error))
+			return '';
+		else 
+			return $error;
+	}
+	
+	function pd_anular($id,$redi=true){
+		$this->rapyd->load('dataobject');
+
+		$odirect  = new DataObject("odirect");
+		$odirect -> load($id);
+		$fopago   = $odirect->get('fopago');
+
+		$this->redirect = false;
+		$error=$this->pd_reversar($id);
+
+		if(empty($error)){
+			if(date('m',strtotime($fopago)) != date('m')){
+				$odirect->set('status','BX');
+			}else{
+				$odirect->set('status','BA');
+			}
+			
+			$odirect->save();
+		}
+
+		if(empty($error)){
+			logusu('odirect',"Anulo Orden de Pago Directo Nro $id");
+			if($redi)redirect("presupuesto/odirect/dataedit/show/$id");
+		}else{
+			logusu('odirect',"Anulo Orden de Pago Directo Nro $id. con ERROR:$error ");
+			$data['content'] = $error.anchor("presupuesto/odirect/dataedit/show/$id",'Regresar');
+			$data['title']   = " Orden de Pgo Directo ";
+			$data["head"]    = $this->rapyd->get_head();
+			$this->load->view('view_ventanas', $data);
+		}
+	}
+	
+	function an_reversar($id){
+
+		$this->rapyd->load('dataobject');
+		$do  = new DataObject("odirect");	
+		$do->load($id);
+		
+		$error      = "";
+		
+		$status = $do->get('status');
+		if($status == "G2"){
+			$do->set('status'  ,'G1');
+			
+			$cajach = $do->get('cajach');
+			if(!empty($cajach)){
+				$total  = $do->get("total");
+	
+				$cchica = new DataObject("cajach");
+				$cchica->load($cajach);
+				$activo = $cchica->get('activo');
+				$maximo = $cchica->get('maximo');
+				$saldo  = $cchica->get('saldo' );
+				$nombre = $cchica->get('nombre');
+				
+				if($activo != 'S')
+					$error.="<div class='alert'><p>La caja chica ($cajach) $nombre esta inactivo</p></div>";
+				
+				if($total>$maximo-$saldo)
+					$error.="<div class='alert'><p>El monto del anticipo ($total) es mayor al disponible (".($saldo).") para la caja chica ($cajach) $nombre</p></div>";
+				
+				if(empty($error)){
+					$cchica->set('saldo',$saldo+$total);
+					$cchica->save();
+				}
+		}else{
+			$error.="<div class='alert'><p>No se puede Realizar la operaci&oacute;n</p></div>";
+		}
+		
+		if(empty($error)){
+			$do->save();		
+			logusu('anti',"Reverso fondo en avance Nro $id");
+			if($this->redirect)redirect("presupuesto/anti/dataedit/show/$id");
+		}else{
+			$data['content'] = $error.anchor("presupuesto/anti/dataedit/show/$id",'Regresar');
+			$data['title']   = " Fondo en Avance ";
+			$data["head"]    = $this->rapyd->get_head().script('jquery.js').script("plugins/jquery.numeric.pack.js");
+			$this->load->view('view_ventanas', $data);
+		}
+	}
+	
+	function an_anular($id,$redi=true){
+		$this->rapyd->load('dataobject');
+	
+		$odirect  = new DataObject("odirect");
+		$odirect -> load($id);
+		
+		$this->redirect = false;
+		$this->an_reversar($id);
+		
+		$odirect->set('status','GA');
+		$odirect->save();
+				
+		logusu('anti',"Anulo Fondo en Avance Nro $id");
+		if($redi)redirect("presupuesto/anti/dataedit/show/$id");		
+	}
+	
+	function po_reversar($id){
+		$this->rapyd->load('dataobject');
+	
+		$ord = new DataObject("ordinal");
+		
+		$do  = new DataObject("odirect");
+		$do->load($id);
+		$obr        = $do->get('obr');
+		$factura    = $do->get('factura'      );
+		$controlfac = $do->get('controlfac'   );
+		$fechafac   = $do->get('fechafac'     );
+		$reteiva    = $do->get('reteiva'      );
+		$ivaa       = $do->get('ivaa');
+		$ivag       = $do->get('ivag');
+		$ivar       = $do->get('ivar');
+		$iva        = $do->get('iva' );
+		$amortiza   = $do->get('amortiza' );
+		$total      = $do->get('total'    );
+		$total2     = $do->get('total2'   );		
+				
+		$obra = new DataObject("obra");		
+		$obra->load($obr);
+		$codigoadm  = $obra->get('codigoadm' );
+		$fondo      = $obra->get('fondo'     );
+		$codigopres = $obra->get('codigopres');
+		$ordinal    = $obra->get('ordinal'   );
+		
+		$error      = "";
+		
+		$presup = new DataObject("presupuesto");
+						
+		if(empty($error)){
+			$sta=$do->get('status');
+			if($sta=="O2"){
+				
+				$mont        = $total2-$amortiza;
+				
+				$error.=$this->chequeapresup($codigoadm,$fondo,$codigopres,$ordinal,$mont,0,'$monto > ($pagado-$opago)',"El Monto ($importe) es mayor al disponible para la partida ($codigoadm) ($fondo) ($codigopres)");
+				
+				if(empty($error))
+					$error.=$this->afectapresup($codigoadm,$fondo,$codigopres,$ordinal,$mont,0, -1 ,array("causado","opago"));
+
+				if(empty($error)){	
+					$existe = $this->datasis->dameval("SELECT COUNT(*) FROM odirect WHERE status = 'O2' AND obr=$obr");
+					$obra->set('pagado',$pagado+$mont);				
+					if($existe == 1){
+						$obra->set('status','O2');					
+					}
+					$obra->save();
+					
+					$do->set('status','O1');
+					$do->save();
+				}
+			}
+		}
+		
+		if(empty($error)){
+			$this->sp_presucalc($codigoadm);
+			return '';
+		}else{	
+			return $error;
+		}
+	}
+	
+	function po_anular($id,$redi=true){
+		$this->rapyd->load('dataobject');
+		
+		$error='';
+		
+		$odirect  = new DataObject("odirect");
+		$odirect -> load($id);
+		
+		$this->redirect = false;
+		$error .= $this->po_reversar($id);
+		
+		if(empty($error)){
+			$odirect->set('status','OA');
+			$odirect->save();
+			logusu('pobra',"Anulo Pago de Obra Nro $id");
+			//if($redi)
+			redirect("presupuesto/pobra/dataedit/show/$id");
+		}else{
+			logusu('pobra',"Anulo Pago de Obra Nro $id con error $error");
+			$data['content'] = $error.anchor("presupuesto/pobra/dataedit/show/$id",'Regresar');
+			$data['title']   = " $this->tits ";
+			$data["head"]    = $this->rapyd->get_head();
+			$this->load->view('view_ventanas', $data);
+		}
+				
+		
+				
+	}
+}
+}
+?>

@@ -1,0 +1,5 @@
+this is a stripped version of tinyMCE,
+widthout plugins / advanced theme / documentation / sources.
+
+If you need the full version download last version of tinyMCE at:
+http://tinymce.moxiecode.com/

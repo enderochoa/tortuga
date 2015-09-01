@@ -1,0 +1,1 @@
+<tr id='tr_detalle_<?php echo $id ?>_<#i#>'  class='odd' ><?php foreach ($row as $cell):?><?php if ($cell["type"] == "clean"):?><td <?php echo $cell["attributes"]?>><?php echo $cell["field"]?></td><?php else:?><td <?php echo $cell["attributes"]?> class='littletablerow'><?php echo $cell["field"]?>&nbsp;</td><?php endif;?><?php endforeach;?></tr>

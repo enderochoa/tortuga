@@ -1,0 +1,62 @@
+select b.numero,b.fecha,b.compra,b.cod_prov,b.subtotal,b.exento,b.ivag,b.tivag,b.mivag,b.ivar,b.tivar,b.mivar,b.ivaa,b.tivaa,b.mivaa,b.pago,b.creten,b.breten,b.reteiva,b.reten,b.total,b.total2,b.iva,b.observa,b.anulado,b.status,b.reteiva_prov,b.impmunicipal,b.crs,b.imptimbre,b.pcrs,b.pimptimbre,b.pimpmunicipal,b.retenomina,b.amortiza,b.porcent,b.anticipo,b.fpagado,b.fislr,b.fcrs,b.fmunicipal,b.ftimbre,b.mtimbre,b.mislr,b.mmuni,b.mcrs,b.cod_prov2,b.tipoc,b.otrasrete,b.fanulado,b.observacaj,b.fapagado,a.fondo,`s`.`nombre` AS `nombre`
+from (((`itodirect` `a` 
+join `odirect` `b` on((`a`.`numero` = `b`.`numero`))) 
+join `sprv` `s` on((`s`.`proveed` = if((length(`b`.`cod_prov2`) > 0),`b`.`cod_prov2`,`b`.`cod_prov`)))) 
+join `nomi` `e` on((`e`.`opago` = `b`.`numero`))) 
+where (substr(`b`.`status`,1,1) = 'K') 
+GROUP BY b.numero
+
+union all 
+
+select d.numero,d.fecha,d.compra,d.cod_prov,d.subtotal,d.exento,d.ivag,d.tivag,d.mivag,d.ivar,d.tivar,d.mivar,d.ivaa,d.tivaa,d.mivaa,d.pago,d.creten,d.breten,d.reteiva,d.reten,d.total,d.total2,d.iva,d.observa,d.anulado,d.status,d.reteiva_prov,d.impmunicipal,d.crs,d.imptimbre,d.pcrs,d.pimptimbre,d.pimpmunicipal,d.retenomina,d.amortiza,d.porcent,d.anticipo,d.fpagado,d.fislr,d.fcrs,d.fmunicipal,d.ftimbre,d.mtimbre,d.mislr,d.mmuni,d.mcrs,d.cod_prov2,d.tipoc,d.otrasrete,d.fanulado,d.observacaj,d.fapagado,a.fondo,`s`.`nombre` AS `nombre`
+from ((((`itocompra` `a` 
+join `ocompra` `b` on((`a`.`numero` = `b`.`numero`))) 
+join `pacom` `c` on((`b`.`numero` = `c`.`compra`))) 
+join `odirect` `d` on((`c`.`pago` = `d`.`numero`))) 
+join `sprv` `s` on((`s`.`proveed` = if((length(`d`.`cod_prov2`) > 0),`d`.`cod_prov2`,`d`.`cod_prov`)))) 
+where (substr(`d`.`status`,1,1) = 'F')
+GROUP BY d.numero
+
+union all 
+
+select b.numero,b.fecha,b.compra,b.cod_prov,b.subtotal,b.exento,b.ivag,b.tivag,b.mivag,b.ivar,b.tivar,b.mivar,b.ivaa,b.tivaa,b.mivaa,b.pago,b.creten,b.breten,b.reteiva,b.reten,b.total,b.total2,b.iva,b.observa,b.anulado,b.status,b.reteiva_prov,b.impmunicipal,b.crs,b.imptimbre,b.pcrs,b.pimptimbre,b.pimpmunicipal,b.retenomina,b.amortiza,b.porcent,b.anticipo,b.fpagado,b.fislr,b.fcrs,b.fmunicipal,b.ftimbre,b.mtimbre,b.mislr,b.mmuni,b.mcrs,b.cod_prov2,b.tipoc,b.otrasrete,b.fanulado,b.observacaj,b.fapagado,a.fondo,`s`.`nombre` AS `nombre`
+from ((`itodirect` `a` 
+join `odirect` `b` on((`a`.`numero` = `b`.`numero`))) 
+join `sprv` `s` on((`s`.`proveed` = if((length(`b`.`cod_prov2`) > 0),`b`.`cod_prov2`,`b`.`cod_prov`)))) 
+where (substr(`b`.`status`,1,1) = 'B') 
+GROUP BY b.numero
+
+union all 
+
+select b.numero,b.fecha,b.compra,b.cod_prov,b.subtotal,b.exento,b.ivag,b.tivag,b.mivag,b.ivar,b.tivar,b.mivar,b.ivaa,b.tivaa,b.mivaa,b.pago,b.creten,b.breten,b.reteiva,b.reten,b.total,b.total2,b.iva,b.observa,b.anulado,b.status,b.reteiva_prov,b.impmunicipal,b.crs,b.imptimbre,b.pcrs,b.pimptimbre,b.pimpmunicipal,b.retenomina,b.amortiza,b.porcent,b.anticipo,b.fpagado,b.fislr,b.fcrs,b.fmunicipal,b.ftimbre,b.mtimbre,b.mislr,b.mmuni,b.mcrs,b.cod_prov2,b.tipoc,b.otrasrete,b.fanulado,b.observacaj,b.fapagado,a.fondo,`s`.`nombre` AS `nombre`
+from ((`obra` `a` 
+join `odirect` `b` on((`a`.`numero` = `b`.`obr`))) 
+join `sprv` `s` on((`s`.`proveed` = if((length(`b`.`cod_prov2`) > 0),`b`.`cod_prov2`,`b`.`cod_prov`)))) 
+where (substr(`b`.`status`,1,1) = 'O') 
+GROUP BY b.numero
+
+union all 
+
+select b.numero,b.fecha,b.compra,b.cod_prov,b.subtotal,b.exento,b.ivag,b.tivag,b.mivag,b.ivar,b.tivar,b.mivar,b.ivaa,b.tivaa,b.mivaa,b.pago,b.creten,b.breten,b.reteiva,b.reten,b.total,b.total2,b.iva,b.observa,b.anulado,b.status,b.reteiva_prov,b.impmunicipal,b.crs,b.imptimbre,b.pcrs,b.pimptimbre,b.pimpmunicipal,b.retenomina,b.amortiza,b.porcent,b.anticipo,b.fpagado,b.fislr,b.fcrs,b.fmunicipal,b.ftimbre,b.mtimbre,b.mislr,b.mmuni,b.mcrs,b.cod_prov2,b.tipoc,b.otrasrete,b.fanulado,b.observacaj,b.fapagado,b.fondo,`s`.`nombre` AS `nombre`
+from (`odirect` `b` 
+join `sprv` `s` on((`s`.`proveed` = if((length(`b`.`cod_prov2`) > 0),`b`.`cod_prov2`,`b`.`cod_prov`)))) 
+where (substr(`b`.`status`,1,1) = 'G') 
+GROUP BY b.numero
+
+union all 
+
+select b.numero,b.fecha,b.compra,b.cod_prov,b.subtotal,b.exento,b.ivag,b.tivag,b.mivag,b.ivar,b.tivar,b.mivar,b.ivaa,b.tivaa,b.mivaa,b.pago,b.creten,b.breten,b.reteiva,b.reten,b.total,b.total2,b.iva,b.observa,b.anulado,b.status,b.reteiva_prov,b.impmunicipal,b.crs,b.imptimbre,b.pcrs,b.pimptimbre,b.pimpmunicipal,b.retenomina,b.amortiza,b.porcent,b.anticipo,b.fpagado,b.fislr,b.fcrs,b.fmunicipal,b.ftimbre,b.mtimbre,b.mislr,b.mmuni,b.mcrs,b.cod_prov2,b.tipoc,b.otrasrete,b.fanulado,b.observacaj,b.fapagado,b.fondo,`s`.`nombre` AS `nombre`
+from (`odirect` `b` 
+join `sprv` `s` on((`s`.`proveed` = if((length(`b`.`cod_prov2`) > 0),`b`.`cod_prov2`,`b`.`cod_prov`)))) 
+where (substr(`b`.`status`,1,1) = 'M') 
+GROUP BY b.numero
+
+union all 
+
+select b.numero,b.fecha,b.compra,b.cod_prov,b.subtotal,b.exento,b.ivag,b.tivag,b.mivag,b.ivar,b.tivar,b.mivar,b.ivaa,b.tivaa,b.mivaa,b.pago,b.creten,b.breten,b.reteiva,b.reten,b.total,b.total2,b.iva,b.observa,b.anulado,b.status,b.reteiva_prov,b.impmunicipal,b.crs,b.imptimbre,b.pcrs,b.pimptimbre,b.pimpmunicipal,b.retenomina,b.amortiza,b.porcent,b.anticipo,b.fpagado,b.fislr,b.fcrs,b.fmunicipal,b.ftimbre,b.mtimbre,b.mislr,b.mmuni,b.mcrs,b.cod_prov2,b.tipoc,b.otrasrete,b.fanulado,b.observacaj,b.fapagado,a.fondo,`s`.`nombre` AS `nombre`
+from (((`itodirect` `a` 
+join `ocompra` `e` on((`a`.`ocompra` = `e`.`numero`))) 
+join `odirect` `b` on((`a`.`numero` = `b`.`numero`))) 
+join `sprv` `s` on((`s`.`proveed` = if((length(`b`.`cod_prov2`) > 0),`b`.`cod_prov2`,`b`.`cod_prov`)))) 
+where (substr(`b`.`status`,1,1) = 'C')
+GROUP BY b.numero

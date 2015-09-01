@@ -1,0 +1,18 @@
+BEGIN
+
+UPDATE presupuesto SET apartado=0,comprometido =0,causado=0,opago=0,pagado=0;
+DROP TABLE IF EXISTS PRESUMEN;
+
+CREATE TABLE PRESUMEN
+SELECT codigoadm, fondo,codigopres,
+SUM(apartado) apartado,sum(comprometido) as comprometido, sum(causado) causado, sum(opago) opago, sum(pagado) pagado, sum(aumento) aumento, sum(disminucion) disminucion, sum(traslados) traslados  
+FROM view_pres a
+WHERE (apartado<>0 OR comprometido<>0 OR causado<>0 OR opago<>0 OR pagado<>0 OR aumento<>0 OR disminucion<>0 OR traslados<>0)
+GROUP BY codigoadm, fondo ,codigopres;
+
+UPDATE PRESUMEN a JOIN presupuesto b ON a.codigoadm=b.codigoadm AND a.fondo=b.tipo AND a.codigopres=b.codigopres
+SET b.apartado=a.apartado, b.comprometido=a.comprometido, b.causado=a.causado, b.opago=a.opago, b.pagado=a.pagado, b.aumento=a.aumento, b.disminucion=a.disminucion, b.traslados=a.traslados ;
+
+DROP TABLE IF EXISTS PRESUMEN;
+
+END

@@ -1,0 +1,18 @@
+select `a`.`numero` AS `desembolso`,`c`.`numero` AS `ordpago`,'' AS `ordcompra`,'' AS `multiple`,`a`.`cod_prov` AS `cod_prov`,`c`.`factura` AS `factura`,`c`.`controlfac` AS `controlfac`,`c`.`fechafac` AS `fechafac`,`c`.`total2` AS `total2`,`c`.`reteiva` AS `reteiva`,`c`.`reten` AS `reten`,`c`.`impmunicipal` AS `impmunicipal`,`c`.`imptimbre` AS `imptimbre`,`c`.`total` AS `total`,`f`.`nrocomp` AS `nrocomp`,`c`.`breten` AS `breten`,`c`.`subtotal` AS `subtotal`,trim(`c`.`creten`) AS `creten`,`p`.`rif` AS `rif`,`p`.`nombre` AS `nombre`,concat_ws(' ',`p`.`direc1`,`p`.`direc2`,`p`.`direc3`) AS `direccion`,`a`.`fdesem` AS `fdesem`,`c`.`crs` AS `crs`,`c`.`otrasrete` AS `otrasrete`,((`c`.`ivaa` + `c`.`ivag`) + `c`.`ivar`) AS `iva`,`c`.`exento` AS `exento`,c.preten ,0+f.general+f.reducida+f.adicional basei
+from ((((`desem` `a` 
+join `pades` `b` on((`a`.`numero` = `b`.`desem`))) 
+join `odirect` `c` on((`b`.`pago` = `c`.`numero`))) 
+left join `riva` `f` on(((`c`.`numero` = `f`.`odirect`) ))) 
+left join `sprv` `p` on((`a`.`cod_prov` = `p`.`proveed`))) 
+where (((`c`.`status` = 'B3') or (`c`.`status` = 'C3') or (`c`.`status` = 'N3')) and (`a`.`status` = 'D2') and (`c`.`multiple` = 'N')) 
+
+union all 
+
+select `a`.`numero` AS `desembolso`,`c`.`numero` AS `ordpago`,'' AS `ordcompra`,`g`.`id` AS `multiple`,`a`.`cod_prov` AS `cod_prov`,`g`.`factura` AS `factura`,`g`.`controlfac` AS `controlfac`,`g`.`fechafac` AS `fechafac`,`g`.`total2` AS `total2`,`g`.`reteiva` AS `reteiva`,`g`.`reten` AS `reten`,`g`.`impmunicipal` AS `impmunicipal`,`g`.`imptimbre` AS `imptimbre`,`g`.`total` AS `total`,`f`.`nrocomp` AS `nrocomp`,`g`.`breten` AS `breten`,`g`.`subtotal` AS `subtotal`,`c`.`creten` AS `creten`,`p`.`rif` AS `rif`,`p`.`nombre` AS `nombre`,concat_ws(' ',`p`.`direc1`,`p`.`direc2`,`p`.`direc3`) AS `direccion`,`a`.`fdesem` AS `fdesem`,0 AS `crs`,`g`.`otrasrete` AS `otrasrete`,((`g`.`ivaa` + `g`.`ivag`) + `g`.`ivar`) AS `iva`,`g`.`exento` AS `exento` ,c.preten ,0+f.general+f.reducida+f.adicional basei
+from (((((`desem` `a` 
+join `pades` `b` on((`a`.`numero` = `b`.`desem`))) 
+join `odirect` `c` on((`b`.`pago` = `c`.`numero`))) 
+join `itfac` `g` on((`c`.`numero` = `g`.`numero`))) 
+left join `riva` `f` on(((`g`.`id` = `f`.`itfac`) ))) 
+left join `sprv` `p` on((`a`.`cod_prov` = `p`.`proveed`))) 
+where (((`c`.`status` = 'B3') or (`c`.`status` = 'N3') or (`c`.`status` = 'C3')) and (`a`.`status` = 'D2') and (`c`.`multiple` = 'S'))

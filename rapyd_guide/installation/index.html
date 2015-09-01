@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+
+<title>Rapyd Library Guide</title>
+
+<style type='text/css' media='all'>
+@import url('../userguide.css');
+</style>
+<link rel='stylesheet' type='text/css' media='all'
+	href='../userguide.css' />
+
+<script type="text/javascript" src="../nav/nav.js"></script>
+<script type="text/javascript" src="../nav/prototype.lite.js"></script>
+<script type="text/javascript" src="../nav/moo.fx.js"></script>
+
+</head>
+<body>
+
+<!-- START NAVIGATION -->
+<script type="text/javascript">create_header('../');</script>
+<!-- END NAVIGATION -->
+
+
+<!-- START BREADCRUMB -->
+<table cellpadding="0" cellspacing="0" border="0" style="width: 100%">
+	<tr>
+		<td id="breadcrumb"><a href="http://www.rapyd.com/">Rapyd
+		Library Home</a> &nbsp;&#8250;&nbsp; <a href="../index.html">Rapyd
+		Guide</a> &nbsp;&#8250;&nbsp; Installation Instructions</td>
+		<td id="searchbox"><script type="text/javascript">create_search();</script>
+		</td>
+	</tr>
+</table>
+<!-- END BREADCRUMB -->
+
+<br clear="all" />
+
+
+<!-- START CONTENT -->
+<div id="content">
+
+<h1>Code Igniter + Rapyd Library Installation Instructions</h1>
+
+<div style="padding-left: 20px;"><img src="../images/distrib.gif"
+	width="300" height="256" /></div>
+<ol>
+	<li>Unzip the codeigniter_rapyd package.</li>
+	<li>Upload the content of main folder to your server. The
+	index.php file will be at your root.</li>
+	<li>Open the <dfn>application/config/config.php</dfn> file with a
+	text editor and set your base URL.</li>
+	<li>If you intend to use a database, open the <dfn>application/config/database.php</dfn>
+	file with a text editor and set your database settings.</li>
+	<li>In order to run Rapyd Samples controllers, you need to build
+	some tables in your database. See the index page of samples (<kbd>http://yourhost/index.php/rapyd/samples</kbd>)
+	and dump the proposed query to yuor database, then you can run all
+	samples</li>
+</ol>
+<p></p>
+
+
+<h1>Rapyd Library manual Installation Instructions in your CI 1.5.*
+Installation</h1>
+
+<ol>
+	<li>Unzip the codeigniter_rapyd package.</li>
+	<li>Copy <dfn>/application</dfn> (entire folder) to your Code
+	Igniter application folder.</li>
+	<li>In order to run Rapyd Samples controllers, you need to build
+	some tables in your database. See the index page of samples (<kbd>http://yourhost/index.php/rapyd/samples</kbd>)
+	and dump the proposed query to yuor database, then you can run all
+	samples</li>
+</ol>
+<p>Note 1: Rapyd extend some of CI libraries (using MY_Libname
+subclassing): Pagination and Validation.</p>
+<p>Note 2: Rapyd add 5 language translations to CI, trash <kbd>/application/language</kbd>
+if you don't need multilanguage support</p>
+
+
+
+
+
+
+<p>That's it!</p>
+
+
+
+
+</div>
+<!-- END CONTENT -->
+
+
+<script type="text/javascript">create_footer();</script>
+
+</body>
+</html>

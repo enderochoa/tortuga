@@ -1,0 +1,225 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+
+<title>Rapyd Library Guide</title>
+
+<style type='text/css' media='all'>
+@import url('../userguide.css');
+</style>
+<link rel='stylesheet' type='text/css' media='all'
+	href='../userguide.css' />
+
+<script type="text/javascript" src="../nav/nav.js"></script>
+<script type="text/javascript" src="../nav/prototype.lite.js"></script>
+<script type="text/javascript" src="../nav/moo.fx.js"></script>
+<script type="text/javascript" src="../nav/syntax.js"></script>
+<script type="text/javascript" src="../nav/syntax_php.js"></script>
+<link type="text/css" href="../syntax.css" rel="stylesheet" />
+</head>
+<body>
+
+<!-- START NAVIGATION -->
+<script type="text/javascript">create_header('../');</script>
+<!-- END NAVIGATION -->
+
+
+<!-- START BREADCRUMB -->
+<table cellpadding="0" cellspacing="0" border="0" style="width: 100%">
+	<tr>
+		<td id="breadcrumb"><a href="http://www.rapyd.com/">Rapyd
+		Library Home</a> &nbsp;&#8250;&nbsp; <a href="../index.html">Rapyd
+		Guide</a> &nbsp;&#8250;&nbsp; Rapyd Language Class</td>
+		<td id="searchbox"><script type="text/javascript">create_search();</script>
+		</td>
+	</tr>
+</table>
+<!-- END BREADCRUMB -->
+
+<br clear="all" />
+
+
+<!-- START CONTENT -->
+<div id="content">
+
+
+<h1>Rapyd Language Class</h1>
+
+
+<p>Rapyd Language Class enable runtime language switching.<br />
+Can be used to drive multilanguage websites.<br />
+It has also a browser-to-language detection, (optionally
+ip-to-country-to-language), and works perfectly with rapyd_uri class.</p>
+
+<p class="important"><strong>Important:</strong>&nbsp; rapyd
+language is optional, but the package has samples that need it, so it's
+enabled by default (as rapyd_auth).<br />
+If you don't need rapyd language, browser language-detection etc.. you
+need change some config vars (see below reference-settings).</p>
+
+<p>Multilanguage websites driven by ci/rapyd can have these uri:</p>
+<code> www.your-site.com/controller/function/.. (using default
+language) <br />
+www.your-site.com/<dfn>it</dfn>/controller/function.. (forcing language
+to a specific language) </code>
+
+
+
+<p class="important"><strong>Important:</strong>&nbsp; application
+language can be automatically uri-driven but you need some routes, see
+below</p>
+
+<p>Needed routes in <strong>/application/config/routes.php</strong>
+</p>
+<textarea name="code" class="php:nogutter:nocontrols" rows="15"
+	cols="100">
+
+//default routes
+$route['default_controller'] = "welcome";
+$route['scaffolding_trigger'] = "";
+
+//your custom routes here
+
+
+
+//rapyd language routes
+include_once("rapyd.php");
+$language_pregex = "(".implode("|",array_keys($rpd["languages"])).")";
+
+$route[$language_pregex] = $route['default_controller'];
+$route[$language_pregex.'/(.+)'] = "$2";
+
+unset($rpd);
+unset($language_pregex);
+
+ </textarea> <strong>/application/config/routes.php</strong>
+
+
+
+
+<h2>Reference</h2>
+
+
+<kbd>$this->rapyd->language</kbd> (by default is enabled, in the rapyd
+config).
+
+
+<h5>Settings</h5>
+
+<table cellpadding="0" cellspacing="1" border="0" style="width: 100%"
+	class="tableborder">
+	<tr>
+		<th>Property</th>
+		<th>Default&nbsp;Value</th>
+		<th>Options</th>
+		<th>Description</th>
+	</tr>
+	<tr>
+		<td><strong>rapyd_lang_ON</strong></td>
+		<td>true</td>
+		<td>boolean</td>
+		<td>if you need a multilanguage website leave it as is, otherwise
+		turn it to off</td>
+	</tr>
+	<tr>
+		<td><strong>language</strong></td>
+		<td>english</td>
+		<td>string</td>
+		<td>if rapyd_lang_ON is "False" it is used as default language
+		for rapyd components</td>
+	</tr>
+	<tr>
+		<td><strong>languages</strong></td>
+		<td><pre style="font: normal 11px 'courier new'">array(
+  'en'    => 'english',
+  'it'    => 'italian',
+  'fr'    => 'french',
+  'de'    => 'german',
+  'es'    => 'spanish',
+  );</pre></td>
+		<td>array</td>
+		<td>segment name => language idiom, segment name (since 0.9.8)
+		give you the ability to customize the first segment name of uri</td>
+	</tr>
+
+	<tr>
+		<td><strong>browser-detect</strong></td>
+		<td>true</td>
+		<td>boolean</td>
+		<td>if you need a multilanguage website with browser autodetected
+		leave it as is, otherwise turn it to off</td>
+	</tr>
+	<tr>
+		<td><strong>browser-to-language</strong></td>
+		<td><pre style="font: normal 11px 'courier new'">array(
+  'us'    => 'english',
+  'en'    => 'english',
+  'it'    => 'italian',
+  'fr'    => 'french',
+  'de'    => 'german',
+  'ru'    => 'russian',
+  'es'    => 'spanish',
+  );</pre></td>
+		<td>array</td>
+		<td>If browser-to-detect is true, this array is used to choose
+		the autodetected language (via HTTP_ACCEPT_LANGUAGE server var).
+		IMPORTANT, if your website is for example in 2 languages you need to
+		remove other items</td>
+	</tr>
+</table>
+
+
+<h5>Methods/Properties</h5>
+
+
+<strong> $this->rapyd->language->set_language($idiom); </strong>
+</p>
+<p>set the new language, and do $this->config->set_item('language',
+$idiom); (if it's a valid language)</p>
+<br />
+
+
+<p><strong> $this->rapyd->language->language </strong></p>
+<p>is current language idiom.</p>
+
+
+<h5>Helpers</h5>
+
+<p><strong>language_links($separator="&nbsp;");</strong></p>
+<p>build "flags" (html+images) with links to switch language</p>
+<br />
+
+
+<p><strong>lang( $line_key = '', $args = '' );</strong></p>
+<p>do $this->lang->line($line_key, $args); similar way of <a
+	href="http://codeigniter.com/wiki/Placeholders_substitution_in_language_strings/">this</a>
+</p>
+<br />
+<br />
+
+<p><strong>site_url_lang($uri = '');</strong></p>
+<p><strong>anchor_lang($uri = '', $title = '', $attributes
+= '');</strong></p>
+<p><strong>anchor_popup_lang($uri = '', $title = '',
+$attributes = FALSE);</strong></p>
+<p><strong>redirect_lang($uri = '', $method = 'location');</strong></p>
+<p>Are replacement for url helper, they "keep/add" language segment
+in the first position.</p>
+
+
+
+<p class="important"><strong>Important:</strong>&nbsp; See all
+possible configurations in <strong>/application/config/rapyd.php</strong><br />
+</p>
+
+
+
+
+</div>
+<!-- END CONTENT -->
+
+
+<script type="text/javascript">create_footer();</script>
+
+</body>
+</html>

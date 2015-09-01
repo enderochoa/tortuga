@@ -1,0 +1,87 @@
+/*Not found for the moment may be remaining code*/
+.little {	color: #F1AC45; font-family: "Trebuchet MS",Verdana, Arial, Helvetica;	font-size: 38pt; }
+
+
+
+/*Not found for the moment may be remaining code*/
+/*.normal {	color: #9B9B9B;	font-family: Verdana, Arial, Helvetica;	font-size: 9pt;}*/
+.normal {	color: red;	font-family: Verdana, Arial, Helvetica;	font-size: 30pt;}
+
+
+/* header and footer area including Form and grid title and button */
+/* .mainheader class is used on <td> tag*/
+.mainheader {border:2px solid red; clear:both; height:22px; padding:4px; color: #000000; font-family: Tahoma,Verdana, Geneva, Arial, Helvetica, sans-serif;	font-size: 11px;	font-weight: bold;}
+/* This class identify the body of the component it is used on a <div> tag including all the component row (in a <table>)*/
+/* It is between the mainheader and the mainfooter*/
+.mainbackground {padding:2px;background:#CBE1EF;font-family:courier new,courier,Verdana, Arial;font-size:12px}
+/* .mainheader class is used on <div> tag*/
+.mainfooter {border:2px solid blue;  clear:both;  height:22px; padding:4px; color: #000000; font-family: "Trebuchet MS",Verdana, Geneva, Arial, Helvetica, sans-serif;	font-size: 11px;	font-weight: bold;}
+
+
+/*******************************************************************************************************/
+/* All the following (in ***** frame) element definition are subelement (son) of the <div> identified  */
+/* by the .mainbackground class                                                                        */
+/*******************************************************************************************************/
+/* the both following rule allow you to identify some specific zone that haven't ID or class see the colored frame on your test output*/ 
+.mainbackground table {border:1px solid blue;width:100%}
+/*you will notice that the following rule identify different element between fgrid and form so it is unusable*/
+.mainbackground table table{border:1px solid red;}
+
+/*----GRID----*/
+/* the next both class are used only on datagrid header row (with the cols label and order by buttons)*/
+/* This class identify each <td> tag of this head row so it is the col header cell*/
+.tableheader {background:#CCBD6A;text-align:left; border-bottom: 1px solid #222;font-size: 11px;	font-weight: bold;}
+/*There is a <table> into each previous <td> (of the master <table>) used to manage the label and button position, ONLY when the col have order image link*/
+/* This class identify all the <td> tag of this sub <table> that contain col label and the button image */ 
+.tableheader_clean {border:1px solid black; text-align:left;}
+/* 2 class used only on dataset based component (grid and table)for changing row design according its a odd or even row */
+/* these class are used on <tr> tag */
+tr.odd {background-color:#fff;}
+tr.even {background-color:#EBE4C2;}
+/* These class are used only on datgrid and datatable components to manage the pagination part of the output */
+/* It is used on a <div> tag */
+.pagenav {font-weight: bold; }
+.pagenav a {font-size: 11px;	font-weight: bold; }
+
+
+
+/*----FORM----*/
+/* these class are used on <div> tag to output the validation error message of the dataform based component*/
+.alert { color: #DD0000;font-size: 8pt;padding:0 0 0 5px;font-weight: bold; }
+.alert p {margin:0;}
+/* these class are used on form group, field append text,....*/
+/* .micro is used on <span> tag for the field append text and on <td> for form group name*/ 
+.micro, .micro a { font-size: 10px; color: #9946AE; font-weight: normal;}
+/* the next class is used on <td> tag  it is used to tweak the <table> cell row of the components*/
+/* used only in dataform based component, on the fieldlabel cell*/
+.littletableheader {padding:0 4px;250px;background-color:#304681; text-align:left; border-bottom: 1px solid #304681;	color: #FFFFFF;	font-size: 8pt;	font-weight: bold;}
+
+/* this class is only used on dataform based component (data edit and datafilter)  it identify the message zone (between the form and its footer)*/
+/* that is output if you use $form->build_message_form($message) instead of $form->build_form, remember that this function output the message instead on the fields..*/
+/* this class is used on a <td> tag*/
+.tablerow {border:3px solid yellow;text-align:left;	border-bottom: 3px solid #222;	color: #153D51;font-size: 11px;	font-weight: normal;}
+
+
+
+/*----BOTH----*/
+/* the next class is used on <td> tag  it is used to tweak the <table> cell row of the components*/
+/* used in all cell of the datagrid row and on the field cell of the dataform based components */ 
+.littletablerow {width:500px;padding:0 1px;background-color:#AFD0E7;text-align:left; color: black;	border-bottom: 1px solid #304681; font-size: 8pt;}
+
+/*******************************************************************************************************/
+/*******************************************************************************************************/
+
+form { margin: 0; padding: 0; } 
+
+.input, .select, .password, .textarea  { font-family: Lucida Grande, Verdana, Geneva, Sans-serif;	font-size: 12px; margin: 0; padding: 2px; border: 1px solid #666; border-left:2px solid #666; background-color:white; color:black;}
+
+.button { background-color: #ccc; border: 1px solid #666;	color: #153D51;	font-family: "Trebuchet MS",Verdana, Arial, Helvetica; font-size: 11px; font-weight: normal;	text-decoration: none;}
+
+/*Not found for the moment may be remaining code*/
+.button_red {	background-color: #FF3300;	border: 1px solid #CC3300; color: White;	font-family: "Trebuchet MS",Verdana, Arial, Helvetica;	font-size: 30px; font-weight: normal;	text-decoration: none;}
+
+/*Not found for the moment may be remaining code*/
+.littlebutton {	background-color: #BED6E0;	border: 1px solid #92B8CB;	color: #153D51;	font-family: "Trebuchet MS",Verdana, Arial, Helvetica;	font-size: 28pt;	text-decoration: none;}
+
+/* rule for tinyMCE container*/
+body.mceContentBody { background: #000; color: #fff; }

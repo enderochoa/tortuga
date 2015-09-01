@@ -1,0 +1,211 @@
+<?php
+class recalculo extends Controller {
+
+	var $partidaiva;
+	var $url="recalculo/";
+	function recalculo(){
+		parent::Controller(); 
+		//$this->load->plugin('numletra');
+		$this->partidaiva = $this->datasis->traevalor("PARTIDAIVA");
+		$this->formatoestru=$this->datasis->traevalor('FORMATOESTRU');
+		$this->flongestru  =strlen(trim($this->formatoestru));
+	}
+
+	function index(){
+		//redirect($this->url."cero");
+		$this->cero();
+	}
+	
+	function cero(){
+		echo "</br>presupuesto cero".$this->db->query("
+		UPDATE presupuesto SET asignacion=IF(asignacion>0 OR asignacion < 0,asignacion,0),comprometido=IF(comprometido>0 OR comprometido < 0,comprometido,0),causado=IF(causado>0 OR causado < 0,causado,0),opago=IF(opago>0 OR opago < 0,opago,0),pagado=IF(pagado>0 OR pagado < 0,pagado,0),aumento=IF(aumento>0 OR aumento < 0,aumento,0),disminucion=IF(disminucion>0 OR disminucion < 0,disminucion,0),traslados=IF(traslados>0 OR traslados < 0,traslados,0)
+		
+		");
+		echo "</br>ordinal cero".$this->db->query("
+		UPDATE ordinal SET asignacion=IF(asignacion>0 OR asignacion < 0,asignacion,0),comprometido=IF(comprometido>0 OR comprometido < 0,comprometido,0),causado=IF(causado>0 OR causado < 0,causado,0),opago=IF(opago>0 OR opago < 0,opago,0),pagado=IF(pagado>0 OR pagado < 0,pagado,0),aumento=IF(aumento>0 OR aumento < 0,aumento,0),disminucion=IF(disminucion>0 OR disminucion < 0,disminucion,0),traslados=IF(traslados>0 OR traslados < 0,traslados,0)
+		");
+		
+		echo "</br>presupuesto cero".$this->db->query("
+		UPDATE presupuesto SET comprometido=0,causado=0,opago=0,pagado=0");
+		echo "</br>ordinal cero".$this->db->query("
+		UPDATE ordinal SET comprometido=0,causado=0,opago=0,pagado=0");
+		
+		$this->ocompra_so();
+	}
+
+	
+	function ocompra_so(){//actualiza presupuesto de ocompra con itocompra sin ordinal con partidaiva
+	
+		echo "</br>act presupuesto de ocompra y itocompra sin ordinales:".$this->db->query("
+			UPDATE presupuesto a JOIN (
+			SELECT a.estadmin , a.fondo , b.partida,'' ordinal,SUM((importe*((a.status='C')+(a.status='T')+(a.status='O')+(a.status='E')))) comprometido,SUM((importe*((a.status='T')+(a.status='O')+(a.status='E')))) causado,
+			SUM((importe*((a.status='O')+(a.status='E')))) opago,
+			SUM((importe*((a.status='E')))) pagado 
+			FROM ocompra a 
+			JOIN itocompra b ON a.numero=b.numero 
+			WHERE b.ordinal=''
+			) b ON a.codigoadm= b.estadmin AND a.tipo = b.fondo AND a.codigopres = b.partida SET a.comprometido=b.comprometido , a.causado=b.causado , a.opago=b.opago, a.pagado=b.pagado
+		");
+		
+		$query = $this->db->query("SELECT codigoadm FROM presupuesto WHERE LENGTH(codigoadm)=$this->flongestru GROUP BY codigoadm");
+		foreach($query->result() AS $fila ){
+			$query2 = $this->db->query("SELECT tipo FROM presupuesto WHERE codigoadm ='$fila->codigoadm' GROUP BY tipo");
+			foreach($query2->result() AS $fila2 ){		
+				$asignacion = $this->datasis->dameval("SELECT asignacion FROM presupuesto WHERE codigoadm='$fila->codigoadm' AND tipo='$fila2->tipo' AND codigopres ='$this->partidaiva' ");
+				if($asignacion > 0){
+					$row = $this->datasis->damerow("
+							SELECT a.estadmin , a.fondo , b.partida,'' ordinal,
+							SUM(((a.ivaa+a.ivag+a.ivar)*((a.status='C')+(a.status='T')+(a.status='O')+(a.status='E')))) comprometido,
+							SUM(((a.ivaa+a.ivag+a.ivar)*((a.status='T')+(a.status='O')+(a.status='E')))) causado,
+							SUM(((a.ivaa+a.ivag+a.ivar-a.reteiva)*((a.status='O')+(a.status='E')))) opago,
+							SUM(((a.ivaa+a.ivag+a.ivar-a.reteiva)*((a.status='E')))) pagado 
+							FROM ocompra a 
+							JOIN itocompra b ON a.numero=b.numero
+							WHERE b.ordinal='' AND a.estadmin = '$fila->codigoadm' AND a.fondo = '$fila2->tipo' GROUP BY a.estadmin,a.fondo 
+					");
+					echo "</br>act presupuesto de ocompra y itocompra sin ordinales partidaiva:".$this->db->query("
+						UPDATE presupuesto a SET a.comprometido=".$row['comprometido']." , a.causado=".$row['causado']." , a.opago=".$row['opago'].", a.pagado=".$row['pagado']."
+						WHERE codigoadm='$fila->codigoadm'  AND a.tipo ='$fila2->tipo'  AND a.codigopres = '$this->partidaiva'
+					");
+				}
+			}
+		}
+		$this->ocompra_co();
+	}
+	
+	function ocompra_co(){//actualiza presupuesto de ocompra con itocompra sin ordinal con partidaiva
+	
+		echo "</br>act ordinal de ocompra y itocompra con ordinales:".$this->db->query("
+			UPDATE ordinal a JOIN(
+			SELECT a.estadmin , a.fondo , b.partida,ordinal,SUM((importe*((a.status='C')+(a.status='T')+(a.status='O')+(a.status='E')))) comprometido,SUM((importe*((a.status='T')+(a.status='O')+(a.status='E')))) causado,
+			SUM((importe*((a.status='O')+(a.status='E')))) opago,
+			SUM((importe*((a.status='E')))) pagado 
+			FROM ocompra a JOIN itocompra b ON a.numero=b.numero WHERE  b.ordinal<>'' 
+			) b ON a.codigoadm= b.estadmin AND a.fondo = b.fondo AND a.codigopres = b.partida AND a.ordinal = b.ordinal 
+			SET a.comprometido=b.comprometido , a.causado=b.causado , a.opago=b.opago, a.pagado=b.pagado
+		");
+		
+		$query = $this->db->query("SELECT codigoadm FROM presupuesto WHERE LENGTH(codigoadm)=$this->flongestru GROUP BY codigoadm");
+		foreach($query->result() AS $fila ){
+			$query2 = $this->db->query("SELECT tipo FROM presupuesto WHERE codigoadm ='$fila->codigoadm' GROUP BY tipo");
+			foreach($query2->result() AS $fila2 ){		
+				$asignacion = $this->datasis->dameval("SELECT asignacion FROM presupuesto WHERE codigoadm='$fila->codigoadm' AND tipo='$fila2->tipo' AND codigopres ='$this->partidaiva' ");
+				if($asignacion > 0){
+					$row = $this->datasis->damerow("
+							SELECT a.estadmin , a.fondo , '','' ordinal,
+							SUM(((a.ivaa+a.ivag+a.ivar)*((a.status='C')+(a.status='T')+(a.status='O')+(a.status='E')))) comprometido,
+							SUM(((a.ivaa+a.ivag+a.ivar)*((a.status='T')+(a.status='O')+(a.status='E')))) causado,
+							SUM(((a.ivaa+a.ivag+a.ivar-a.reteiva)*((a.status='O')+(a.status='E')))) opago,
+							SUM(((a.ivaa+a.ivag+a.ivar-a.reteiva)*((a.status='E')))) pagado 
+							FROM ocompra a 							
+							WHERE a.estadmin = '$fila->codigoadm' AND a.fondo = '$fila2->tipo' GROUP BY a.estadmin,a.fondo 
+					");
+					echo "</br>act presupuesto de ocompra y itocompra con ordinales partidaiva:".$this->db->query("
+						UPDATE presupuesto a SET a.comprometido=".$row['comprometido']." , a.causado=".$row['causado']." , a.opago=".$row['opago'].", a.pagado=".$row['pagado']."
+						WHERE codigoadm='$fila->codigoadm'  AND a.tipo ='$fila2->tipo'  AND a.codigopres = '$this->partidaiva'
+					");
+				}
+			}
+		}
+		$this->odirect_so();
+	}
+	
+	function odirect_so(){//actualiza presupuesto de ocompra con itocompra sin ordinal con partidaiva
+	
+		echo "</br>act presupuesto de odirect y itodirect sin ordinales:".$this->db->query("
+			UPDATE presupuesto a JOIN (
+			SELECT a.estadmin , a.fondo , b.partida,'',  SUM((importe*((a.status='B2')+(a.status='B3')))) comprometido, SUM((importe*((a.status='B2')+(a.status='B3')))) causado, SUM((importe*((a.status='B2')+(a.status='B3')))) opago,SUM((importe*((a.status='B3')))) pagado 
+			FROM odirect a 
+			JOIN itodirect b ON a.numero=b.numero 
+			WHERE (a.status = 'B2' OR a.status = 'B3') AND b.ordinal=''  GROUP BY a.estadmin , a.fondo , b.partida
+			) b ON a.codigoadm= b.estadmin AND a.tipo = b.fondo AND a.codigopres = b.partida 
+			SET a.comprometido=a.comprometido+b.comprometido , a.causado=a.causado+b.causado , a.opago=a.opago+b.opago, a.pagado=a.pagado+b.pagado
+		");
+		
+		//$query = $this->db->query("SELECT codigoadm FROM presupuesto WHERE LENGTH(codigoadm)=$this->flongestru GROUP BY codigoadm");
+		//foreach($query->result() AS $fila ){
+		//	$query2 = $this->db->query("SELECT tipo FROM presupuesto WHERE codigoadm ='$fila->codigoadm' GROUP BY tipo");
+		//	foreach($query2->result() AS $fila2 ){		
+		//		$asignacion = $this->datasis->dameval("SELECT asignacion FROM presupuesto WHERE codigoadm='$fila->codigoadm' AND tipo='$fila2->tipo' AND codigopres ='$this->partidaiva' ");
+		//		if($asignacion > 0){
+		//			$row = $this->datasis->damerow("
+		//					SELECT a.estadmin , a.fondo , b.partida,'' ordinal,
+		//					SUM(((a.ivaa+a.ivag+a.ivar)*((a.status='B2')+(a.status='B3')))) comprometido,
+		//					SUM(((a.ivaa+a.ivag+a.ivar)*((a.status='B2')+(a.status='B3')))) causado,
+		//					SUM(((a.ivaa+a.ivag+a.ivar-a.reteiva)*((a.status='B2')+(a.status='B3')))) opago,
+		//					SUM(((a.ivaa+a.ivag+a.ivar-a.reteiva)*((a.status='B3')))) pagado 
+		//					FROM odirect a 
+		//					JOIN itodirect b ON a.numero=b.numero
+		//					WHERE b.ordinal='' AND a.estadmin = '$fila->codigoadm' AND a.fondo = '$fila2->tipo' GROUP BY a.estadmin,a.fondo 
+		//			");
+		//			echo "</br>act presupuesto de ocompra y itocompra sin ordinales partidaiva:".$this->db->query("
+		//				UPDATE presupuesto a SET a.comprometido=a.comprometido+".$row['comprometido']." , a.causado=a.causado+".$row['causado']." , a.opago=a.opago+".$row['opago'].", a.pagado=a.pagado+".$row['pagado']."
+		//				WHERE codigoadm='$fila->codigoadm'  AND a.tipo ='$fila2->tipo'  AND a.codigopres = '$this->partidaiva'
+		//			");
+		//		}
+		//	}
+		//}
+		$this->odirect_co();
+	}
+	
+	function odirect_co(){//actualiza presupuesto de ocompra con itocompra sin ordinal con partidaiva
+	
+		echo "</br>act presupuesto de odirect y itodirect con ordinales:".$this->db->query("
+			UPDATE ordinal a JOIN (
+			SELECT a.estadmin , a.fondo , b.partida,'',  SUM((importe*((a.status='B2')+(a.status='B3')))) comprometido, SUM((importe*((a.status='B2')+(a.status='B3')))) causado, SUM((importe*((a.status='B2')+(a.status='B3')))) opago,SUM((importe*((a.status='B3')))) pagado 
+			FROM odirect a 
+			JOIN itodirect b ON a.numero=b.numero 
+			WHERE (a.status = 'B2' OR a.status = 'B3') AND b.ordinal<>'' GROUP BY a.estadmin , a.fondo , b.partida, b.ordinal
+			) b ON a.codigoadm= b.estadmin AND a.fondo = b.fondo AND a.codigopres = b.partida 
+			SET a.comprometido=a.comprometido+b.comprometido , a.causado=a.causado+b.causado , a.opago=a.opago+b.opago, a.pagado=a.pagado+b.pagado
+		");
+	
+		$query = $this->db->query("SELECT codigoadm FROM presupuesto WHERE LENGTH(codigoadm)=$this->flongestru GROUP BY codigoadm");
+		foreach($query->result() AS $fila ){
+			$query2 = $this->db->query("SELECT tipo FROM presupuesto WHERE codigoadm ='$fila->codigoadm' GROUP BY tipo");
+			foreach($query2->result() AS $fila2 ){		
+				$asignacion = $this->datasis->dameval("SELECT asignacion FROM presupuesto WHERE codigoadm='$fila->codigoadm' AND tipo='$fila2->tipo' AND codigopres ='$this->partidaiva' ");
+				if($asignacion > 0){
+					$row = $this->datasis->damerow("
+							SELECT a.estadmin , a.fondo , '','' ordinal,
+							SUM(((a.ivaa+a.ivag+a.ivar)*((a.status='B2')+(a.status='B3')))) comprometido,
+							SUM(((a.ivaa+a.ivag+a.ivar)*((a.status='B2')+(a.status='B3')))) causado,
+							SUM(((a.ivaa+a.ivag+a.ivar-a.reteiva)*((a.status='B2')+(a.status='B3')))) opago,
+							SUM(((a.ivaa+a.ivag+a.ivar-a.reteiva)*((a.status='B3')))) pagado 
+							FROM odirect a 
+							
+							WHERE a.estadmin = '$fila->codigoadm' AND a.fondo = '$fila2->tipo' GROUP BY a.estadmin,a.fondo 
+					");
+					echo "</br>act presupuesto de ocompra y itocompra sin ordinales partidaiva:".$this->db->query("
+						UPDATE presupuesto a SET a.comprometido=a.comprometido+".$row['comprometido']." , a.causado=a.causado+".$row['causado']." , a.opago=a.opago+".$row['opago'].", a.pagado=a.pagado+".$row['pagado']."
+						WHERE codigoadm='$fila->codigoadm'  AND a.tipo ='$fila2->tipo'  AND a.codigopres = '$this->partidaiva'
+					");
+				}
+			}
+		}
+		$this->calc();
+	}
+	
+
+	
+	function calc(){
+		$query = $this->db->query("SELECT codigoadm FROM presupuesto WHERE LENGTH(codigoadm)=$this->flongestru GROUP BY codigoadm");
+		foreach($query->result() AS $fila ){
+			$ban = $this->db->query("CALL sp_presucalc('$fila->codigoadm')");
+			if($ban)echo "true";else echo "false";
+		}
+	}
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+

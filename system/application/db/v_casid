@@ -1,0 +1,1 @@
+select `b`.`comprob` AS `comprob`,`b`.`tipo` AS `tipo`,`b`.`fecha` AS `fecha`,`b`.`status` AS `status`,`a`.`cuenta` AS `cuenta`,`c`.`denominacion` AS `denominacion`,(`a`.`debe` - `a`.`haber`) AS `monto`,`a`.`debe` AS `debe`,`a`.`haber` AS `haber` from ((`casi` `b` join `itcasi` `a` on((`a`.`comprob` = `b`.`comprob`))) left join `cpla` `c` on((`a`.`cuenta` = `c`.`codigo`)))

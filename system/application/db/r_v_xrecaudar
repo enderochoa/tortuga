@@ -1,0 +1,23 @@
+select `b`.`id` AS `id`,`b`.`ano` AS `ano`,`b`.`acronimo` AS `acronimo`,`b`.`denomi` AS `denomi`,`b`.`requiere` AS `requiere`,`a`.`id` AS `id_inmueble`,`a`.`catastro` AS `catastro`,NULL AS `id_vehiculo`,NULL AS `placa`,`a`.`id_contribu` AS `id_contribu`,`d`.`direccion` AS `observa`,`b`.`formula` AS `formula` 
+from (((`r_inmueble` `a` 
+join `r_v_inmueble` `d` on((`a`.`id` = `d`.`id`))) 
+join `r_concit` `b` on((1 = 1))) 
+left join `r_reciboit` `c` on(((`b`.`id` = `c`.`id_concit`) and (`a`.`id` = `c`.`id_inmueble`)))) 
+where ((`b`.`requiere` = 'INMUEBLE') and (`b`.`ano` > 0) and isnull(`c`.`id`)) 
+
+union all 
+
+select `b`.`id` AS `id`,`b`.`ano` AS `ano`,`b`.`acronimo` AS `acronimo`,`b`.`denomi` AS `denomi`,`b`.`requiere` AS `requiere`,NULL AS `id_inmueble`,NULL AS `catastro`,`a`.`id` AS `id_vehiculo`,`a`.`placa` AS `placa`,`a`.`id_contribu` AS `id_contribu`,'' AS `observa`,`b`.`formula` AS `formula` 
+from ((`r_vehiculo` `a` 
+join `r_concit` `b` on((1 = 1))) 
+left join `r_reciboit` `c` on(((`b`.`id` = `c`.`id_concit`) and (`a`.`id` = `c`.`id_vehiculo`)))) 
+where ((`b`.`requiere` = 'VEHICULO') and (`b`.`ano` > 0) and isnull(`c`.`id`)) AND b.ano >= a.ano
+
+union all 
+
+select `b`.`id` AS `id`,`b`.`ano` AS `ano`,`b`.`acronimo` AS `acronimo`,`b`.`denomi` AS `denomi`,`b`.`requiere` AS `requiere`,NULL AS `id_inmueble`,NULL AS `catastro`,NULL AS `id_vehiculo`,NULL AS `placa`,`a`.`id` AS `id_contribu`,'' AS `observa`,`b`.`formula` AS `formula` 
+from (((`r_contribu` `a` 
+join `r_concit` `b` on((1 = 1))) 
+left join `r_reciboit` `c` on((`b`.`id` = `c`.`id_concit`))) 
+left join `r_recibo` `d` on(((`c`.`id_recibo` = `d`.`id`) and (`a`.`id` = `d`.`id_contribu`)))) 
+where ((length(`b`.`requiere`) = 0) and (`b`.`ano` > 0) and isnull(`d`.`id`))

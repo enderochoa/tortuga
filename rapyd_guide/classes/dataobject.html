@@ -1,0 +1,273 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+
+<title>Rapyd Library Guide</title>
+
+<style type='text/css' media='all'>
+@import url('../userguide.css');
+</style>
+<link rel='stylesheet' type='text/css' media='all'
+	href='../userguide.css' />
+
+<script type="text/javascript" src="../nav/nav.js"></script>
+<script type="text/javascript" src="../nav/prototype.lite.js"></script>
+<script type="text/javascript" src="../nav/moo.fx.js"></script>
+<script type="text/javascript" src="../nav/syntax.js"></script>
+<script type="text/javascript" src="../nav/syntax_php.js"></script>
+<link type="text/css" href="../syntax.css" rel="stylesheet" />
+</head>
+<body>
+
+<!-- START NAVIGATION -->
+<script type="text/javascript">create_header('../');</script>
+<!-- END NAVIGATION -->
+
+
+<!-- START BREADCRUMB -->
+<table cellpadding="0" cellspacing="0" border="0" style="width: 100%">
+	<tr>
+		<td id="breadcrumb"><a href="http://www.rapyd.com/">Rapyd
+		Library Home</a> &nbsp;&#8250;&nbsp; <a href="../index.html">Rapyd
+		Guide</a> &nbsp;&#8250;&nbsp; DataObject Class</td>
+		<td id="searchbox"><script type="text/javascript">create_search();</script>
+		</td>
+	</tr>
+</table>
+<!-- END BREADCRUMB -->
+
+<br clear="all" />
+
+
+<!-- START CONTENT -->
+<div id="content">
+
+
+<h1>DataObject Class</h1>
+
+<p>DataObject is an implementation of the Active Record pattern
+(classic.. work with "one" record, it has load, get, set and save
+methods) based on CI Active Record class.<br />
+DataObject can be used stand alone.. but it is the dbo class for others
+editing components (<a href="dataform.html">DataForm</a>, <a
+	href="dataedit.html">DataEdit</a>).</p>
+
+
+
+<h3>Sample</h3>
+<textarea name="code" class="php:nogutter:nocontrols" rows="15"
+	cols="100">
+
+  $this->rapyd->load("dataobject");
+
+  $do = new DataObject("articles");
+  $do->load(1);
+  $title = $do->get("title");
+
+
+ </textarea>
+
+
+<h2>Connections</h2>
+<p><kbd>0.9.8 extended Feature:</kbd><br />
+From 0.9.8 and higher version, Rapyd components and so DataObject no
+more use the CI default AR and also support different database
+connection group. For more explainations about this two new features see
+the the <strong>Data Source</strong> Concept in the <strong>General
+Concepts</strong> page.</p>
+<p>We will see here only the differences between DataObject
+component (and so DataEdit and DataForm) and other Rapyd components.<br />
+About data connection DO work exactly like the other Rapyd components.<br />
+About DO internal database Object the main difference is that <strong>$do-&gt;db</strong>
+doesn't share the <strong>$this-&gt;rapyd-&gt;db</strong> Rapyd AR with
+the others components, But like all other components, now the $do-&gt;db
+is independent of $this-&gt;db.</p>
+<p class="important"><strong>Important:</strong> You have to be
+attentive specially when you work with <strong>post and pre
+process</strong> features. In this functions you generally need to work on a
+database using an AR that use the same connection and may be table than
+DO. With the new Rapyd features you can't use the CI default AR to work
+with additional db query, the best is to work with the <strong>$do-&gt;db</strong>
+related to the current <strong>post or pre process</strong> functions. <br />
+<br />
+<strong>Remenber:</strong> that in all your<strong>
+post_process</strong> and <strong>pre_process</strong> functions Rapyd shift the
+arguments you give and add a ref to the related DataObject as first arg
+to allow you to easylly work on it. See the <strong>datam.php
+sample controller</strong> to well understand how to work on the right AR in pre
+and post process functions.</p>
+<h2>Relations</h2>
+
+<p>DataObject class support three kind of relations:<br />
+<br />
+<strong>one-to-one</strong>: "get the only record related with current
+one, in another table"<br />
+<strong>one-to-many</strong>: "get all records related with current one,
+using current fk value of field (x), in the table (y)"<br />
+<strong>many-to-many</strong>: "get all records of the many-to-many
+relation, between current table and another, using current record pk,
+and other table pk"<br />
+</p>
+
+<p class="important"><strong>Important:</strong>&nbsp; all above
+definitions aren't the exact/correct definitions of database relations!<br />
+(dataobject one-to-one method can be for example called in presence of a
+one-to-many relation between tables)</p>
+
+<p class="important"><strong>Important:</strong>&nbsp; It isn't the
+porting of RoR ARR pattern.<br />
+It's only a convenient way to join tables and get related data.</p>
+
+
+
+<h2>DataObject Reference</h2>
+
+<p><dfn>$dataset = new DataObject($tablename);</dfn></p>
+<p>string: <kbd>$tablename</kbd> is the name of a db table (or a
+view).</p>
+
+
+<h5>Methods</h5>
+
+<p><strong>$do->load($pk_value)</strong> or<br />
+<strong>$do->load(array("pk1_name"=>"pk1_value",
+"pk2_name"=>"pk2_value"))</strong></p>
+<p>load a record, where primary key = $pk_value, (on error return
+false)<br />
+if the table has multi-field pk you must pass an associative array.</p>
+<br />
+
+
+<p><strong>$do->load_where($field_name, $field_value)</strong></p>
+<p>load a record, where $field_name = $field_value (on error return
+false)<br />
+</p>
+<br />
+
+<p><strong>$do->get($field_name)</strong></p>
+<p>get/return a field value<br />
+</p>
+<br />
+
+<p><strong>$do->get_all()</strong></p>
+<p>get an associative array (with all field values, included related
+values/arrays)</p>
+<br />
+
+<p><strong>$do->set($field_name, $field_value)</strong></p>
+<p>set field value<br />
+(note: isn't a save, no actions or query are executed, it's only an
+assignation)</p>
+<br />
+
+<p><strong>$do->save()</strong></p>
+<p>exec query (an update if record is loaded, or an insert).<br />
+return (bool)is saved.</p>
+<br />
+
+<p><strong>$do->delete()</strong></p>
+<p>delete current loaded record.<br />
+return (bool)is deleted.</p>
+<br />
+
+
+<h5>Pre/Post process callbacks</h5>
+
+<p>Pre and Post process functions are DataObject features, they can
+be also used in Dataform and DataEdit (a wrapped function will call the
+$do methods).</p>
+
+<p>To invoke a callback "before" and "after" a save() or a delete()
+you can use:</p>
+<strong>pre_process</strong> and <strong>post_process</strong> methods.
+
+<p><strong>$do->pre_process($action, $callbackfunction)</strong> can
+be used to halt execution (when the callback function return FALSE), but
+also to do stuffs before the $action (insert,update, or delete) is
+executed on $do.</p>
+
+<p><strong>$do->post_process($action, $callbackfunction)</strong>
+useful to do others stuffs after $action (insert,update, or delete)
+execution on $do.</p>
+<p>for both, $callbackfunction is simply the method (of the current
+controller) to be invoked.</p>
+<p class="important"><strong>Important:</strong> each callback
+method must have a param ($sender) which contain "a copy" of $do. So you
+can use it to retrieve (or set) values, see dataobject samples</p>
+
+
+<h5>Rel support</h5>
+
+<p><strong>$do->rel_one_to_one($id, $table, $field_fk [,
+$field])</strong></p>
+<p>Get the only record related with current one, in the table:
+$table, using as foreign key: $field_fk<br />
+(if the fk has not the same name of other table pk, you can specify the
+pk by $field)<br />
+the $id param, will be used as the array-key of the related record data.
+</p>
+<textarea name="code" class="php:nogutter:nocontrols" rows="15"
+	cols="100">
+  $do = new DataObject("articles");
+  $do->rel_one_to_one("author", "authors","author_id");
+  $do->load(1);
+  $art_one = $do->get_all();
+  
+  //if set, it will contain all data of related record:
+  $art_one["author"];
+ </textarea> <br />
+
+<p><strong>$do->rel_one_to_many($id, $table, $field)</strong></p>
+<p>Get all records related with current one, in the table: $table,
+using as foreign key (of related table) $field.<br />
+(if $field param is omitted, by default DO assume it is the current PK
+field name)<br />
+the $id param, will be used as the array-key of related records.</p>
+<textarea name="code" class="php:nogutter:nocontrols" rows="15"
+	cols="100">
+  $do = new DataObject("articles");
+  $do->rel_one_to_many("comments", "entries");
+  $do->load(2);
+  $art_two = $do->get_all();
+  
+  //if set, it will contain all "comments" stored in the 
+  //"entries" table, where article_id = 2
+  $art_two["comments"];
+ </textarea> <br />
+
+
+<p><strong>$do->rel_many_to_many($id, $table, $rel_table,
+$field)</strong></p>
+<p>Get all records of the many-to-many relation, between current DO
+table and $table,<br />
+using the support table: $rel_table.<br />
+$field param is the pk name of $table.<br />
+the $id param, will be used as the array-key of related records.</p>
+<textarea name="code" class="php:nogutter:nocontrols" rows="15"
+	cols="100">
+  $do = new DataObject("articles");
+  $do->rel_many_to_many("cat", "categories", "art_rel_cat", "category_id"); 
+  $do->load(3);
+  $art_three = $do->get_all();
+  
+  //if set, it will contain all records stored in the table "categories",
+  //joininig by support table: "articles_rel_categories".
+  //where article_id = 3
+  $art_three["cat"];
+ </textarea> <br />
+
+
+
+
+
+
+
+
+</div>
+<!-- END CONTENT -->
+
+
+<script type="text/javascript">create_footer();</script>
+
+</body>
+</html>

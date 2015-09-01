@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+
+<title>Rapyd Library Guide</title>
+
+<style type='text/css' media='all'>
+@import url('../userguide.css');
+</style>
+<link rel='stylesheet' type='text/css' media='all'
+	href='../userguide.css' />
+
+<script type="text/javascript" src="../nav/nav.js"></script>
+<script type="text/javascript" src="../nav/prototype.lite.js"></script>
+<script type="text/javascript" src="../nav/moo.fx.js"></script>
+
+</script>
+
+</head>
+<body>
+
+<!-- START NAVIGATION -->
+<script type="text/javascript">create_header('../');</script>
+<!-- END NAVIGATION -->
+
+
+<!-- START BREADCRUMB -->
+<table cellpadding="0" cellspacing="0" border="0" style="width: 100%">
+	<tr>
+		<td id="breadcrumb"><a href="http://www.rapyd.com/">Rapyd
+		Library Home</a> &nbsp;&#8250;&nbsp; <a href="../index.html">Rapyd
+		Guide</a> &nbsp;&#8250;&nbsp; Rapyd at a Glance</td>
+		<td id="searchbox"><script type="text/javascript">create_search();</script>
+		</td>
+	</tr>
+</table>
+<!-- END BREADCRUMB -->
+
+<br clear="all" />
+
+
+<!-- START CONTENT -->
+<div id="content">
+
+<h1>Rapyd Library at a Glance</h1>
+
+<h2>Cruds in few minuts</h2>
+<p>If you like Code Igniter, but you need to boost your development
+(at least for backends) Rapyd Library is a good choise. Its goal is to
+enable you to develop projects much faster than you could if you were
+writing code from scratch, and to leave you decide when is time to use
+classic mvc approach, or to build a complete and complex crud in 10 line
+of code in few minutes directly in a controller without models or views.
+His syntax is concise, easy to be mantained.
+
+
+<h2>Rapyd is Open Source</h2>
+<p>Rapyd Library is licensed under LGPL open source license so you
+can use it however you please.
+
+
+<h2>Rapyd Runs on PHP 4</h2>
+<p>Rapyd is written to be compatible with PHP 4.</p>
+<p>Note: Rapyd Library will run on PHP 5. It simply does not take
+advantage of any native features that are only available in that
+version.</p>
+
+<h2>Rapyd is Light Weight</h2>
+<p>The core system requires only a few very small libraries. It has
+the same philosophy of CI, components are loaded dynamically upon
+request (as CI libraries). Based on your needs for a given process, so
+the base system is very lean and quite fast.</p>
+<p>It include TinyMCE that has a lot of files, but is really the
+better and smaller wysiwyg replacement for textareas used by most of cms
+(wordpress, drupal, joobla, etc.)
+
+
+<h2>Rapyd Generates Clean URLs</h2>
+<p>components generated urls are semantic, clean and search-engine
+friendly:</p>
+<code> www.your-site.com/controller/function/<dfn>orderby</dfn>/<kbd>userid</kbd>/<samp>desc</samp>
+<br />
+www.your-site.com/controller/function/<dfn>search_uri</dfn>/<kbd>name</kbd>/<samp>jhonny</samp>
+</code>
+
+
+<h2>Component Based approach</h2>
+<p>With rapyd you can think/develop by "components". So, if you need
+to build a "filtered grid"<br />
+<p>instead of:<br />
+- <kbd>" I will develop my model.. create my custom sql, iterate
+my custom view, sniff Post, intercept actions.."</kbd><br />
+you can think:<br />
+- <dfn>" I need a DataFilter joined with a DataGrid."</dfn></p>
+
+<h2>Rapyd is Extensible</h2>
+<p>Rapyd can be easily extended by creating new components/classes,
+using the loader class: <code> //in controllers/models<br />
+<br />
+$rapyd->load->("mywidget");<br />
+<br />
+<br />
+//you can access ci &amp; rapyd from your classes<br />
+<br />
+class myWidget {<br />
+..<br />
+function myWidget()<br />
+{<br />
+&nbsp;..<br />
+&nbsp;$this->ci =&amp; get_instance();<br />
+&nbsp;$this->rapyd =&amp; $this->ci->rapyd;<br />
+}<br />
+..<br />
+}<br />
+</code></p>
+
+
+<h2>Themes</h2>
+<p>Rapyd has a theme system which is thought to standardize
+components layout.<br />
+It comes with a "default" folder theme, but you can build your custom
+theme in few minutes.<br />
+</p>
+
+
+<h2>Rapyd has a Friendly Community of Users</h2>
+
+<p><a href="http://www.rapyd.com/forum/">Community Forums</a>.</p>
+</div>
+<!-- END CONTENT -->
+
+
+<script type="text/javascript">create_footer();</script>
+
+</body>
+</html>

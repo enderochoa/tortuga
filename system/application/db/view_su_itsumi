@@ -1,0 +1,1 @@
+select `a`.`unidad` AS `unidad`,`a`.`codigo` AS `codigo`,`a`.`descrip` AS `descrip`,`b`.`alma` AS `alma`,`c`.`descrip` AS `almacen`,`b`.`cantidad` AS `cantidad` from ((`sumi` `a` left join `su_itsumi` `b` on((`a`.`codigo` = `b`.`codigo`))) left join `su_caub` `c` on((`b`.`alma` = `c`.`codigo`)))

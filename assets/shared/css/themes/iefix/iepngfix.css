@@ -1,0 +1,4 @@
+/* PNG fix for all themes that uses PNG images on IE */
+td,div {
+	behavior: url(../themes/iefix/iepngfix.htc)
+}

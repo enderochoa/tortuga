@@ -1,0 +1,9 @@
+select ocompra,fanulado,fapagado,decreto,compromiso,fecha,des,observa,cod_prov,numero,status,modo,codigoadm,tipo,codigopres,ordinal,faudis,ftrasla,fapartado,fcomprome,fcausado,fopago,fpagado,frendi,apartado,comprometido,causado,opago,pagado,aumento,disminucion,traslados,asignacion
+,round((((`view_pres_s1`.`aumento` - `view_pres_s1`.`disminucion`) + `view_pres_s1`.`traslados`) - `view_pres_s1`.`apartado`),2) AS `capartado` 
+,round((((`view_pres_s1`.`aumento` - `view_pres_s1`.`disminucion`) + `view_pres_s1`.`traslados`) - `view_pres_s1`.`comprometido`),2) AS `ccomprometido`
+,round((((`view_pres_s1`.`aumento` - `view_pres_s1`.`disminucion`) + `view_pres_s1`.`traslados`) - `view_pres_s1`.`causado`),2) AS `ccausado`
+,round((((`view_pres_s1`.`aumento` - `view_pres_s1`.`disminucion`) + `view_pres_s1`.`traslados`) - `view_pres_s1`.`opago`),2) AS `copago`
+,round((((`view_pres_s1`.`aumento` - `view_pres_s1`.`disminucion`) + `view_pres_s1`.`traslados`) - `view_pres_s1`.`pagado`),2) AS `cpagado` 
+
+
+from `view_pres_s1`

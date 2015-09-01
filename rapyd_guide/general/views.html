@@ -1,0 +1,204 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+
+<title>Rapyd Library Guide</title>
+
+<style type='text/css' media='all'>
+@import url('../userguide.css');
+</style>
+<link rel='stylesheet' type='text/css' media='all'
+	href='../userguide.css' />
+
+<script type="text/javascript" src="../nav/nav.js"></script>
+<script type="text/javascript" src="../nav/prototype.lite.js"></script>
+<script type="text/javascript" src="../nav/moo.fx.js"></script>
+<script type="text/javascript" src="../nav/syntax.js"></script>
+<script type="text/javascript" src="../nav/syntax_php.js"></script>
+<link type="text/css" href="../syntax.css" rel="stylesheet" />
+
+<style type="text/css">
+<!--
+.Style1 {
+	color: #000099
+}
+
+.Style2 {
+	color: #FF6600
+}
+-->
+</style>
+</head>
+<body>
+
+<!-- START NAVIGATION -->
+<script type="text/javascript">create_header('../');</script>
+<!-- END NAVIGATION -->
+
+
+<!-- START BREADCRUMB -->
+<table cellpadding="0" cellspacing="0" border="0" style="width: 100%">
+	<tr>
+		<td id="breadcrumb"><a href="http://www.rapyd.com/">Rapyd
+		Library Home</a> &nbsp;&#8250;&nbsp; <a href="../index.html">Rapyd
+		Guide</a> &nbsp;&#8250;&nbsp; Views</td>
+		<td id="searchbox"><script type="text/javascript">create_search();</script>
+		</td>
+	</tr>
+</table>
+<!-- END BREADCRUMB -->
+
+<br clear="all" />
+
+
+<!-- START CONTENT -->
+<div id="content">
+
+<h1>Themes-Views and Themes-Design</h1>
+
+<p>The theme system of rapyd is thought to standardize components
+layout.</p>
+<p>Since the 0.9.8 version each rapyd Theme has its own Design. So
+all the rapyd layout is switchable; Components Views, Images, and CSS. <br />
+This new layout systeme also support a shared Design, it is a Design in
+witch you can put all design content (images ans css) that need to be
+share by more than one Theme. Rapyd first search the design element in
+the current Theme-Design content and if it doesn't find it, it will
+search into the shared Design.</p>
+<h2>The Structure :</h2>
+<p>The system use two differents directory structure, One for the
+components templates php files( the Theme-views directories) and one for
+the design files: images and css (the Theme-design directories).</p>
+<p><strong>Theme-views structure:</strong> <br />
+This feature is unchanged all the Theme components views folder are in <dfn>application/rapyd/view</dfn>
+directory. It's a container of CI views (so you must use php instead
+placeholders). The folder name define the Theme name, so <dfn>application/rapyd/view/default</dfn>
+directory is the <dfn>&quot;default&quot;</dfn> Theme.<br />
+Each (template-based) component need a view in each Theme views folder.
+So you can build your custom theme by copying and renaming the default
+folder theme and customise the view files.</p>
+<p><strong>Theme-design structure:</strong><br />
+All Theme-desgin contents are into the design-elements directory, the
+path to this directory is explain in the next config notes. So each
+Theme need a folder into the design-elements directory named with the
+Theme name (same name as the Theme-views folder) and optionaly one more
+folder for the shared Theme-desgin that doesn't need to match with a
+Theme-views folder name, they are the Theme-design folder. Each
+theme-design folder need two subfolders one for the images and the other
+for the Css, by default these subfolders names are &quot;css&quot; and
+&quot;images&quot; but you can change it into the config. <br />
+So if you build a custom Theme-views You need to buid a matching
+Theme-design, it could be empty or not complete and use an other
+Theme-design as Shared or a modificated content of the default one.Don't
+forgot that the rapyd base content have to keep original names for
+files(images and css).</p>
+<h2>The Config :</h2>
+<p>You can manage the rapyd Theme system with some properties from <dfn>/system/application/config/rapyd.php</dfn>
+config file.</p>
+<p><strong>The Rapyd default Theme:</strong> <span class="Style1">$rpd['theme']
+= 'default'; </span><br />
+This config define the default Rapyd current Theme. You have to put a
+valide Theme folder name (remember same folder name for the Theme-views
+and Theme-design folder).</p>
+<p>But it's also possible to change the Rapyd current Theme at
+"runtime": <br />
+<textarea name="code" class="php:nogutter" rows="2" cols="100">
+
+$this->load->library("rapyd");
+$this->rapyd->config->set_item("theme","newtheme"); 
+
+</textarea> <br />
+Tipically the runtime changement of theme enable using of different
+themes for "backend/frontend" or different sections of frontend.</p>
+<p><strong>The Theme design-elements directory path:</strong><span
+	class="Style1"> $rpd['design_elements_path'] =&quot;&quot;;</span><br />
+This config define the path to the design-elements directory (in witch
+we have the theme-design folders). If you leave it empty rapyd use the
+default path '/application/rapyd/elements'.<br />
+If you decide to move this directory there is one restriction, your new
+directory will have to be every where but into the Server Document Root
+($_SERVER[&quot;DOCUMENT_ROOT&quot;]). And the path you set have to be
+from this $_SERVER[&quot;DOCUMENT_ROOT&quot;] like this:
+&quot;www/root_site1/content/rapyd_elements&quot; =&gt;
+$rpd['design_elements_path']
+=&quot;/root_site1/content/rapyd_elements/&quot;; (if www is you
+$_SERVER[&quot;DOCUMENT_ROOT&quot;]).<br />
+For the moment Rapyd doesn't support a design_elements_path outside of
+the DOCUMENT_ROOT even if you use an apache alias config on it. So if
+you move Your CI 'application' folder outside of the DOCUMENT_ROOT
+(thats work with rapyd) you will need to keep your <strong>design-elements
+directory</strong> into the DOCUMENT_ROOT and use this config to set the right
+path.</p>
+<p><strong>The Theme-design content subfolder name:</strong> <span
+	class="Style1">$rpd['assets_type_folder_name'] =array('css'
+=&gt; 'css','image'=&gt;'images'); </span><br />
+As it's explained in the structure notes, <strong>design-elements
+directory </strong>has two subfolder for css and images contents. We can control
+this subfolders names with this config var. <br />
+You can change the default folder name in something like this: <span
+	class="Style2">$rpd['assets_type_folder_name'] =array('css'
+=&gt; 'new_css_folder_name','image'=&gt;'new_images_folder_name');<br />
+</span>Don't forgot that all <strong>Theme-design</strong> <strong>content
+subfolder</strong>have to follow the same naming.</p>
+<p><strong>The Shared Theme-design</strong>: <span class="Style1">$rpd['shared_theme_design']='default';</span><br />
+This config allow you to define the shared design in witch Rapyd will
+search the content file if it doesn't find it in the current
+Theme-design. As you can see the default shared design could be an
+existing Theme design it is why we say that creating a special design
+for shared content is optionaly, but seting the shared design is not
+optionaly.<br />
+In the default rapyd config files the system use the &quot;default&quot;
+Theme design content as shared Theme, So 'default' Theme design content
+is used for the 'default' Theme and for all other Theme missing files.</p>
+<p>it's also possible to change the current Shared Design at
+&quot;runtime&quot;: <br />
+<textarea name="code" class="php:nogutter" rows="2" cols="100">
+	$this->rapyd->config->set_item("shared_theme_design","new_design-theme");  
+	
+    </textarea> <br />
+Tipically the runtime changement of Shared Design enable using of
+different Theme-design content in replacement of the current one missing
+content. So each design content could be a shared design and also you
+can have more than one Theme-design folder that doesn't match with a
+Theme-view folder but only usable as shared design.</p>
+<h2>Advanced Work</h2>
+<p>When you work on Theme You first create or modify the components
+views that use the design content then if you want additional design
+content to be output in your views, you can put the files (tipically
+images) into your Theme-design and output it into your view with the
+following function that return the right path according to the current
+Theme.</p>
+<p><textarea name="code" class="php:nogutter" rows="2" cols="100">
+	$img_src = $this->rapyd->get_elements_path("file_name","image");  
+	
+    </textarea> <br />
+The &quot;file_name&quot; should be the file name if the file is into'
+elements/design_name/images' folder or a path from this folder to the
+file: if the file is ' elements/design_name/images/img1/test.jpg' =&gt;
+file_name =&quot;img1/test.jpg&quot;.</p>
+<p>You can also use the function get_elements_path(); to find
+additional css file path using the Theme system into your code. You
+build the css file path according to the current Theme using this
+function with the 'css' argument.</p>
+<p><textarea name="code" class="php:nogutter" rows="2" cols="100">
+  $css_src = $this->rapyd->get_elements_path("file_name","css");
+  //other stuff
+  $this->rapyd->css[]=$css_src;
+  </textarea> <br />
+The second line is an additional stuff that you should use if you want
+that the css file will be output in the header using the
+rapyd-&gt;get_head() function.</p>
+</body>
+</html>
+</textarea>
+
+
+
+</div>
+<!-- END CONTENT -->
+
+
+<script type="text/javascript">create_footer();</script>
+
+</body>
+</html>

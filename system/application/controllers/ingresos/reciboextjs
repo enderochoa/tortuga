@@ -1,0 +1,638 @@
+<?php
+require_once(APPPATH.'/controllers/ingresos/contribu.php'); 
+class Recibo extends Controller {
+	var $titp='Recibos';
+	var $tits='Recibo';
+	var $url ='ingresos/recibo/';
+	function Recibo(){
+		parent::Controller();
+		$this->load->library("rapyd");
+		//$this->datasis->modulo_id(216,1);
+	}
+	function index(){
+		redirect($this->url."filteredgrid");
+	}
+	function filteredgrid(){
+		$this->rapyd->load('datafilter','datagrid');
+
+		$filter = new DataFilter($this->titp, 'recibo');
+
+		$filter->numero = new inputField('Numero','numero');
+		$filter->numero->rule      ='max_length[10]';
+		$filter->numero->size      =12;
+		$filter->numero->maxlength =10;
+
+		$filter->fecha = new dateField('Fecha','fecha');
+		$filter->fecha->rule      ='chfecha';
+		$filter->fecha->size      =10;
+		$filter->fecha->maxlength =8;
+
+		$filter->contribu = new inputField('Codigo','contribu');
+		$filter->contribu->rule      ='max_length[6]';
+		$filter->contribu->size      =8;
+		$filter->contribu->maxlength =6;
+		$filter->contribu->group     ="Contribuyente";
+		
+		$filter->nombre = new inputField('Nombre','nombre');
+		$filter->nombre->rule      ='max_length[200]';
+		$filter->nombre->size      =202;
+		$filter->nombre->maxlength =200;
+		$filter->nombre->group     ="Contribuyente";
+
+		$filter->rifci = new inputField('Rif/Ced','rifci');
+		$filter->rifci->rule      ='max_length[13]';
+		$filter->rifci->size      =15;
+		$filter->rifci->maxlength =13;
+		$filter->rifci->group     ="Contribuyente";
+
+		$filter->tipo = new dropdownField('Concepto','tipo');
+		$filter->tipo->options("SELECT codigo,descrip FROM tingresos ORDER BY descrip");
+
+		$filter->buttons('reset', 'search');
+		$filter->build();
+
+		$uri = anchor($this->url.'dataedit/show/<raencode><#numero#></raencode>','<#numero#>');
+
+		$grid = new DataGrid('');
+		$grid->order_by('numero');
+		$grid->per_page = 40;
+
+		$grid->column_orderby('N&uacute;mero'  ,"$uri"                                        ,'numero'   , 'align="left"' );
+		$grid->column_orderby('Fecha'          ,"<dbdate_to_human><#fecha#></dbdate_to_human>",'fecha'    ,'align="center"');
+		$grid->column_orderby('Concepto'       ,"tipo"                                        ,'tipo'     ,'align="left"'  );
+		$grid->column_orderby('Monto'          ,"<nformat><#monto#></nformat>"                ,'monto'    ,'align="right"' );
+		$grid->column_orderby('Contribuyente'  ,"contribu"                                    ,'contribu' ,'align="left"'  );
+		$grid->column_orderby('Nombre'         ,"nombre"                                      ,'nombre'   ,'align="left"'  );
+		
+		$grid->add($this->url.'dataedit/create');
+		$grid->build();
+
+		$data['filtro']  = $filter->output;
+		$data['content'] = $grid->output;
+		$data['head']    = $this->rapyd->get_head().script('jquery.js');
+		$data['title']   = $this->titp;
+		$this->load->view('view_ventanas', $data);
+
+	}
+	function dataedit(){
+		$this->rapyd->load('dataedit');
+		
+		$mCONTRIBU=array(
+				'tabla'   =>'contribu',
+				'columnas' =>array(
+					'codigo'   =>'C&oacute;digo',
+					'nacionali'=>'',
+					'rifci'    =>'RIF',
+					'nombre'   =>'Nombre',
+					'direccion'=>'Direcci&oacute;n',
+					'telefono' =>'Telefono'
+					),
+				'filtro'  =>array(
+					'codigo'   =>'C&oacute;digo',
+					'rifci'    =>'RIF',
+					'nacionali'=>'Nacionalidad',
+					'nombre'   =>'Nombre',
+					'direccion'=>'Direcci&oacute;n',
+					'telefono' =>'Telefono'
+					),
+				'retornar'=>array('codigo'=>'contribu', 'nombre'=>'nombre','rifci'=>'rifci','direccion'=>'direccion','telefono'=>'telefono','nacionali'=>'nacionalit' ),
+				'script'  =>array('cal_nacionali()'),
+				'titulo'  =>'Buscar Contribuyente');
+			
+		$bCONTRIBU=$this->datasis->modbus($mCONTRIBU);
+		
+		$mPATENTE=array(
+				'tabla'   =>'patente',
+				'columnas' =>array(
+					'id'       =>'Ref.',
+					'tarjeta'  =>'Tarjeta',
+					'licencia' =>'Licencia',
+					'razon'    =>'Razon',
+					'dir_neg'  =>'Direccion Negocio'
+					),
+				'filtro'  =>array(
+					'id'       =>'Ref.',
+					'tarjeta'  =>'Tarjeta',
+					'licencia' =>'Licencia',
+					'razon'    =>'Razon',
+					'dir_neg'  =>'Direccion Negocio'
+					),
+				'retornar'=>array('row_id'=>'patente' ),
+				//'script'  =>array('cal_nacionali()'),
+				'titulo'  =>'Buscar Patente');
+			
+		$bPATENTE=$this->datasis->modbus($mPATENTE);
+
+		$edit = new DataEdit($this->tits, 'recibo');
+
+		$edit->back_url = site_url($this->url."filteredgrid");
+
+		$edit->pre_process('insert','_valida');
+		$edit->pre_process('update','_valida');
+		$edit->post_process('insert','_post_insert');
+		$edit->post_process('update','_post_update');
+		$edit->post_process('delete','_post_delete');
+
+		$edit->numero = new inputField('Recibo N&uacute;mero','numero');
+		$edit->numero->mode      ='autohide';
+		$edit->numero->when      =array('show');
+		
+		$edit->contribu = new inputField('C&oacute;digo','contribu');
+		$edit->contribu->rule      ='max_length[6]';
+		$edit->contribu->size      =8;
+		$edit->contribu->maxlength =6;
+		$edit->contribu->append($bCONTRIBU);
+
+		$edit->fecha = new dateField('Fecha','fecha');
+		$edit->fecha->rule='chfecha';
+		$edit->fecha->size =10;
+		$edit->fecha->maxlength =8;
+		$edit->fecha->insertValue=date('Y-m-d');
+
+		$edit->tipo = new dropdownField('Concepto','tipo');
+		$edit->tipo->options("SELECT codigo,descrip FROM tingresos ORDER BY descrip");
+
+		$edit->monto = new inputField('Monto','monto');
+		$edit->monto->rule      ='required|max_length[19]|numeric_positive';
+		$edit->monto->css_class ='inputnum';
+		$edit->monto->size      =21;
+		$edit->monto->maxlength =19;
+
+		$edit->observa = new textareaField('Observaci&oacute;n','observa');
+		$edit->observa->cols = 90;
+		$edit->observa->rows = 1;
+
+		//INICIO CONTRIBUYENTES
+		$edit->direccion = new textareaField('Direcci&oacute;n','direccion');
+		$edit->direccion->cols = 40;
+		$edit->direccion->rows = 1;
+
+		$edit->nombre = new inputField('Nombre','nombre');
+		$edit->nombre->rule='required|max_length[200]';
+		$edit->nombre->size =50;
+		$edit->nombre->maxlength =200;
+		$edit->nombre->autocomplete=false;
+
+		$edit->rifci = new inputField('Rif/CI','rifci');
+		$edit->rifci->rule      ='required|max_length[13]';
+		$edit->rifci->size      =15;
+		$edit->rifci->maxlength =13;
+
+		$edit->nacionali = new dropdownField('Nacionalidad','nacionali');
+		$edit->nacionali->option('V','VENEZOLANA');
+		$edit->nacionali->option('E','EXTRANJERA');
+		$edit->nacionali->style="width:120px;";
+		
+		$edit->nacionalit = new inputField('','nacionalit');
+
+		$edit->telefono = new textareaField('Telefono','telefono');
+		$edit->telefono->rule = 'max_length[50]';
+		$edit->telefono->cols = 20;
+		$edit->telefono->rows = 1;
+		
+		//INICIO PATENTE
+		$edit->patente = new inputField('Patente','patente');
+		$edit->patente->size      =6;
+		$edit->patente->maxlength =6;
+		$edit->patente->append($bPATENTE);
+		
+		//INICIO INMUEBLE
+		//$edit->inmueble = new inputField('Inmueble','inmueble');
+		//$edit->inmueble->size      =6;
+		//$edit->inmueble->maxlength =6;
+		//$edit->inmueble->append($bINMUEBLE);
+		//$edit->inmueble->readonly=true;
+		//
+		////INICIO VEHICULO
+		//$edit->vehiculo = new inputField('Vehiculo','vehiculo');
+		//$edit->vehiculo->size      =6;
+		//$edit->vehiculo->maxlength =6;
+		//$edit->vehiculo->append($bVEHICULO);
+		//$edit->vehiculo->readonly=true;
+		
+		$edit->buttons('add','modify', 'save', 'undo', 'delete', 'back');
+		$edit->build();
+		
+		$conten["form"]  =&$edit;
+		$data['content'] = $this->load->view('view_recibo', $conten,true);
+		$data['title']   = $this->tits;
+		$data["head"]    = script('jquery.js').script('jquery-ui.js').script('plugins/jquery.numeric.pack.js').script('plugins/jquery.floatnumber.js').script('plugins/jquery.meiomask.js').style('vino/jquery-ui.css').$this->rapyd->get_head();
+		$this->load->view('view_ventanas', $data);
+	}
+	
+	function _valida($do){
+		$error  ='';
+		$d        =$do->get_all();
+		foreach($d AS $key=>$value){
+			$$key=trim($value);
+			$k=$key."e";
+			$$k=$this->db->escape(trim($value));
+		}
+		
+		if($this->datasis->dameval("SELECT COUNT(*) FROM contribu WHERE rifci=$rifcie")>0){
+			$error.="El RIF/CIya existe";
+			$row=$this->datasis->damerow("SELECT * FROM contribu WHERE rifci=$rifcie");
+			$do->set('contribu',$row['codigo']);
+		}
+		
+		if(empty($error)){
+			if(strlen($contribu)==6)
+			$contri=$contribu;
+			else
+			$contri=$this->datasis->dameval("SELECT LPAD(valor,6,0) FROM serie LEFT JOIN contribu ON LPAD(codigo,6,0)=LPAD(valor,6,0) WHERE valor<65535 AND codigo IS NULL LIMIT 1");
+			$do->set('contribu',$contri);
+			$contrie=$this->db->escape($contri);
+			
+			$sprv=$this->db->query("
+			INSERT INTO contribu (`codigo`,`nombre`,`rifci`,`nacionali`,`direccion`,`telefono`) 
+			VALUES ($contrie,$nombree,$rifcie,$nacionalie,$direccione,$telefonoe) 
+			ON DUPLICATE KEY UPDATE nombre=$nombree,rifci=$rifcie,nacionali=$nacionalie,direccion=$direccione,telefono=$telefonoe
+			");
+		}
+		if(empty($error)){
+			if(empty($numero)){
+				$nrecibo = $this->datasis->fprox_numero('nrecibo');
+				$do->set('numero',$nrecibo);
+				$do->pk    =array('numero'=>$nrecibo);
+			}
+		}else{
+			$edit->error_string=$error;
+			$do->error_message_ar['pre_ins']=$error;
+			$do->error_message_ar['pre_upd']=$error;
+			return false;
+		}
+		
+	}
+	
+	
+	
+
+	function _post_insert($do){
+		$primary =implode(',',$do->pk);
+		logusu($do->table,"Creo $this->tits $primary ");
+	}
+	function _post_update($do){
+		$primary =implode(',',$do->pk);
+		logusu($do->table,"Modifico $this->tits $primary ");
+	}
+	function _post_delete($do){
+		$primary =implode(',',$do->pk);
+		logusu($do->table,"Elimino $this->tits $primary ");
+	}
+
+	function instalar(){
+		$mSQL="CREATE TABLE `recibo` (
+                    `numero` varchar(10) NOT NULL,
+                    `fecha` date DEFAULT NULL,
+                    `contribu` char(6) DEFAULT NULL,
+                    `tipo` char(3) DEFAULT NULL,
+                    `monto` decimal(19,2) NOT NULL DEFAULT '0.00',
+                    `observa` text NOT NULL,
+                    `direccion` text,
+                    `nombre` varchar(200) DEFAULT NULL,
+                    `rifci` varchar(13) DEFAULT NULL,
+                    `nacionali` varchar(10) DEFAULT NULL,
+                    `telefono` varchar(50) DEFAULT NULL,
+                    `user` varchar(50) DEFAULT NULL,
+                    `estampa` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    PRIMARY KEY (`numero`)
+                ) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+		$this->db->simple_query($mSQL);
+	}
+	
+	/*
+	 ext-js
+	*/
+	function extgrid(){
+		$this->load->library('extjs');
+		$data['title']  = heading('Personal');
+		//$data['head']   = $this->rapyd->get_head();
+
+		$data['conceptos'] = $this->extjs->combo("SELECT codigo,descrip FROM tingresos ORDER BY descrip");
+		$data['local']     = $this->extjs->combo("SELECT codigo,nombre FROM local ORDER BY nombre");
+		$data['negocio']   = $this->extjs->combo("SELECT codigo,nombre FROM negocio ORDER BY nombre");
+		$data['claseo']    = $this->extjs->combo("SELECT codigo,nombre FROM claseo ORDER BY nombre");
+		$data['tipo']      = $this->extjs->combo(array(''=>'','A'=>'A','B'=>'B'));
+		$data['tipoin']    = $this->extjs->combo("SELECT tipoin,tipoin d FROM tipoin ORDER BY tipoin");
+		$data['clase']     = $this->extjs->combo("SELECT codigo,nombre FROM clase ORDER BY nombre");
+		$data['marca']     = $this->extjs->combo("SELECT marca,marca m FROM marca ORDER BY marca");
+		$data['v_tipo']    = $this->extjs->combo("SELECT tipo,tipo m FROM tipo ORDER BY tipo");
+		$data['c_codigo']  = $this->extjs->combo("SELECT codigo,codigo m FROM contribu ORDER BY codigo");
+		$data['c_nombre']  = $this->extjs->combo("SELECT codigo,nombre m FROM contribu ORDER BY nombre");
+		$data["head"]    = script('jquery.js').script('jquery-ui.js').script('plugins/jquery.numeric.pack.js').style('vino/jquery-ui.css').$this->rapyd->get_head();
+		$this->load->view('extjs/recibo',$data);
+	}
+	
+	function grid(){
+		$this->load->library('extjs');
+		
+		$start   = isset($_REQUEST['start'])  ? $_REQUEST['start']   :  0;
+		$limit   = isset($_REQUEST['limit'])  ? $_REQUEST['limit']   : 50;
+		$sort    = isset($_REQUEST['sort'])   ? $_REQUEST['sort']    : 'numero';
+		$filters = isset($_REQUEST['filter']) ? $_REQUEST['filter']  : null;
+		
+		$grid = new Grid();
+		
+		$grid->select(array("b.descrip b_descrip","r.id id","r.numero r_numero","r.fecha r_fecha","c.codigo c_codigo","r.tipo r_tipo","r.monto r_monto","r.observa r_observa",
+		"c.nombre c_nombre","c.rifci c_rifci","c.nacionali c_nacionali","c.localidad c_localidad","c.direccion c_direccion","c.telefono c_telefono",
+		"p.id p_id","p.tarjeta AS p_tarjeta","p.licencia AS p_licencia","p.razon AS p_razon","p.dir_neg AS p_dir_neg","p.dir_pro AS p_dir_pro","p.capital AS p_capital","p.monto AS p_monto","p.fecha_es AS p_fecha_es","p.oficio AS p_oficio","p.local AS p_local","p.negocio AS p_negocio","p.registrado AS p_registrado","p.deuda AS p_deuda","p.observa AS p_observa","p.clase AS p_clase","p.tipo AS p_tipo","p.catastro AS p_catastro","p.publicidad AS p_publicidad",
+		"i.direccion","i.id i_id","i.ctainos AS i_ctainos","i.no_predio AS i_no_predio","i.sector AS i_sector","i.tipo_in AS i_tipo_in","i.no_hab AS i_no_hab","i.clase AS i_clase","i.tipo AS i_tipo","i.monto AS i_monto","i.registrado AS i_registrado",
+		"v.id v_id","v.clase AS v_clase","v.marca AS v_marca","v.tipo AS v_tipo","v.modelo AS v_modelo","v.color AS v_color","v.capaci AS v_capaci","v.serial_m AS v_serial_m","v.placa_ant AS v_placa_ant","v.placa_act AS v_placa_act","v.ano AS v_ano","v.peso AS v_peso","v.serial_c AS v_serial_c","v.monto AS v_monto","v.registrado AS v_registrado","v.asovehi AS v_asovehi"));
+		$grid->from("recibo r");
+		$grid->join("tingresos b","r.tipo=b.codigo");
+		$grid->join("contribu c" ,"r.contribu=c.codigo","LEFT");
+		$grid->join("patente p"  ,"r.patente=p.id","LEFT");
+		$grid->join("inmueble i" ,"r.inmueble=i.id","LEFT");
+		$grid->join("vehiculo v" ,"r.vehiculo=v.id","LEFT");
+		$grid->limit($limit,$start);
+		$grid->order_by($sort,'desc');
+		$grid->filter($filters);
+		//$grid->column("numero","Numero","like");
+		//$grid->column("fecha" ,"Fecha"        );
+		$sal=$grid->output();
+		echo $sal;
+	}
+	
+	function guardar(){
+		$error   ='';
+		$js      = file_get_contents('php://input');
+		$data    = json_decode($js,true);
+		$d       = $data['data'];
+		$id      = $data['data']['id'];
+		
+		
+		$contribu=$this->extraepiso($d,'c_');
+		$error  .=$this->ch_contribu($contribu);
+		
+		$recibo  =$this->extraepiso($d,'r_');
+		$error  .=$this->ch_recibo($recibo);
+		
+		$patente =$this->extraepiso($d,'p_');
+		$error  .=$this->ch_patente($patente,$d['c_codigo']);
+		
+		$inmueble =$this->extraepiso($d,'i_');
+		$error   .=$this->ch_inmueble($inmueble,$d['c_codigo']);
+		
+		$vehiculo =$this->extraepiso($d,'v_');
+		$error   .=$this->ch_vehiculo($vehiculo,$d['c_codigo']);
+		
+		if  (!empty($error)){
+			echo "{ success: false, message: '$error'}";
+		} else {
+			$c_codigo=$this->g_contribu($contribu);
+			$contribu['codigo']=$c_codigo;
+			
+			if(strlen($patente['tarjeta'])>0)
+			$p_id   =$this->g_patente($patente,$contribu);
+			$patente['id']=$p_id;
+			
+			if(strlen($inmueble['direccion'])>0)
+			$i_id   =$this->g_inmueble($inmueble,$contribu);
+			$inmueble['id']=$i_id;
+			
+			if(strlen($vehiculo['placa'])>0)
+			$v_id   =$this->g_vehiculo($vehiculo,$contribu);
+			$vehiculo['id']=$v_id;
+			
+			$this->g_recibo($id,$recibo,$contribu,$patente,$inmueble,$vehiculo);
+			
+			echo "{ success: true, message: 'Recibo Guardado Satisfactoriamente'}";
+		}
+	}
+	
+	function eliminar(){}
+	
+	function extraepiso($d,$s){
+		$a=array();
+		foreach($d as $k=>$v)
+		if(substr($k,0,2)==$s)
+		$a[substr($k,2,100)]=$v;
+	
+		return $a;
+	}
+	
+	function ch_contribu($d){
+		$error='';
+		foreach($d AS $key=>$value){
+			$$key=trim($value);
+			$k=$key."e";
+			$$k=$this->db->escape(trim($value));
+		}
+		
+		if(empty($codigo))
+		if($this->datasis->dameval("SELECT COUNT(*) FROM contribu WHERE rifci=$rifcie")>0)
+			$error.="El RIF/CIya existe";
+		
+		return $error;
+	}
+	
+	function ch_recibo($d){
+		$error='';
+		foreach($d AS $key=>$value){
+			$$key=trim("$value");
+			$k=$key."e";
+			$$k=$this->db->escape(trim($value));
+		}
+		
+		if(empty($id)){
+			$r_id=$this->datasis->dameval("SELECT id FROM recibo WHERE numero=$numeroe LIMIT 1");
+			if($r_id>0)
+			$error.="El Numero $numero ya existe para la Referencia $r_id";
+		}
+		return $error;
+	}
+	
+	function ch_patente($d,$contribu){
+		$error='';
+		foreach($d AS $key=>$value){
+			$$key=trim("$value");
+			$k=$key."e";
+			$$k=$this->db->escape(trim($value));
+		}
+		
+		if(empty($id) && strlen($tarjeta)>0){
+			$p_id=$this->datasis->dameval("SELECT id FROM patente WHERE tarjeta=$tarjetae LIMIT 1");
+			if($p_id>0)
+			$error.="La tarjeta $tarjeta ya existe para la Referencia $p_id";
+		}else{
+			
+		}
+		return $error;
+	}
+	
+	function ch_inmueble($d,$contribu){
+		$error='';
+		//foreach($d AS $key=>$value){
+		//	$$key=trim("$value");
+		//	$k=$key."e";
+		//	$$k=$this->db->escape(trim($value));
+		//}
+		//
+		//if(empty($id) && strlen($tarjeta)>0){
+		//	$p_id=$this->datasis->dameval("SELECT id FROM patente WHERE tarjeta=$tarjetae LIMIT 1");
+		//	if($p_id>0)
+		//	$error.="La tarjeta $tarjeta ya existe para la Referencia $p_id";
+		//}else{
+		//	
+		//}
+		return $error;
+	}
+	
+	function ch_vehiculo($d,$contribu){
+		$error='';
+		
+		if(empty($d['placa_act']) && strlen($d['placa_act'])>0){
+			$v_id=$this->datasis->dameval("SELECT id FROM vehiculo WHERE placa=".$this->db->escape($d['placa_act'])." LIMIT 1");
+			if($v_id>0)
+			$error.="La Placa ".$d['placa_act']." ya existe para la Referencia $v_id";
+		}else{
+			
+		}
+		return $error;
+	}
+	
+	function g_contribu($d){
+		foreach($d AS $key=>$value){
+			$$key=trim($value);
+			$k=$key."e";
+			$$k=$this->db->escape(trim($value));
+		}
+		
+		if(strlen($codigo)==6)
+		$contri=$codigo;
+		else
+		$contri=$this->datasis->dameval("SELECT LPAD(valor,6,0) FROM serie LEFT JOIN contribu ON LPAD(codigo,6,0)=LPAD(valor,6,0) WHERE valor<65535 AND codigo IS NULL LIMIT 1");
+		
+		$contrie=$this->db->escape($contri);
+		
+		$sprv=$this->db->query("
+		INSERT INTO contribu (`codigo`,`nombre`,`rifci`,`nacionali`,`direccion`,`telefono`) 
+		VALUES ($contrie,$nombree,$rifcie,$nacionalie,$direccione,$telefonoe) 
+		ON DUPLICATE KEY UPDATE nombre=$nombree,rifci=$rifcie,nacionali=$nacionalie,direccion=$direccione,telefono=$telefonoe
+		");
+		
+		return $contri;
+	}
+	
+	function g_recibo($id,$recibo,$contribu,$patente,$inmueble,$vahiculo){
+		$data         =array();
+		$data         =$recibo;
+		$data['id']   =$id;
+		$data['contribu']    =$contribu['codigo'   ];
+		$data['nombre'    ]  =$contribu['nombre'   ];
+		$data['rifci'     ]  =$contribu['rifci'    ];
+		$data['nacionali' ]  =$contribu['nacionali'];
+		$data['direccion' ]  =$contribu['direccion'];
+		$data['telefono'  ]  =$contribu['telefono' ];
+		$data['patente'   ]  =$patente['id'        ];
+		$data['inmueble'  ]  =$inmueble['id'       ];
+		$data['vehiculo'  ]  =$vehiculo['id'       ];
+		
+		if($id>0){
+			$this->db->where('id', $id);
+			$this->db->update('recibo', $data); 
+		}else{
+			$this->db->insert('recibo', $data);
+			$id =$this->db->insert_id();
+		}
+		
+	}
+	
+	function g_patente($d,$c){
+		$id  =$d['id'];
+		$data=$d;
+		$data['contribu']    =$c['codigo'   ];
+		$data['nombre_pro']  =$c['nombre'   ];
+		$data['cedula'    ]  =$c['rifci'    ];
+		$data['nacionali' ]  =$c['nacionali'];
+		$data['dir_pro'   ]  =$c['direccion'];
+		$data['telefonos' ]  =$c['telefono'];
+		
+		if($id>0){
+			$this->db->where('id', $id);
+			$this->db->update('patente', $data); 
+		}else{
+			$this->db->insert('patente', $data);
+			$id =$this->db->insert_id();
+		}
+		return $id;
+	}
+	
+	function g_inmueble($d,$c){
+		$id  =$d['id'];
+		$data=$d;
+		$data['contribu']    =$c['codigo'   ];
+		
+		if($id>0){
+			$this->db->where('id', $id);
+			$this->db->update('inmueble', $data); 
+		}else{
+			$this->db->insert('inmueble', $data);
+			$id =$this->db->insert_id();
+		}
+		return $id;
+	}
+	
+	function g_vehiculo($d,$c){
+		$id  =$d['id'];
+		$data=$d;
+		$data['contribu']    =$c['codigo'   ];
+		
+		if($id>0){
+			$this->db->where('id', $id);
+			$this->db->update('vehiculo', $data); 
+		}else{
+			$this->db->insert('vehiculo', $data);
+			$id =$this->db->insert_id();
+		}
+		return $id;
+	}
+	
+	function pru(){
+		
+echo $_REQUEST['callback'].'({
+"totalCount":"2",
+"Names":[
+{"name":"one", "ID":"1"},
+{"name":"two", "ID":"2"}
+]
+})
+		';
+	    
+	}
+	
+	function pru3(){
+		$dataDB = array(  
+                array(  
+                    "name"=>"MySQL",  
+                    "desc"=>"The world's most popular open source database",  
+                    "logo"=>"mysql.png"  
+                ),  
+                array(  
+                    "name"=>"PostgreSQL",  
+                    "desc"=>"The world's advanced open source database",  
+                    "logo"=>"postgresql.png"  
+                ),  
+                array(  
+                    "name"=>"Oracle",  
+                    "desc"=>"The world's largest enterprise software company",  
+                    "logo"=>"oracle.png"  
+                ),  
+    );  
+  
+    $o = array(  
+            "num"=>count($dataDB),  
+            "data"=>$dataDB  
+        );  
+    echo json_encode($o);
+	}
+	
+	
+	
+	function pru2(){
+		
+		$this->load->library('extjs');
+		echo $this->extjs->combo("SELECT codigo,nombre m FROM contribu ORDER BY nombre");
+	}
+}
+?>
