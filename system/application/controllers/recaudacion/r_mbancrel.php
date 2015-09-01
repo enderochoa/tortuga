@@ -274,8 +274,6 @@ class R_mbancrel extends Controller {
 		$edit->monto->size      =21;
 		$edit->monto->maxlength =19;
 
-		
-
 		$edit->buttons('modify', 'save', 'undo', 'back');
 		$edit->build();
 		

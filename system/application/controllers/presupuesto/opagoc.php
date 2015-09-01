@@ -1419,6 +1419,10 @@ class Opagoc extends Common {
 		$this->db->simple_query("ALTER TABLE `itfac` ADD COLUMN `uimpmunicipal` CHAR(1) NULL DEFAULT NULL AFTER `uimptimbre`");
 		$this->db->simple_query("ALTER TABLE `odirect` ADD COLUMN `montocontrato` DECIMAL(19,2) NULL DEFAULT '0'");
 		$this->db->simple_query("ALTER TABLE `odirect` ADD COLUMN `preten` DECIMAL(19,2) NULL DEFAULT '0.00'");
+		$query="ALTER TABLE `odirect` CHANGE COLUMN `factura` `factura` CHAR(20) NULL DEFAULT NULL COMMENT 'Numero de Factura' AFTER `beneficiario`";
+		$this->db->simple_query($query);
+		$query="ALTER TABLE `odirect` CHANGE COLUMN `controlfac` `controlfac` VARCHAR(20) NULL DEFAULT NULL COMMENT 'Control Fiscal de la factura' AFTER `factura`";
+		$this->db->simple_query($query);
 	}
 }
 ?>
