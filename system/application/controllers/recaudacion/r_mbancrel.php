@@ -296,7 +296,6 @@ class R_mbancrel extends Controller {
 
 	function _pre_delete($do){
 		$error = '';
-
 		if(!empty($error)){
 			$do->error_message_ar['pre_ins']=$error;
 			$do->error_message_ar['pre_upd']=$error;
@@ -332,6 +331,5 @@ class R_mbancrel extends Controller {
 		) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 		$this->db->simple_query($query);
 	}
-
 }
 ?>
