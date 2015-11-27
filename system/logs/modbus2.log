@@ -1,5 +1,5 @@
-SELECT `proveed`, `nombre`, `rif`, `contacto`
-FROM `sprv`
-WHERE `sprv`.`nombre` LIKE '%sso%'
-ORDER BY `sprv`.`proveed` asc
+SELECT `codbanc`, `fondo`, `banco`, `saldo`, `numcuent`
+FROM `banc`
+WHERE `activo` = "S"
+ORDER BY `banc`.`codbanc` asc
 LIMIT 20

@@ -93,10 +93,11 @@ if($form->_status!='show'){
 	    	</table >
 			<table class="table_detalle">
      		<tr>
-				<th class="littletableheaderb" >Ref.        </th>
+				<th class="littletableheaderb" >Ref.              </th>
+				<th class="littletableheaderb" >Exp               </th>
 				<th class="littletableheaderb" >A&ntilde;o        </th>
-				<th class="littletableheaderb" >Frecuencia        </th>
-				<th class="littletableheaderb" >Valor Frecuencia   </th>
+				<th class="littletableheaderb" >Frec              </th>
+				<th class="littletableheaderb" >Val Frec          </th>
 				<th class="littletableheaderb" >Acronimo          </th>
 				<th class="littletableheaderb" >Denominacion      </th>
 				<th class="littletableheaderb" >Requiere          </th>
@@ -118,9 +119,11 @@ if($form->_status!='show'){
 					$obj6="itfrecuencia_$i";
 					$obj7="itfreval_$i";
 					$obj8="itmodo_$i";
+					$obj9="itexpira_$i";
 			  ?>
 			  <tr id='tr_r_concit_<?=$i ?>'>
 				<td class="littletablerow"><?=$form->$obj5->output ?></td>
+				<td class="littletablerow"><?=$form->$obj9->output ?></td>
 			    <td class="littletablerow"><?=$form->$obj0->output ?></td>
 			    <td class="littletablerow"><?=$form->$obj6->output ?></td>
 			    <td class="littletablerow"><?=$form->$obj7->output ?></td>
@@ -136,7 +139,7 @@ if($form->_status!='show'){
 			  <?php } ?>
 			  
 			   <tr id='__UTPL__'>
-			    <td class="littletablefooterb" colspan="89">&nbsp;</td>
+			    <td class="littletablefooterb" colspan="10">&nbsp;</td>
 			    <?php if($form->_status!='show') {?>
 			    <td class="littletablefooterb">&nbsp;</td>
 			    <?php } ?>

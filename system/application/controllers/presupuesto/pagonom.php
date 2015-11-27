@@ -29,7 +29,7 @@ class Pagonom extends Common {
 		$filter->numero = new inputField("N&oacute;mina", "numero");
 		$filter->numero->db_name="numero";
 		$filter->numero->size   =12;
-		$filter->numero->db_name='odirect.numero';
+		$filter->numero->db_name='numero';
 		//$filter->numero->clause="likerigth";
 		
 		$filter->descrip = new inputField("Descripci&oacute;n", "descrip");
@@ -753,6 +753,7 @@ class Pagonom extends Common {
 		logusu('odirect'," Modifico Orden de Pago de nomina Nro $numero");
 		//redirect($this->url."actualizar/$numero");
 	}
+	
 	function _post_delete($do){
 		$this->rapyd->load('dataobject');
 		

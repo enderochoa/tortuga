@@ -379,8 +379,8 @@ class Nomi extends Common {
 			$edit->buttons("save");
 		}
 
-		$edit->button_status("btn_add_asignomi" ,'Agregar Asignacion',"","AS",'modify');
-		$edit->button_status("btn_add_asignomi2",'Agregar Asignacion',"","AS",'create');
+		$edit->button_status("btn_add_asignomi" ,'Agregar Asignacion',"javascript:add_asignomi()","AS",'modify');
+		$edit->button_status("btn_add_asignomi2",'Agregar Asignacion',"javascript:add_asignomi()","AS",'create');
 		$edit->button_status("btn_add_retenomi" ,'Agregar Deducciones',"javascript:add_retenomi()","RE","create");
 		$edit->button_status("btn_add_retenomi2",'Agregar Deducciones',"javascript:add_retenomi()","RE","modify");
 		$edit->button_status("btn_add_otrosnomi" ,'Agregar Otro Concepto',"javascript:add_otrosnomi()","OT","create");

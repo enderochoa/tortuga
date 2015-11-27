@@ -155,7 +155,35 @@ class fnomina{
 	function CANTIDAD_CONCEPTO($concepto){
 		$conceptoe=$this->ci->db->escape($concepto);
 		$codigo   =$this->ci->db->escape($this->CODIGO);
+		
 		$query    ="SELECT monto FROM prenom WHERE concepto=$conceptoe AND codigo=$codigo";
+		$valor    =$this->ci->datasis->dameval($query);
+		if($valor==null)
+		$retorna=0;
+		else
+		$retorna=$valor;
+
+		return $retorna;
+	}
+	
+	function MONTO_CONCEPTO_HIS($concepto,$fdesde,$fhasta){
+		$conceptoe=$this->ci->db->escape($concepto);
+		$codigo   =$this->ci->db->escape($this->CODIGO);
+		
+		$fecha    =explode('/',$fdesde);
+		$ano      =$fecha[2];
+		$mes      =$fecha[1];
+		$dia      =$fecha[0];
+		$fdesde   =$ano.$mes.$dia;
+		
+		$fecha    =explode('/',$fhasta);
+		$ano      =$fecha[2];
+		$mes      =$fecha[1];
+		$dia      =$fecha[0];
+		$fhasta   =$ano.$mes.$dia;
+		
+		$query    ="SELECT SUM(valor) FROM nomina WHERE concepto=$conceptoe AND codigo=$codigo AND fecha>=$fdesde AND fecha<=$fhasta ";
+		
 		$valor    =$this->ci->datasis->dameval($query);
 		if($valor==null)
 		$retorna=0;

@@ -515,7 +515,8 @@ $this->datasis->get_uri();
 			    	<? $reteivao=$form->_dataobject->get_rel_pointer('pades','reteivao',$i);
 			    		$pago=$form->_dataobject->get_rel('pades','pago',$i);
 
-			    	if ($form->_status=='show' && $reteivao >0){
+					$CREARETEIVASIEMPRE=$this->datasis->traevalor('CREARETEIVASIEMPRE','N');
+			    	if ($form->_status=='show' && ($reteivao >0 || $CREARETEIVASIEMPRE=='S')){
 			    		?>
 			    		<a href="<?=site_url("forma/ver/RIVAM/$pago")?>" ><?=$reteivao?></a>
 			    		<?php

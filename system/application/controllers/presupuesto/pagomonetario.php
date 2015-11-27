@@ -132,7 +132,7 @@ class pagomonetario extends Controller {
 			'rif'=>'Rif',
 			'contacto'=>'Contacto'),
 			'filtro'  =>array('proveed'=>'C&oacute;digo','nombre'=>'Nombre','rif'=>'Rif'),
-			'retornar'=>array('proveed'=>'cod_prov','nombre'=>'nombrep'),//,'reteiva'=>'reteiva_prov'
+			'retornar'=>array('proveed'=>'cod_prov','nombre'=>'nombrep','rif'=>'rifp','reteiva'=>'reteiva_prov'),
 			//'retornar'=>'ca_total',
 			'titulo'  =>'Buscar Beneficiario');
 			
@@ -363,6 +363,14 @@ class pagomonetario extends Controller {
 		$edit->total2->css_class='inputnum';
 		$edit->total2->size = 8;
 		$edit->total2->readonly=true;
+		
+		$edit->amortiza = new inputField("Amortizacion", 'amortiza');
+		$edit->amortiza->css_class='inputnum';
+		$edit->amortiza->size = 8;
+		//$edit->amortiza->readonly=true;
+		$edit->amortiza->insertValue=0;
+		$edit->amortiza->onchange ='cal_total();';
+		$edit->amortiza->rule='numeric';
 		
 		/*
 		 * INICIO DETALLE DE FCTURAS
@@ -701,6 +709,7 @@ class pagomonetario extends Controller {
 		$do  = new DataObject("odirect");
 		$do->load($id);
 		$status     = $do->get('status'   );
+		
     				
 		if(empty($error)){
 			if($status == "M1" ){
@@ -755,8 +764,15 @@ class pagomonetario extends Controller {
 		
 		$total = $do->get('total');
 		$numero= $do->get('numero');
-		$do->set('total2' ,$total );
+		//$do->set('total2' ,$total );
 		$do->set('status' ,'M1' );
+		$do->set('multiple','S');
+		
+		$rr           = $this->ivaplica2();
+		$do->set('tivag'         , $rr['tasa']          );
+		$do->set('tivar'         , $rr['redutasa']      );
+		$do->set('tivaa'         , $rr['sobretasa']     );
+		
 		
 		if(empty($error)){
 			if(empty($error) && empty($do->loaded)){
@@ -785,11 +801,13 @@ class pagomonetario extends Controller {
 	
 	function _post_insert($do){
 		$numero = $do->get('numero');
+		$this->db->simple_query("DELETE FROM itfac WHERE numero='$numero'  WHERE total2=0");
 		logusu('pagomonetario',"ingreso pago monetario numero $numero");
 	}
 	
 	  function _post_update($do){
 		$numero = $do->get('numero');
+		$this->db->simple_query("DELETE FROM itfac WHERE numero='$numero' WHERE total2=0");
 		logusu('pagomonetario',"modifico pago monetario numero $numero");
 	  }
   

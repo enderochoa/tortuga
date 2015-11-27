@@ -113,6 +113,11 @@ if($form->_status!='show'){
 		/*
 		 * FIN CARGA DE AUTOCOMPLETE PARA LOS CAMPOS DE PROVEEDORES
 		 */
+		 
+		 $( "#df1" ).submit(function( event ) {
+			
+		  cal_totalfac();
+		});
 	});
 
 	var data;
@@ -229,12 +234,6 @@ if($form->_status!='show'){
 		otrasrete   =valido_float("otrasrete");
 		porcent     =valido_float("porcent");
 		
-		
-		
-		
-		
-		
-		
 		//reteiva_prov=parseFloat($("#reteiva_prov").val());
 		
 		iva = ivag+ivar+ivaa;
@@ -256,7 +255,6 @@ if($form->_status!='show'){
 		tsubtotal=valido_float("tsubtotal");
 		texento=valido_float("texento");
 		if(tsubtotal+texento>0){
-			
 			subtotal=redondear(tsubtotal);
 			$("#subtotal"        ).val(subtotal);
 		}else{
@@ -267,35 +265,26 @@ if($form->_status!='show'){
 
 		tot=stot;
 		
-		if(porcent>0){
-			//amortiza=redondear(totalbase*porcent/100);
-		}
+		//if(porcent>0){
+		//	//amortiza=redondear(totalbase*porcent/100);
+		//}
 		
-		amortiza=$("#amortiza").val();
-
+		amortiza = $("#amortiza").val();
+		
 		to=tot-reten-otrasrete-reteiva-imptimbre-impmunicipal;
 		
-		console.log("ivag         "+ivag         );
-		console.log("ivar         "+ivar         );
-		console.log("ivaa         "+ivaa         );
-		console.log("exento       "+exento       );
-		console.log("subtotal     "+subtotal     );
-		console.log("reteiva      "+reteiva      );
-		console.log("reten        "+reten        );
-		console.log("imptimbre    "+imptimbre    );
-		console.log("impmunicipal "+impmunicipal );
-		console.log("otrasrete    "+otrasrete    );
-		console.log("amortiza     "+amortiza    );
-		
-		
-		
-		
-		total=(subtotal+ivag+ivaa+ivar+exento)-reten-otrasrete-reteiva-imptimbre-impmunicipal-amortiza;
-		console.log(total);
+		total2 = subtotal+ivag+ivaa+ivar+exento;
+		total  = total2-reten-otrasrete-reteiva-imptimbre-impmunicipal-amortiza;
+	
 		//$("#subtotal").val(subtotal);
 		//$("#amortiza").val(amortiza);
-		$("#total2").val(redondear(total2));
-		$("#total").val(redondear(total));
+		if(total>0){
+			$("#total2").val(redondear(total2)	);
+			$("#total").val(redondear(total));
+		}else{
+			tt = $("#total").val();
+			$("#total2").val(tt);
+		}
 	}
 	
 	function cal(){
@@ -721,8 +710,8 @@ if($form->_status!='show'){
 			    <?php } ?>
 			  </tr>
 			  <tr >
-			  	<td class="littletablerow" align='right' colspan="4">&nbsp;</td>
-			    <td class="littletablerow" align='right'            >&nbsp;</td>
+			  	<td class="littletablerow" align='right' colspan="4"><?=$form->amortiza->label   ?></td>
+			    <td class="littletablerow" align='right'            ><?=$form->amortiza->output  ?></td>
 			    <td class="littletablerow" align='right' colspan="1"><?=$form->otrasrete->label   ?></td>
 			    <td class="littletablerow" align='right'>            <?=$form->otrasrete->output  ?></td>
 			    <td class="littletablerow" align='right' colspan="2">        &nbsp;                        </td>

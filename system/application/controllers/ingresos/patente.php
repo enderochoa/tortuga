@@ -245,6 +245,21 @@ class patente extends Controller {
 		$edit->fvencimiento->size =10;
 		$edit->fvencimiento->maxlength =8;
 		$edit->fvencimiento->value=date('Y').'-12-31';
+		
+		$edit->fotorga = new dateField('F Otorgamiento','fotorga');
+		$edit->fotorga->rule='chfecha|required';
+		$edit->fotorga->size =10;
+		$edit->fotorga->maxlength =8;
+		
+		$edit->factu = new dateField('F Actualizacion','factu');
+		$edit->factu->rule='chfecha|required';
+		$edit->factu->size =10;
+		$edit->factu->maxlength =8;
+		
+		$edit->cantfol = new inputField('Cantidad de Folios','cantfol');
+		$edit->cantfol->rule     ='numeric';
+		$edit->cantfol->size     =15;
+		$edit->cantfol->css_class='inputnum';
 
 		$edit->buttons('add','modify', 'save', 'undo', 'delete', 'back');
 		$edit->build();
@@ -357,8 +372,12 @@ class patente extends Controller {
 		$this->db->simple_query($mSQL);
 		$query="ALTER TABLE `patente`	ADD COLUMN `fvencimiento` DATE NULL AFTER `fexpedicion`";
 		$this->db->simple_query($mSQL);
-		
-		
+		$query="ALTER TABLE `patente` ADD COLUMN `fotorga` DATE NULL DEFAULT NULL"; 
+		$this->db->simple_query($mSQL);
+		$query="ALTER TABLE `patente` ADD COLUMN `factu` DATE NULL DEFAULT NULL  ";
+		$this->db->simple_query($mSQL);
+		$query="ALTER TABLE `patente` ADD COLUMN `cantfol` INT NULL DEFAULT NULL  ";
+		$this->db->simple_query($mSQL);
 	}
 }
 ?>

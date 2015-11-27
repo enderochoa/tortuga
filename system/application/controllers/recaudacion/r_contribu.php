@@ -118,6 +118,7 @@ class r_contribu extends Controller {
 		$grid->column_orderby('Objeto'          ,"objeto",'objeto','align="left"');
 		$grid->column_orderby('Archivo'         ,"archivo",'archivo','align="left"');
 
+		if($this->datasis->puede(473))
 		$grid->add($this->url.'dataedit/create');
 		$grid->build();
 
@@ -409,7 +410,17 @@ class r_contribu extends Controller {
 		$edit->itnombrepit->db_name='nombrepit';
 		//$edit->itnombrepit->type ='inputhidden';
 
-		$edit->buttons('add','add_rel','modify', 'save', 'undo', 'delete', 'back');
+
+		if($this->datasis->puede(473))
+		$edit->buttons('add','add_rel','save');
+		
+		if($this->datasis->puede(474))
+		$edit->buttons('modify','save');
+		
+		if($this->datasis->puede(475))
+		$edit->buttons('delete');
+		
+		$edit->buttons('undo', 'back');
 		$edit->build();
 		
 		$smenu['link']   =barra_menu('G13');

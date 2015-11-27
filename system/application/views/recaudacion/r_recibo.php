@@ -15,7 +15,7 @@ $scampos  ='<tr id="tr_r_reciboit_<#i#>">';
 $scampos .='<td class="littletablerow" align="left" >'.$campos['itid_cxcit' ]['field'].$campos['itrequiere' ]['field'].$campos['itmodo' ]['field'].$campos['itid_concit' ]['field'].$campos['itdenomi' ]['field'].'</td>';
 $scampos .='<td class="littletablerow" align="left" >'.$campos['itano'      ]['field'].'</td>';
 $scampos .='<td class="littletablerow" align="left" >'.$campos['itfrecuencia'    ]['field'].$campos['itfreval'    ]['field'].'</td>';
-$scampos .='<td class="littletablerow" align="left" >'.$campos['itid_vehiculo']['field'].$campos['itv_placa']['field'].$campos['itid_inmueble']['field'].$campos['iti_catastro']['field'].'</td>';
+$scampos .='<td class="littletablerow" align="left" >'.$campos['itid_vehiculo']['field'].$campos['itv_placa']['field'].$campos['itid_inmueble']['field'].$campos['iti_catastro']['field'].$campos['itid_publicidad']['field'].'</td>';
 $scampos .='<td class="littletablerow" align="left" >'.$campos['itobserva'    ]['field'].'</td>';
 $scampos .='<td class="littletablerow" align="right" >'.$campos['itbase'    ]['field'].'</td>';
 $scampos .='<td class="littletablerow" align="right" >'.$campos['itmonto'    ]['field'].'</td>';
@@ -374,8 +374,8 @@ html.ui-autocomplete {
 		$("#base_"+i).hide();
 		
 		$("#id_publicidad_"+i).hide();
-		$("#modbusp_"+i).hide();
-		$("#creap_"+i).hide();
+		//$("#modbusp_"+i).hide();
+		//$("#creap_"+i).hide();
 		
 		if(requiere=='INMUEBLE'){
 			$("#id_inmueble_"+i).show();
@@ -393,8 +393,8 @@ html.ui-autocomplete {
 		
 		if(requiere=='PUBLICIDAD'){
 			$("#id_publicidad_"+i).show();
-			$("#modbusp_"+i).show();
-			$("#creap_"+i).show();
+			//$("#modbusp_"+i).show();
+			//$("#creap_"+i).show();
 			$("#observa_"+i).show();
 		}
 		
@@ -635,9 +635,9 @@ html.ui-autocomplete {
 	function cargacxcback(id_contribuv,id_cxcv){
 		$.ajax({
 			url: "<?=site_url('recaudacion/r_recibo/damecxc')?>",
-		  type: 'POST',
-		  async: false,
-		  data: { id_contribu:id_contribuv,id_cxc:id_cxcv }
+			type: 'POST',
+			async: false,
+			data: { id_contribu:id_contribuv,id_cxc:id_cxcv }
 		}).done(function(data){
 			deuda=jQuery.parseJSON(data);
 				
@@ -670,6 +670,7 @@ html.ui-autocomplete {
 				$("#modo_"+can).val(val.modo   );
 				$("#i_catastro_"+can).val(val.i_catastro  );
 				$("#id_contribu").val(val.id_contribu  );
+				$("#id_publicidad_"+can).val(val.id_publicidad  );
 				
 				post_conc(reciboit_cont);		
 				reciboit_cont=reciboit_cont+1;
@@ -858,12 +859,13 @@ html.ui-autocomplete {
 					$obj13="itfreval_$i";
 					$obj14="itbase_$i";
 					$obj15="itmodo_$i";
+					$obj16="itid_publicidad_$i";
 				?>
 				 <tr id='tr_r_reciboit_<?=$i ?>'>
 					<td class="littletablerow"              ><?=$form->$obj11->output.$form->$obj9->output.$form->$obj15->output.$form->$obj0->output.$form->$obj1->output ?></td>
 					<td class="littletablerow"              ><?=$form->$obj3->output ?></td>
 					<td class="littletablerow"              ><?=$form->$obj12->output.'&nbsp;'.$form->$obj13->output ?></td>
-					<td class="littletablerow"              ><?=$form->$obj6->output.$form->$obj7->output.$form->$obj8->output.$form->$obj10->output ?></td>
+					<td class="littletablerow"              ><?=$form->$obj6->output.$form->$obj7->output.$form->$obj8->output.$form->$obj10->output.$form->$obj16->output  ?></td>
 					<td class="littletablerow"              ><?=$form->$obj4->output ?></td>
 					<td class="littletablerow" align='right'><?=$form->$obj14->output ?></td>
 					<td class="littletablerow" align='right'><?=$form->$obj5->output ?></td>

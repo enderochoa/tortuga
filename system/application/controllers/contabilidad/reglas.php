@@ -310,7 +310,7 @@ class Reglas extends Metodos {
 		$modulo=$this->uri->segment(4);
 		$regla =$this->uri->segment(5);
 		$dispon=$this->_rdisponible($modulo);
-		$mSQL  ="INSERT INTO `reglascont` SELECT modulo, '$dispon',tabla,descripcion,fecha,comprob,origen,condicion,agrupar,cuenta,referen,concepto,debe,haber,ccosto,sucursal,fuente,control,mbanc_id,auxiliar FROM `reglascont` WHERE modulo='$modulo' AND regla='$regla'";
+		$mSQL  ="INSERT INTO `reglascont` (modulo,regla,tabla,descripcion,fecha,comprob,origen,condicion,agrupar,cuenta,referen,concepto,debe,haber,ccosto,sucursal,fuente,control,mbanc_id,auxiliar) SELECT modulo, '$dispon',tabla,descripcion,fecha,comprob,origen,condicion,agrupar,cuenta,referen,concepto,debe,haber,ccosto,sucursal,fuente,control,mbanc_id,auxiliar FROM `reglascont` WHERE modulo='$modulo' AND regla='$regla'";
 		$this->db->query($mSQL);
 		redirect('/contabilidad/reglas/detalle/'.$modulo);
 		//if($modulo AND $regla ) redirect('/contabilidad/reglas/detalle');

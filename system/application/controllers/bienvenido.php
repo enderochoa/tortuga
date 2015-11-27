@@ -51,6 +51,9 @@ class Bienvenido extends Controller {
 		
 		$ip=$_SERVER['REMOTE_ADDR'];
 		
+		
+		
+		
 		$usr=sha1($_POST['user']);
 		$pws=sha1($_POST['pws']);
 		
@@ -61,9 +64,9 @@ class Bienvenido extends Controller {
 		}
 		
 		if($this->datasis->ip_interno($ip))
-		$query ="SELECT us_nombre FROM usuario WHERE SHA(us_codigo)='$usr' AND SHA(us_clave)='$pws' ";
+		$query ="SELECT us_nombre FROM usuario WHERE SHA(us_codigo)='$usr' AND SHA(us_clave)=SHA1('$pws') ";
 		else
-		$query ="SELECT us_nombre FROM usuario WHERE SHA(us_codigo)='$usr' AND SHA(us_clave)='$pws' AND internet='S' ";
+		$query ="SELECT us_nombre FROM usuario WHERE SHA(us_codigo)='$usr' AND SHA(us_clave)=SHA1('$pws') AND internet='S' ";
 		
 		$cursor=$this->db->query($query);
 		

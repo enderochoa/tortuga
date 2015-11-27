@@ -230,6 +230,7 @@ if(true){//$form->_status!='show'
 
 
 	function add_asignomi(){
+		
 		var htm = <?=$campos ?>;
 		can = asignomi_cont.toString();
 		con = (asignomi_cont+1).toString();

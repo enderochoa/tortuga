@@ -124,7 +124,7 @@ class econo extends Common {
 		$edit->fecha= new  dateonlyField("Fecha",  "fecha","d/m/Y");
 		$edit->fecha->insertValue = date('Y-m-d');
 		$edit->fecha->size        = 12;
-		$edit->fecha->mode        = "autohide";
+		//$edit->fecha->mode        = "autohide";
 		//$edit->fecha->when        =array('show');
 		
 		$edit->concepto = new textareaField('Concepto','concepto');

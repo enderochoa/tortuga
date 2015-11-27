@@ -69,15 +69,23 @@ $(document).ready(function() {
 				
 				if($CI->session->userdata('logged_in')){
 					$usuario = $CI->session->userdata['usuario'];
+					$usuarioe =$this->db->escape($usuario);
+					$usachat  =$this->datasis->traevalor('USACHAT','S');
+					$usachatu = $this->datasis->dameval("SELECT usachat FROM usuario WHERE us_codigo=$usuarioe");
 					?>
-				<td width="50%" valign='top'>
+				<td width="<?php echo ($usachat=='S' && $usachatu=='S'?'50':'80') ?>%" valign='top'>
 					
 					<?php $this->load->view($data['settings']['default'].'/'.$data['settings']['content'].$view,  $data); ?>
 				</td>
-				<td width="30%" valign='top'>
+				<td width="<?php echo ($usachat=='S' && $usachatu=='S'?'30':'0') ?>%" valign='top'>
+					<?php 
+					if($usachat=='S' && $usachatu=='S'){
+					 ?>
 					<iframe src="<?=site_url("phpfreechat")."?user=$usuario" ?>" width="500px" height="600px">
-  
 					</iframe>
+					<?PHP 
+					}
+					?>
 				</td>
 				<?}else{?>
 				<td  valign='top'>

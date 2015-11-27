@@ -536,7 +536,6 @@ class Desem extends Common {
 
         function banco($valor){
                 $valor = $this->db->escape($valor);
-
                 $cana=$this->datasis->dameval("SELECT COUNT(*) FROM banc WHERE codbanc=$valor AND activo='S'");// AND status='O'
 
                 if($cana>0){
@@ -1020,6 +1019,49 @@ class Desem extends Common {
                         }elseif($status == "I2"){
 
                         }elseif($status == "M2"){
+							if($reteiva >0){
+								for($l=0;$l < $odirect->count_rel('itfac');$l++){
+									$iditfac     = $odirect->get_rel('itfac','id',$l        );
+									$factura     = $odirect->get_rel('itfac','factura'   ,$l);
+									$fechafac    = $odirect->get_rel('itfac','fechafac'  ,$l);
+									$controlfac  = $odirect->get_rel('itfac','controlfac',$l);
+									$exento      = $odirect->get_rel('itfac','exento'    ,$l);
+									$ivag        = $odirect->get_rel('itfac','ivag'      ,$l);
+									$ivaa        = $odirect->get_rel('itfac','ivaa'      ,$l);
+									$ivar        = $odirect->get_rel('itfac','ivar'      ,$l);
+									$reteiva     = $odirect->get_rel('itfac','reteiva'   ,$l);
+									$subtotal    = $odirect->get_rel('itfac','subtotal'  ,$l);
+									
+									$d=0;
+									if($ivag>0)
+									$d++;
+									if($ivar>0)
+									$d++;
+									if($ivaa>0)
+									$d++;
+									
+									if($d>1){
+										$mivag       = $ivag*100/$tivag;
+										$mivar       = $ivar*100/$tivar;
+										$mivaa       = $ivaa*100/$tivaa;
+									}else{
+										$mivag       = 0;
+										$mivar       = 0;
+										$mivaa       = 0;
+										
+										if($ivag>0)
+										$mivag       = $subtotal;
+										if($ivar>0)
+										$mivar       = $subtotal;
+										if($ivaa>0)
+										$mivaa       = $subtotal;
+									}
+									
+									if($reteiva>0){
+											$error.=$this->chriva('','','','',$pago,$iditfac,$factura,$controlfac,$fechafac,$cod_prov,$exento,$tivag,$mivag,$tivaa,$ivaa,$tivar,$mivar,$reteiva,'',$id,$reteiva_prov);
+									}
+								}
+							}
 
                         }elseif($status=='S2'){
                         }
@@ -1057,6 +1099,7 @@ class Desem extends Common {
 
                 if(empty($error)){
             		$nriva=null;
+            		$CREARETEIVASIEMPRE=$this->datasis->traevalor('CREARETEIVASIEMPRE','N');
                         for($i=0;$i < $do->count_rel('pades');$i++){
                                 $pago     = $do->get_rel('pades','pago'   ,$i);
 
@@ -1083,9 +1126,6 @@ class Desem extends Common {
                                 $codigoadm   =  $odirect->get('estadmin'        );
                                 $fondo       =  $odirect->get('fondo'           );
                                 //echo "llego a ejecuta:$pago status $status</br>";
-
-                                if($reteiva>0 && $nriva===NULL)
-                                        $nriva = $this->datasis->fprox_numero('nriva');
 
                                 if($status == "N2" ){
                                         //$odirect->set('status','N3');
@@ -1244,30 +1284,32 @@ class Desem extends Common {
                                                         //}
                                                 }
                                         }
-                                        if(empty($error)){
-                                                if($reteiva >0){
-                                                        if($odirect->get('multiple')=='N'){
-                                                                        $error.=$this->riva($nriva,$codigoadm,$fondo,'',$pago,$itfact='',$factura,$controlfac,$fechafac,$cod_prov,$exento,$tivag,$mivag,$tivaa,$ivaa,$tivar,$mivar,$reteiva,'',$id,$reteiva_prov);
-                                                        }elseif($odirect->get('multiple')=='S' && empty($error)){
-                                                                for($l=0;$l < $odirect->count_rel('itfac');$l++){
-                                                                        $iditfac     = $odirect->get_rel('itfac','id',$l        );
-                                                                        $factura     = $odirect->get_rel('itfac','factura'   ,$l);
-                                                                        $fechafac    = $odirect->get_rel('itfac','fechafac'  ,$l);
-                                                                        $controlfac  = $odirect->get_rel('itfac','controlfac',$l);
-                                                                        $exento      = $odirect->get_rel('itfac','exento'    ,$l);
-                                                                        $ivag        = $odirect->get_rel('itfac','ivag'      ,$l);
-                                                                        $ivaa        = $odirect->get_rel('itfac','ivaa'      ,$l);
-                                                                        $ivar        = $odirect->get_rel('itfac','ivar'      ,$l);
-                                                                        $reteiva     = $odirect->get_rel('itfac','reteiva'   ,$l);
-                                                                        $mivag       = $ivag*100/$tivag;
-                                                                        $mivar       = $ivar*100/$tivar;
-                                                                        $mivaa       = $ivaa*100/$tivaa;
-                                                                        if($reteiva>0){
-                                                                                $this->riva($nriva,$codigoadm,$fondo,'',$pago,$iditfac,$factura,$controlfac,$fechafac,$cod_prov,$exento,$tivag,$mivag,$tivaa,$ivaa,$tivar,$mivar,$reteiva,'',$id,$reteiva_prov);
-                                                                        }
-                                                                }
-                                                        }
-                                                }
+                                        if(empty($error)){                                                
+												if($odirect->get('multiple')=='N'){
+													if(($reteiva>0 || $CREARETEIVASIEMPRE=='S') && $nriva===NULL && (strlen($factura)>0 || strlen($controlfac)>0 ))
+														$nriva = $this->datasis->fprox_numero('nriva');
+														
+													if(strlen($factura)>0 || strlen($controlfac)>0 )
+														$error.=$this->riva($nriva,$codigoadm,$fondo,'',$pago,$itfact='',$factura,$controlfac,$fechafac,$cod_prov,$exento,$tivag,$mivag,$tivaa,$ivaa,$tivar,$mivar,$reteiva,'',$id,$reteiva_prov);
+												}elseif($odirect->get('multiple')=='S' && empty($error)){
+														for($l=0;$l < $odirect->count_rel('itfac');$l++){
+																$iditfac     = $odirect->get_rel('itfac','id',$l        );
+																$factura     = $odirect->get_rel('itfac','factura'   ,$l);
+																$fechafac    = $odirect->get_rel('itfac','fechafac'  ,$l);
+																$controlfac  = $odirect->get_rel('itfac','controlfac',$l);
+																$exento      = $odirect->get_rel('itfac','exento'    ,$l);
+																$ivag        = $odirect->get_rel('itfac','ivag'      ,$l);
+																$ivaa        = $odirect->get_rel('itfac','ivaa'      ,$l);
+																$ivar        = $odirect->get_rel('itfac','ivar'      ,$l);
+																$reteiva     = $odirect->get_rel('itfac','reteiva'   ,$l);
+																$mivag       = $ivag*100/$tivag;
+																$mivar       = $ivar*100/$tivar;
+																$mivaa       = $ivaa*100/$tivaa;
+																if($reteiva>0){
+																		$this->riva($nriva,$codigoadm,$fondo,'',$pago,$iditfac,$factura,$controlfac,$fechafac,$cod_prov,$exento,$tivag,$mivag,$tivaa,$ivaa,$tivar,$mivar,$reteiva,'',$id,$reteiva_prov);
+																}
+														}
+												}
                                         }
 
                                         if(empty($error)){
@@ -1317,50 +1359,53 @@ class Desem extends Common {
                                                 }
                                         }
                                         if(empty($error)){
-                                                if($reteiva >0){
-													for($l=0;$l < $odirect->count_rel('itfac');$l++){
-														$iditfac     = $odirect->get_rel('itfac','id',$l        );
-														$factura     = $odirect->get_rel('itfac','factura'   ,$l);
-														$fechafac    = $odirect->get_rel('itfac','fechafac'  ,$l);
-														$controlfac  = $odirect->get_rel('itfac','controlfac',$l);
-														$exento      = $odirect->get_rel('itfac','exento'    ,$l);
-														$ivag        = $odirect->get_rel('itfac','ivag'      ,$l);
-														$ivaa        = $odirect->get_rel('itfac','ivaa'      ,$l);
-														$ivar        = $odirect->get_rel('itfac','ivar'      ,$l);
-														$reteiva     = $odirect->get_rel('itfac','reteiva'   ,$l);
-														$subtotal    = $odirect->get_rel('itfac','subtotal'  ,$l);
-														
-														$d=0;
-														if($ivag>0)
-														$d++;
-														if($ivar>0)
-														$d++;
-														if($ivaa>0)
-														$d++;
-														
-														if($d>1){
-															$mivag       = $ivag*100/$tivag;
-															$mivar       = $ivar*100/$tivar;
-															$mivaa       = $ivaa*100/$tivaa;
-														}else{
-															$mivag       = 0;
-															$mivar       = 0;
-															$mivaa       = 0;
-															
-															if($ivag>0)
-															$mivag       = $subtotal;
-															if($ivar>0)
-															$mivar       = $subtotal;
-															if($ivaa>0)
-															$mivaa       = $subtotal;
-														}
-														
-														if($reteiva>0){
-															
-																$this->riva($nriva,$codigoadm,$fondo,'',$pago,$iditfac,$factura,$controlfac,$fechafac,$cod_prov,$exento,$tivag,$mivag,$tivaa,$ivaa,$tivar,$mivar,$reteiva,'',$id,$reteiva_prov,'',$ivag,$ivaa,$ivar);
-														}
-													}
-                                                }
+
+											for($l=0;$l < $odirect->count_rel('itfac');$l++){
+												$iditfac     = $odirect->get_rel('itfac','id',$l        );
+												$factura     = $odirect->get_rel('itfac','factura'   ,$l);
+												$fechafac    = $odirect->get_rel('itfac','fechafac'  ,$l);
+												$controlfac  = $odirect->get_rel('itfac','controlfac',$l);
+												$exento      = $odirect->get_rel('itfac','exento'    ,$l);
+												$ivag        = $odirect->get_rel('itfac','ivag'      ,$l);
+												$ivaa        = $odirect->get_rel('itfac','ivaa'      ,$l);
+												$ivar        = $odirect->get_rel('itfac','ivar'      ,$l);
+												$reteiva     = $odirect->get_rel('itfac','reteiva'   ,$l);
+												$subtotal    = $odirect->get_rel('itfac','subtotal'  ,$l);
+												
+												$d=0;
+												if($ivag>0)
+												$d++;
+												if($ivar>0)
+												$d++;
+												if($ivaa>0)
+												$d++;
+												
+												if($d>1){
+													$mivag       = $ivag*100/$tivag;
+													$mivar       = $ivar*100/$tivar;
+													$mivaa       = $ivaa*100/$tivaa;
+												}else{
+													$mivag       = 0;
+													$mivar       = 0;
+													$mivaa       = 0;
+													
+													if($ivag>0)
+													$mivag       = $subtotal;
+													if($ivar>0)
+													$mivar       = $subtotal;
+													if($ivaa>0)
+													$mivaa       = $subtotal;
+												}
+												if(($reteiva>0 || $CREARETEIVASIEMPRE=='S') && $nriva===NULL && (strlen($factura)>0 || strlen($controlfac)>0 ))
+													$nriva = $this->datasis->fprox_numero('nriva');	
+			
+												if($reteiva>0){
+													
+													$this->riva($nriva,$codigoadm,$fondo,'',$pago,$iditfac,$factura,$controlfac,$fechafac,$cod_prov,$exento,$tivag,$mivag,$tivaa,$ivaa,$tivar,$mivar,$reteiva,'',$id,$reteiva_prov,'',$ivag,$ivaa,$ivar);
+												}elseif($CREARETEIVASIEMPRE=='S' && (strlen($factura)>0 || strlen($controlfac)>0)){
+													$this->riva($nriva,$codigoadm,$fondo,'',$pago,$iditfac,$factura,$controlfac,$fechafac,$cod_prov,$exento,$tivag,$mivag,$tivaa,$ivaa,$tivar,$mivar,$reteiva,'',$id,$reteiva_prov,'',$ivag,$ivaa,$ivar);
+												}
+											}
                                         }
 
                                         if(empty($error)){
@@ -1410,9 +1455,59 @@ class Desem extends Common {
                                         $odirect->set('status','I3');
                                         //$odirect->save();
                                 }elseif($status == "M2"){
-                                                $odirect->set('status','M3');
-                                                $this->db->simple_query("UPDATE odirect SET status='M3',fpagado=$fdesem,fapagado=null WHERE numero='$pago'");
-                                                //$odirect->save();
+									 if(empty($error)){
+										for($l=0;$l < $odirect->count_rel('itfac');$l++){
+											$iditfac     = $odirect->get_rel('itfac','id',$l        );
+											$factura     = $odirect->get_rel('itfac','factura'   ,$l);
+											$fechafac    = $odirect->get_rel('itfac','fechafac'  ,$l);
+											$controlfac  = $odirect->get_rel('itfac','controlfac',$l);
+											$exento      = $odirect->get_rel('itfac','exento'    ,$l);
+											$ivag        = $odirect->get_rel('itfac','ivag'      ,$l);
+											$ivaa        = $odirect->get_rel('itfac','ivaa'      ,$l);
+											$ivar        = $odirect->get_rel('itfac','ivar'      ,$l);
+											$reteiva     = $odirect->get_rel('itfac','reteiva'   ,$l);
+											$subtotal    = $odirect->get_rel('itfac','subtotal'  ,$l);
+											
+											$d=0;
+											if($ivag>0)
+											$d++;
+											if($ivar>0)
+											$d++;
+											if($ivaa>0)
+											$d++;
+											
+											if($d>1){
+												$mivag       = $ivag*100/$tivag;
+												$mivar       = $ivar*100/$tivar;
+												$mivaa       = $ivaa*100/$tivaa;
+											}else{
+												$mivag       = 0;
+												$mivar       = 0;
+												$mivaa       = 0;
+												
+												if($ivag>0)
+												$mivag       = $subtotal;
+												if($ivar>0)
+												$mivar       = $subtotal;
+												if($ivaa>0)
+												$mivaa       = $subtotal;
+											}
+											if(($reteiva>0 || $CREARETEIVASIEMPRE=='S') && $nriva===NULL && (strlen($factura)>0 || strlen($controlfac)>0 ))
+												$nriva = $this->datasis->fprox_numero('nriva');	
+		
+											if($reteiva>0){
+												
+												$this->riva($nriva,'','','',$pago,$iditfac,$factura,$controlfac,$fechafac,$cod_prov,$exento,$tivag,$mivag,$tivaa,$ivaa,$tivar,$mivar,$reteiva,'',$id,$reteiva_prov,'',$ivag,$ivaa,$ivar);
+											}elseif($CREARETEIVASIEMPRE=='S' && (strlen($factura)>0 || strlen($controlfac)>0)){
+												$this->riva($nriva,'','','',$pago,$iditfac,$factura,$controlfac,$fechafac,$cod_prov,$exento,$tivag,$mivag,$tivaa,$ivaa,$tivar,$mivar,$reteiva,'',$id,$reteiva_prov,'',$ivag,$ivaa,$ivar);
+											}
+										}
+									}
+									
+									
+									$odirect->set('status','M3');
+									$this->db->simple_query("UPDATE odirect SET status='M3',fpagado=$fdesem,fapagado=null WHERE numero='$pago'");
+									//$odirect->save();
                                 }elseif($status=='S2'){
                                         $odirect->set('status','S3');
                                         //$odirect->save();
@@ -1464,9 +1559,7 @@ class Desem extends Common {
                                 //if(empty($error))
                                 //$this->db->simple_query("UPDATE odirect SET status='N3' WHERE numero=$pago");
                                 //$odirect->save();
-
                         }
-
                 }
         }
 

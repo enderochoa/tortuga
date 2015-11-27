@@ -89,8 +89,9 @@ class r_cxc extends Controller {
 		
 		//$action = "javascript:window.location='" .site_url('recaudacion/r_abonos/filteredgrid'). "'";
 		//$grid->button("ir_cobranza","Ir a Cobranza",$action,"TL");
-
+		if($this->datasis->puede(476))
 		$grid->add($this->url.'dataedit/create');
+		
 		$grid->build();
 
 		$data['filtro']  = $filter->output;
@@ -581,7 +582,11 @@ class r_cxc extends Controller {
 				$action = "javascript:location.href='" .site_url('recaudacion/r_cxc/dataedit/show/'.$id_recibo). "'";
 				$edit->button_status("add_r_recibo","Ver Recibo $id",$action,"TL","show");
 			}else{
-				$edit->buttons('modify','delete');
+				if($this->datasis->puede(477))
+				$edit->buttons('modify','save');
+				
+				if($this->datasis->puede(478))
+				$edit->buttons('delete');
 			}
 		}
 		
@@ -598,7 +603,12 @@ class r_cxc extends Controller {
 			$edit->button_status("btn_actdeuda",'Actualizar Deuda',$action,"TR","show");
 		}
 
-		$edit->buttons('add_rel','add', 'save', 'undo', 'back');
+		if($this->datasis->puede(476))
+		$edit->buttons('add','add_rel','save');
+		
+		$edit->buttons('undo', 'back');
+
+		//$edit->buttons('add_rel','add', 'save', 'undo', 'back');
 		$edit->build();
 		
 		$smenu['link']   = barra_menu('523');
@@ -854,11 +864,12 @@ class r_cxc extends Controller {
 				$error.="Error. Debe Seleccionar un Concepto</br>";
 			
 			if($id_concit){
-				$r_v_conc = $this->datasis->damerow("SELECT id_conc,partida,denopart,denomiconc FROM r_v_conc WHERE id=$id_concit");
+				$r_v_conc = $this->datasis->damerow("SELECT id_conc,partida,denopart,denomiconc,expira FROM r_v_conc WHERE id=$id_concit");
 				$do->set_rel('r_cxcit','id_conc',$r_v_conc['id_conc'],$i);
 				$do->set_rel('r_cxcit','partida',$r_v_conc['partida'],$i);
 				$do->set_rel('r_cxcit','partida_denomi',$r_v_conc['denopart']     ,$i);
-				$do->set_rel('r_cxcit','conc_denomi'   ,$r_v_conc['denomiconc']   ,$i);			
+				$do->set_rel('r_cxcit','conc_denomi'   ,$r_v_conc['denomiconc']   ,$i);
+				$do->set_rel('r_cxcit','expira'        ,$r_v_conc['expira'    ]   ,$i);
 			}
 			
 			/* CALCULO DE INTERESES*/
@@ -866,6 +877,7 @@ class r_cxc extends Controller {
 				$a                       = eval($intereses[$k]['formula']);
 				$intereses[$k]['monto'] += $a;
 			}
+			
 			
 			/* CALCULO DE DESCUENTOS*/
 			foreach($descuentos as $k=>$v){
@@ -996,6 +1008,42 @@ class r_cxc extends Controller {
 		return $impuesto;
 	}
 	
+	function prueba(){
+		
+		echo br().$fechainicial=$this->ultimo_pago(2,1);
+		$fechainicial = new DateTime($fechainicial);
+		$fechafinal = new DateTime('2015-07-29');
+		$diferencia = $fechainicial->diff($fechafinal);
+		echo br().$meses = ( $diferencia->y * 12 ) + $diferencia->m;
+
+	}
+	
+	function ultimo_pago($id_conc,$id_inmueble=null,$id_vehiculo=null){
+		$id_conce    = $this->db->escape($id_conc    );
+		$id_inmueblee= $this->db->escape($id_inmueble);
+		$id_vehiculoe= $this->db->escape($id_vehiculo);
+		$where       ='';
+				
+		$query="SELECT MAX(LAST_DAY(1*CONCAT(a.ano,LPAD(a.freval,2,0),'01'))) 
+				FROM r_reciboit a
+				JOIN r_abonosit b ON a.id_recibo=b.recibo
+				WHERE  a.id_conc=$id_conce ";
+				
+		if($id_inmueble)
+		$query.=$where=" AND a.id_inmueble=$id_inmueblee ";
+		if($id_vehiculo)
+		$query.=$where=" AND a.id_vehiculo=$id_vehiculoe ";
+		
+		$val = $this->datasis->dameval($query);
+		
+		if(!$val){
+			$query="SELECT MIN(LAST_DAY(1*CONCAT(ano,LPAD(freval,2,0),'01'))) FROM r_concit WHERE id_conc=$id_conce ";
+			$val = $this->datasis->dameval($query);
+		}
+		
+		return $val;
+	}
+	
 	function damedeudainmueble($id_contribu,$idreq){
 		
 		$where ='';
@@ -1027,32 +1075,37 @@ class r_cxc extends Controller {
 		return $query;
 	}
 	
-	function prueba(){
+	function damedeudapublicidad($id_contribu,$idreq){
 		
-		echo br().$fechainicial=$this->ultimo_pago(2,1);
-		$fechainicial = new DateTime($fechainicial);
-		$fechafinal = new DateTime('2015-07-29');
-		$diferencia = $fechainicial->diff($fechafinal);
-		echo br().$meses = ( $diferencia->y * 12 ) + $diferencia->m;
-
-	}
-	
-	function ultimo_pago($id_conc,$id_inmueble=null,$id_vehiculo=null){
-		$id_conce    = $this->db->escape($id_conc    );
-		$id_inmueblee= $this->db->escape($id_inmueble);
-		$id_vehiculoe= $this->db->escape($id_vehiculo);
-				
-		$query="SELECT MAX(LAST_DAY(1*CONCAT(a.ano,LPAD(a.freval,2,0),'01'))) 
-				FROM r_reciboit a
-				JOIN r_abonosit b ON a.id_recibo=b.recibo
-				WHERE  a.id_conc=$id_conce ";
-				
-		if($id_inmueble)
-		$query.=" AND a.id_inmueble=$id_inmueblee ";
-		if($id_vehiculo)
-		$query.=" AND a.id_vehiculo=$id_vehiculoe ";
+		$where ='';
+		$where1='';
+		if($idreq>0){
+			$where .=" AND id_publicidad=$idreq ";
+			$where1.=" AND a.id=$idreq ";
+		}
 		
-		return $this->datasis->dameval($query);
+		$query="
+		SELECT b.id_conc,`b`.`id` AS `id`,`b`.`ano` AS `ano`,`b`.`acronimo` AS `acronimo`,`b`.`denomi` AS 
+		`denomi`,`b`.`requiere` AS `requiere`,null AS `id_inmueble`,null AS `catastro`,NULL AS
+		`id_vehiculo`,NULL AS `placa`,`a`.`id_contribu` AS `id_contribu`,CONCAT_WS(' ',a.ancho,'X',a.alto) AS `observa`,`b`.`formula` AS `formula` ,b.frecuencia,b.freval,b.modo,a.id id_publicidad
+		from `r_publicidad` `a` 
+		join `r_concit` `b` on 1 = 1
+		LEFT JOIN (
+			SELECT id_publicidad,id_conc ,MAX(ano) ano,MAX(CONCAT(ano,LPAD(freval,2,0))) anofreval
+			FROM r_reciboit
+			JOIN r_recibo ON r_reciboit.id_recibo=r_recibo.id
+			WHERE id_publicidad>0 AND id_contribu=$id_contribu $where
+			GROUP BY  id_publicidad,id_conc
+		)maximo ON b.id_conc=maximo.id_conc AND a.id=maximo.id_publicidad
+		where ((`b`.`requiere` = 'PUBLICIDAD') and (CONCAT(b.ano,LPAD(b.freval,2,0)) > 0) ) 
+		AND a.id_contribu=$id_contribu
+		AND b.deleted=0
+		AND (maximo.ano>0 OR maximo.ano IS NULL)
+		AND CONCAT(b.ano,LPAD(b.freval,2,0))>IF(maximo.id_publicidad>0,maximo.anofreval,0)
+		$where1
+		";
+		
+		return $query;
 	}
 	
 	function damedeudavehiculo($id_contribu,$idreq=null){
@@ -1065,7 +1118,7 @@ class r_cxc extends Controller {
 		}
 		
 		$query="
-		select b.id_conc,`b`.`id` AS `id`,`b`.`ano` AS `ano`,`b`.`acronimo` AS `acronimo`,`b`.`denomi` AS `denomi`,`b`.`requiere` AS `requiere`,NULL AS `id_inmueble`,NULL AS `catastro`,`a`.`id` AS `id_vehiculo`,`a`.`placa` AS `placa`,`a`.`id_contribu` AS `id_contribu`,'' AS `observa`,`b`.`formula` AS `formula` ,b.frecuencia,b.freval,b.modo
+		select b.id_conc,`b`.`id` AS `id`,`b`.`ano` AS `ano`,`b`.`acronimo` AS `acronimo`,`b`.`denomi` AS `denomi`,`b`.`requiere` AS `requiere`,NULL AS `id_inmueble`,NULL AS `catastro`,`a`.`id` AS `id_vehiculo`,`a`.`placa` AS `placa`,`a`.`id_contribu` AS `id_contribu`,'' AS `observa`,`b`.`formula` AS `formula` ,b.frecuencia,b.freval,b.modo,null id_publicidad
 		from `r_vehiculo` `a` 
 		join `r_concit` `b` on 1 = 1
 		LEFT JOIN (
@@ -1085,7 +1138,7 @@ class r_cxc extends Controller {
 		
 		UNION ALL 
 		
-		select b.id_conc,`b`.`id` AS `id`,`b`.`ano` AS `ano`,`b`.`acronimo` AS `acronimo`,`b`.`denomi` AS `denomi`,`b`.`requiere` AS `requiere`,NULL AS `id_inmueble`,NULL AS `catastro`,`a`.`id` AS `id_vehiculo`,`a`.`placa` AS `placa`,`a`.`id_contribu` AS `id_contribu`,'' AS `observa`,`b`.`formula` AS `formula` ,b.frecuencia,b.freval,b.modo
+		select b.id_conc,`b`.`id` AS `id`,`b`.`ano` AS `ano`,`b`.`acronimo` AS `acronimo`,`b`.`denomi` AS `denomi`,`b`.`requiere` AS `requiere`,NULL AS `id_inmueble`,NULL AS `catastro`,`a`.`id` AS `id_vehiculo`,`a`.`placa` AS `placa`,`a`.`id_contribu` AS `id_contribu`,'' AS `observa`,`b`.`formula` AS `formula` ,b.frecuencia,b.freval,b.modo,null id_publicidad
 		from `r_vehiculo` `a` 
 		join `r_concit` `b` on 1 = 1
 		where `b`.`requiere` = 'VEHICULO'
@@ -1101,7 +1154,7 @@ class r_cxc extends Controller {
 	
 	function damedeudapatente($id_contribu){
 		$query="
-		select b.id_conc,`b`.`id` AS `id`,`b`.`ano` AS `ano`,`b`.`acronimo` AS `acronimo`,`b`.`denomi` AS `denomi`,`b`.`requiere` AS `requiere`,NULL AS `id_inmueble`,NULL AS `catastro`,NULL AS `id_vehiculo`,NULL AS `placa`,`a`.`id` AS `id_contribu`,'' AS `observa`,`b`.`formula` AS `formula` ,b.frecuencia,b.freval,b.modo
+		select b.id_conc,`b`.`id` AS `id`,`b`.`ano` AS `ano`,`b`.`acronimo` AS `acronimo`,`b`.`denomi` AS `denomi`,`b`.`requiere` AS `requiere`,NULL AS `id_inmueble`,NULL AS `catastro`,NULL AS `id_vehiculo`,NULL AS `placa`,`a`.`id` AS `id_contribu`,'' AS `observa`,`b`.`formula` AS `formula` ,b.frecuencia,b.freval,b.modo,null id_publicidad
 		from (((`r_contribu` `a` 
 		join `r_concit` `b` on((1 = 1))) 
 		left join `r_reciboit` `c` on((`b`.`id` = `c`.`id_concit`))) 
@@ -1114,7 +1167,7 @@ class r_cxc extends Controller {
 	}
 	
 	function damedeudatodos($id_contribu){
-		$query="select b.id_conc,`b`.`id` AS `id`,`b`.`ano` AS `ano`,`b`.`acronimo` AS `acronimo`,`b`.`denomi` AS `denomi`,`b`.`requiere` AS `requiere`,NULL AS `id_inmueble`,NULL AS `catastro`,NULL AS `id_vehiculo`,NULL AS `placa`,`a`.`id` AS `id_contribu`,'' AS `observa`,`b`.`formula` AS `formula` ,b.frecuencia,b.freval,b.modo
+		$query="select b.id_conc,`b`.`id` AS `id`,`b`.`ano` AS `ano`,`b`.`acronimo` AS `acronimo`,`b`.`denomi` AS `denomi`,`b`.`requiere` AS `requiere`,NULL AS `id_inmueble`,NULL AS `catastro`,NULL AS `id_vehiculo`,NULL AS `placa`,`a`.`id` AS `id_contribu`,'' AS `observa`,`b`.`formula` AS `formula` ,b.frecuencia,b.freval,b.modo,null id_publicidad
 		from (((`r_contribu` `a` 
 		join `r_concit` `b` on((1 = 1))) 
 		left join `r_reciboit` `c` on((`b`.`id` = `c`.`id_concit`))) 
@@ -1145,6 +1198,9 @@ class r_cxc extends Controller {
 		if($tipo=='VEHICULO' || empty($tipo))
 			$querys[]=$this->damedeudavehiculo($id_contribu,$idreq);
 			
+		if($tipo=='PUBLICIDAD' || empty($tipo))
+			$querys[]=$this->damedeudapublicidad($id_contribu,$idreq);
+			
 		if($tipo=='TODOS' || empty($tipo))
 			$querys[]=$this->damedeudatodos($id_contribu);
 		
@@ -1158,8 +1214,9 @@ class r_cxc extends Controller {
 		foreach($arreglo as $key=>$row){
 			$id=null;
 			switch($row['requiere']){
-					case 'INMUEBLE':$id=$row['id_inmueble'];break;
-					case 'VEHICULO':$id=$row['id_vehiculo'];break;
+					case 'INMUEBLE'  :$id=$row['id_inmueble'];break;
+					case 'VEHICULO'  :$id=$row['id_vehiculo'];break;
+					case 'PUBLICIDAD':$id=$row['id_publicidad'];break;
 			}
 			$arreglo[$key]['monto']=$this->calculamonto($row['formula'],$row['ano'],$id,$id_contribu);
 		}
@@ -1208,6 +1265,13 @@ class r_cxc extends Controller {
 			$row=$this->datasis->damerow($query);
 			foreach($row as $k=>$v)
 				$XX["XX_VEHICULO_".strtoupper($k)]=$v;
+		}
+		
+		if(!(strpos( $formula,'XX_PUBLICIDAD_')===false)){
+			$query="SELECT alto,ancho,monto tipo_monto FROM r_publicidad JOIN rp_tipos ON  r_publicidad.id_tipo=rp_tipos.id WHERE r_publicidad.id=$id";
+			$row=$this->datasis->damerow($query);
+			foreach($row as $k=>$v)
+				$XX["XX_PUBLICIDAD_".strtoupper($k)]=$v;
 		}
 		
 		if(!(strpos( $formula,'XX_CONTRIBU_')===false) && $id_contribu>0){
@@ -1334,7 +1398,7 @@ class r_cxc extends Controller {
 		$query="SELECT  
 		IF(frecuencia=1,'Año',IF(frecuencia=2,'Semestre',IF(frecuencia=3,'Trimestre',IF(frecuencia=4,'MES','')))) frecuencia
 		,freval
-		,r_recibo.id,numero, fecha,r_reciboit.id_concit, denomi,ano,v_placa,i_catastro,observa, (r_reciboit.monto) monto,id_vehiculo,id_inmueble
+		,r_recibo.id,numero, r_recibo.fecha,r_reciboit.id_concit, denomi,ano,v_placa,i_catastro,observa, (r_reciboit.monto) monto,id_vehiculo,id_inmueble
 		FROM r_reciboit 
 		JOIN r_recibo ON r_reciboit.id_recibo=r_recibo.id 
 		JOIN r_abonosit ON r_recibo.id=r_abonosit.recibo
@@ -1353,9 +1417,10 @@ class r_cxc extends Controller {
 		$grid3 = new DataGrid('Pagos',$data);
 		$grid3->per_page = 3000;
 		
-		$uri = anchor_popup('recaudacion/r_recibo/dataedit/show/<raencode><#id#></raencode>','<#numero#>',$atts);
+		$uri = anchor_popup('recaudacion/r_recibo/dataedit/show/<raencode><#id#></raencode>','<#id#>',$atts);
 	         
-		$grid3->column('Numero'         ,"$uri"                                         ,'align="left"');
+		$grid3->column('Ref.'           ,"$uri"                                        ,'align="left"');
+		$grid3->column('Numero'         ,"<#numero#>"                                  ,'align="left"');
 		$grid3->column('Fecha'          ,"<dbdate_to_human><#fecha#></dbdate_to_human>",'align="center"');
 		$grid3->column('Ref Conc'       ,"id_concit"                                   ,'align="left"');
 		$grid3->column('Denominacion'   ,"denomi"                                      ,'align="left"');
@@ -1369,7 +1434,51 @@ class r_cxc extends Controller {
 		$grid3->column('Observacion'    ,"observa"                                     ,'align="left"');
 		$grid3->column('Monto'          ,"<nformat><#monto#></nformat>"                ,'align="right"');
 
-		$grid3->build();		
+		$grid3->build();
+		
+		
+		/* CUENTAS POR COBRAR*/
+		$query="SELECT  
+		IF(r_cxcit.frecuencia=1,'Año',IF(r_cxcit.frecuencia=2,'Semestre',IF(r_cxcit.frecuencia=3,'Trimestre',IF(r_cxcit.frecuencia=4,'MES','')))) frecuencia
+		,r_cxcit.freval
+		,r_cxc.id,numero, r_cxc.fecha,r_cxcit.id_concit, r_cxcit.denomi,r_cxcit.ano,r_cxcit.v_placa,r_cxcit.i_catastro,r_cxcit.observa, (r_cxcit.monto) monto,r_cxcit.id_vehiculo,r_cxcit.id_inmueble,r_reciboit.id_recibo
+		FROM r_cxcit 
+		JOIN r_cxc ON r_cxcit.id_cxc=r_cxc.id 
+		LEFT JOIN r_reciboit ON r_cxcit.id=r_reciboit.id_cxcit
+		WHERE r_reciboit.id IS NULL AND  r_cxc.id_contribu=".$this->db->escape($id);
+		
+		if(strlen($idsv)>0)
+		$query.=" OR r_cxcit.id_vehiculo IN (".$idsv.")";
+		if(strlen($idsi)>0)
+		$query.=" OR r_cxcit.id_inmueble IN (".$idsi.")";
+		
+		$query.=" ORDER BY r_cxc.fecha desc,r_cxcit.ano,r_cxcit.requiere";
+		
+		$data = $this->db->query($query);
+		$data = $data->result_array();
+		$grid5 = new DataGrid('Cuentas por Cobrar',$data);
+		$grid5->per_page = 3000;
+		
+		$uri = anchor_popup('recaudacion/r_cxc/dataedit/show/<raencode><#id#></raencode>','<#id#>',$atts);
+		$uri2= anchor_popup('recaudacion/r_recibo/dataedit/show/<raencode><#id_recibo#></raencode>','<#id_recibo#>',$atts);
+	         
+		$grid5->column('Ref.'           ,"$uri"                                         ,'align="left"');
+		$grid5->column('Fecha'          ,"<dbdate_to_human><#fecha#></dbdate_to_human>",'align="center"');
+		$grid5->column('Ref Conc'       ,"id_concit"                                   ,'align="left"');
+		$grid5->column('Denominacion'   ,"denomi"                                      ,'align="left"');
+		$grid5->column('A&ntilde;o'     ,"ano"                                         ,'align="left"');
+		$grid5->column('Frecuencia'     ,"frecuencia"                                  ,'align="left"');
+		$grid5->column('Valor'          ,"freval"                                      ,'align="left"');
+		$grid5->column('Ref. Vehi'      ,"id_vehiculo"                                 ,'align="left"');
+		$grid5->column('Placa'          ,"v_placa"                                     ,'align="left"');
+		$grid5->column('Ref. Inmu'      ,"id_inmueble"                                 ,'align="left"');
+		$grid5->column('Catastro'       ,"i_catastro"                                  ,'align="left"');
+		$grid5->column('Observacion'    ,"observa"                                     ,'align="left"');
+		$grid5->column('Monto'          ,"<nformat><#monto#></nformat>"                ,'align="right"');
+		$grid5->column('Recibo'         ,$uri2                                         ,'align="right"');
+
+		$grid5->build();	
+		/* CUENTAS POR COBRAR*/
 		
 		$rifci = $this->datasis->dameval("SELECT rifci FROM r_contribu WHERE id=".$this->db->escape($id));
 		if(empty($rifci))
@@ -1400,6 +1509,9 @@ class r_cxc extends Controller {
 		$tablas.='</td></tr>';
 		$tablas.='<tr><td scrollbar="yes" width="100%" height="100px">';
 		$tablas.=str_replace('mainbackgroundtable','',$grid3->output);
+		$tablas.='</td></tr>';
+		$tablas.='<tr><td scrollbar="yes" width="100%" height="100px">';
+		$tablas.=str_replace('mainbackgroundtable','',$grid5->output);
 		$tablas.='</td></tr>';
 		$tablas.='<tr><td scrollbar="yes" width="100%" height="100px">';
 		$tablas.=str_replace('mainbackgroundtable','',$grid4->output);
@@ -1725,6 +1837,10 @@ class r_cxc extends Controller {
 		$query="ALTER TABLE `r_reciboit` ADD COLUMN `base` DECIMAL(19,2) NULL DEFAULT '0' AFTER `freval`";
 		$this->db->simple_query($query);
 		$query="ALTER TABLE `r_cxcit` 	ADD COLUMN `modo` VARCHAR(10) NULL DEFAULT NULL AFTER `requiere`";
+		$this->db->simple_query($query);
+		$query="ALTER TABLE `r_cxcit` ADD COLUMN `expira` CHAR(1) NULL DEFAULT NULL AFTER `p_tipo_descrip`";
+		$this->db->simple_query($query);
+		$query="ALTER TABLE `r_cxc` ADD COLUMN `estampa` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `caja`";
 		$this->db->simple_query($query);
 	}
 }

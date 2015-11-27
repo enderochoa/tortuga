@@ -115,29 +115,38 @@ class r_conc extends Controller {
 		$edit->itid->readonly=true;
 		$edit->itid->size=1;
 		
+		$edit->itexpira = new dropDownField('(<#o#>) Exp','expira_<#i#>');
+		$edit->itexpira->option('N','Nunca'  );
+		$edit->itexpira->option('M','Mensual');
+		$edit->itexpira->option('A','Anual');
+		$edit->itexpira->option('T','Trimestral');
+		$edit->itexpira->style="width:40px;";
+		$edit->itexpira->db_name='expira';
+        $edit->itexpira->rel_id ='r_concit';
+		
 		$edit->itano = new dropDownField('(<#o#>) A&ntilde;o','ano_<#i#>');
 		$edit->itano->option('0','');
 		for($i=1990;$i<=2016;$i++)
 		$edit->itano->option($i,$i);
-		$edit->itano->style="width:100px;";
+		$edit->itano->style="width:40px;";
 		$edit->itano->db_name='ano';
         $edit->itano->rel_id ='r_concit';
         
-        $edit->itfrecuencia = new dropDownField('(<#o#>) frecuencia','frecuencia_<#i#>');
+        $edit->itfrecuencia = new dropDownField('(<#o#>) frec','frecuencia_<#i#>');
 		$edit->itfrecuencia->option('0','Independiente');
 		$edit->itfrecuencia->option('1','Anual'        );
 		$edit->itfrecuencia->option('2','Semestral'    );
 		$edit->itfrecuencia->option('3','Trimestral'   );
 		$edit->itfrecuencia->option('4','Mensual'      );
-		$edit->itfrecuencia->style="width:100px;";
+		$edit->itfrecuencia->style="width:40px;";
 		$edit->itfrecuencia->db_name='frecuencia';
         $edit->itfrecuencia->rel_id ='r_concit';
         
-        $edit->itfreval = new dropDownField('(<#o#>) Valor Frecuencia','freval_<#i#>');
+        $edit->itfreval = new dropDownField('(<#o#>) Val Frec','freval_<#i#>');
 		$edit->itfreval->option('0','');
 		for($i=1;$i<=12;$i++)
 		$edit->itfreval->option($i,$i);
-		$edit->itfreval->style="width:100px;";
+		$edit->itfreval->style="width:40px;";
 		$edit->itfreval->db_name='freval';
         $edit->itfreval->rel_id ='r_concit';
         
@@ -248,7 +257,8 @@ class r_conc extends Controller {
 		$this->db->simple_query($query);
 		$query="ALTER TABLE `r_concit` 	ADD COLUMN `modo` VARCHAR(10) NULL DEFAULT NULL AFTER `requiere`";
 		$this->db->simple_query($query);
-
+		$query="ALTER TABLE `r_concit` 	ADD COLUMN `expira` CHAR(1) NULL DEFAULT NULL AFTER `modo`";
+		$this->db->simple_query($query);
 	}
 
 }

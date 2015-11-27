@@ -12,17 +12,17 @@ class Tiket extends Controller {
 		$this->modulo=92;
 		$this->estado=array(
 		 "N"=>"Nuevo",
-     "P"=>"Pendiente",
-     "R"=>"Resueltos",
-     "C"=>"Cerrado"); 
- 	
-		$this->prioridad=array(
-		 "1"=>"Muy Alta",
-     "2"=>"Alta",
-     "3"=>"Media",
-     "4"=>"Baja",
-     "5"=>"Muy baja");
-	}
+		 "P"=>"Pendiente",
+		 "R"=>"Resueltos",
+		 "C"=>"Cerrado"); 
+		
+			$this->prioridad=array(
+			 "1"=>"Muy Alta",
+		 "2"=>"Alta",
+		 "3"=>"Media",
+		 "4"=>"Baja",
+		 "5"=>"Muy baja");
+		}
 
 	function index(){ 
 		redirect("supervisor/tiket/filteredgrid");
@@ -31,6 +31,7 @@ class Tiket extends Controller {
 	function filteredgrid(){
 		$this->datasis->modulo_id($this->modulo,1);
 		$this->rapyd->load("datafilter2","datagrid");
+		$this->rapyd->uri->keep_persistence();
  		$modbus=array(
 			'tabla'   =>'usuario',
 			'columnas'=>array(
@@ -39,6 +40,8 @@ class Tiket extends Controller {
 			'filtro'  =>array('us_nombre'=>'nombre'),
 			'retornar'=>array('us_codigo'=>'usuario'),
 			'titulo'  =>'Buscar Usuario');
+			
+			
 
 		$filter = new DataFilter("");
 		$select=array("id","estampa","usuario","contenido","prioridad","IF(estado='N','Nuevo',IF(estado='R','Resuelto',IF(estado='P','Pendiente','En Proceso')))as estado","estampa","id","actualizado");

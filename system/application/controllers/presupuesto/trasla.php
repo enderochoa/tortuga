@@ -536,6 +536,8 @@ class trasla extends Common {
 		$this->db->simple_query($query);
 		$query="ALTER TABLE `trasla` CHANGE COLUMN `motivo` `motivo` TEXT NULL DEFAULT NULL AFTER `fecha`";
 		$this->db->simple_query($query);
+		$query="ALTER TABLE `trasla` 	CHANGE COLUMN `motivo` `motivo` TEXT NULL DEFAULT NULL ";
+		$this->db->simple_query($query);
 	}
 } 
 ?>

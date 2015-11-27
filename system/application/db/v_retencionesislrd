@@ -8,7 +8,6 @@ where (((`c`.`status` = 'B3') or (`c`.`status` = 'C3') or (`c`.`status` = 'N3'))
 
 union all 
 
-
 select `a`.`numero` AS `desembolso`,`c`.`numero` AS `ordpago`,'' AS `ordcompra`,`g`.`id` AS `multiple`,`a`.`cod_prov` AS `cod_prov`,`g`.`factura` AS `factura`,`g`.`controlfac` AS `controlfac`,`g`.`fechafac` AS `fechafac`,(`g`.`total2`) AS `total2`,(`g`.`breten`) AS `breten`,(`g`.`subtotal`) AS `subtotal`,`c`.`creten` AS `creten`,`p`.`rif` AS `rif`,`p`.`nombre` AS `nombre`,concat_ws(' ',`p`.`direc1`,`p`.`direc2`,`p`.`direc3`) AS `direccion`,`a`.`fdesem` AS `fdesem`,((`g`.`ivaa` + `g`.`ivag`) + `g`.`ivar`) AS `iva`,(`g`.`exento`) AS `exento` ,c.preten ,c.reten
 from (((((`desem` `a` 
 join `pades` `b` on((`a`.`numero` = `b`.`desem`))) 

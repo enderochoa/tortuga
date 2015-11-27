@@ -513,7 +513,7 @@ class Ingmbanc2 extends Controller {
 		$data['content'] = $this->load->view('view_ingmbanc2', $conten,true);
 		//$data['content'] = $edit->output;
 		$data['title']   = $this->tits;
-		$data["head"]    = $this->rapyd->get_head().script('jquery.js').script("plugins/jquery.numeric.pack.js").script("plugins/jquery.json.min.js");
+		$data["head"]    = $this->rapyd->get_head().script('jquery.js').script("plugins/jquery.numeric.pack.js");
 		$this->load->view('view_ventanas', $data);
 	}
 	

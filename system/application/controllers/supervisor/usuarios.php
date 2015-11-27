@@ -238,6 +238,10 @@ class Usuarios extends Controller {
 		$this->db->simple_query($query);
 		$mSQL="ALTER TABLE `usuario` ADD COLUMN `caja` INT NULL DEFAULT NULL";
 		$this->db->simple_query($mSQL);
+		$mSQL="ALTER TABLE `usuario` ADD COLUMN `usachat` CHAR(1) NULL DEFAULT 'S' AFTER `caja`";
+		$this->db->simple_query($mSQL);
+		$mSQL="ALTER TABLE `usuario` CHANGE COLUMN `us_clave` `us_clave` TEXT NULL DEFAULT NULL AFTER `us_nombre`";
+		$this->db->simple_query($mSQL);
 	}
 }
 ?>

@@ -43,9 +43,10 @@ class R_abonos extends Controller {
 		$bBANC=$this->datasis->p_modbus($mBANC,"banc");
 
 		$filter = new DataFilter($this->titp);
-		$filter->db->select(array('b.abono id','c.nombre','GROUP_CONCAT(c.numero) numero'
+		$filter->db->select(array('b.abono id','c.nombre','GROUP_CONCAT(c.numero SEPARATOR " ") numero'
 		,'c.nombre','c.rifci','c.fecha','GROUP_CONCAT(c.id SEPARATOR " ") id_recibo','GROUP_CONCAT(d.cheque SEPARATOR " ") cheque','GROUP_CONCAT(IF(d.tipo_doc="EF","Efectivo",IF(d.tipo_doc="DP","Deposito",IF(d.tipo_doc="DB","T. Debito",IF(d.tipo_doc="CR","T. Credito",IF(d.tipo_doc="DF","Diferencia","")))))) tipo_doc'
-		,'SUM(d.monto) totbancos'));
+		,'d.monto monto_banco'
+		,'c.monto monto_recibo'));
 		$filter->db->from('r_abonosit b' );
 		$filter->db->join('r_recibo c','b.recibo=c.id'  );
 		$filter->db->join('r_mbanc d' ,'b.abono=d.abono');
@@ -96,7 +97,7 @@ class R_abonos extends Controller {
 		$filter->monto->rule      ='max_length[13]';
 		$filter->monto->size      =15;
 		$filter->monto->maxlength =13;
-		$filter->monto->db_name="c.monto";
+		$filter->monto->db_name   ="c.monto";
 		$filter->monto->group     ='Datos Recibo';
 		
 		
@@ -115,6 +116,25 @@ class R_abonos extends Controller {
 		$filter->codbanc->db_name="d.codbanc";
 		$filter->codbanc->group     ='Datos Bancarios';
 		
+		$filter->fecha = new dateonlyField('Fecha','fecha');
+		$filter->fecha->db_name   ="d.fecha";
+		//$filter->fecha->rule      ='chfecha';
+		$filter->fecha->size      =10;
+		$filter->fecha->maxlength =8;
+		$filter->fecha->clause    ='where';
+		$filter->fecha->operator  ='=';
+		$filter->fecha->group     ='Datos Bancarios';
+		
+		$filter->tipo_doc = new dropdownField("Tipo Documento","tipo_doc");
+		$filter->tipo_doc->db_name   = 'd.tipo_doc';
+		$filter->tipo_doc->style     ="width:130px;";
+		$filter->tipo_doc->option(""  ,"");
+		$filter->tipo_doc->option("EF","Efectivo");
+		$filter->tipo_doc->option("DP","Deposito"       );
+		$filter->tipo_doc->option("DB","Tarjeta D&eacute;bito");
+		$filter->tipo_doc->option("CR","Tarjeta Credito");
+		$filter->tipo_doc->option("DF","Diferencia");
+		
 		$filter->cheque = new inputField("Transaccion", "cheque");
 		$filter->cheque->db_name="d.cheque";
 		$filter->cheque->size  =10;
@@ -126,7 +146,7 @@ class R_abonos extends Controller {
 		$filter->montob->maxlength =13;
 		$filter->montob->db_name   ="d.monto";
 		$filter->montob->group     ='Datos Bancarios';
-
+		
 		$filter->buttons('reset', 'search');
 		$filter->build();
 
@@ -136,13 +156,14 @@ class R_abonos extends Controller {
 		$grid->order_by('b.abono ','desc');
 		$grid->per_page = 40;
 
-		$grid->column_orderby('Ref.'          ,"$uri"                                           ,'id'         ,'align="left"' );
-		$grid->column_orderby('Recibo'        ,"numero"                                 	,'numero'     ,'align="left"' );
-		$grid->column_orderby('Ref Recibo'    ,"id_recibo"                                      ,'id_recibo'  ,'align="left"' );
-		$grid->column_orderby('Nombre'        ,"nombre"                                         ,'nombre'     ,'align="left"' );
-		$grid->column_orderby('Documento'     ,"tipo_doc"                                       ,'tipo_doc'   ,'align="left"' );
-		$grid->column_orderby('Transacciones' ,"cheque"                                         ,'cheque'     ,'align="left"' );
-		$grid->column_orderby('Monto'         ,"totbancos"                                      ,'totbancos' ,'align="right"');
+		$grid->column_orderby('Ref.'                              ,"$uri"                   ,'id'            ,'align="left"' );
+		$grid->column_orderby('Recibo'                            ,"numero"                 ,'numero'        ,'align="left"' );
+		$grid->column_orderby('Ref Recibo'                        ,"id_recibo"              ,'id_recibo'     ,'align="left"' );
+		$grid->column_orderby('Nombre'                            ,"nombre"                 ,'nombre'        ,'align="left"' );
+		$grid->column_orderby('Documento'                         ,"tipo_doc"               ,'tipo_doc'      ,'align="left"' );
+		$grid->column_orderby('Transacciones'                     ,"cheque"                 ,'cheque'        ,'align="left"' );
+		$grid->column_orderby('Monto de un Recibo'                ,"monto_recibo"           ,'c.monto'       ,'align="right"');
+		$grid->column_orderby('Monto de una Transaccion Bancaria' ,"monto_banco"            ,'d.monto'       ,'align="right"');
 		
 		$action = "javascript:window.location='" .site_url('recaudacion/r_recibo/filteredgrid'). "'";
 		$grid->button("ir_cobranza","Ir a Recibos",$action,"TL");
@@ -215,6 +236,21 @@ class R_abonos extends Controller {
 				'titulo'  =>'Buscar Recibos por Pagar');
 		$bRECIBO=$this->datasis->p_modbus($mRECIBO,"<#i#>");
 
+		$ABONOCODBANCDEFECTO = $this->datasis->traevalor('ABONOCODBANCDEFECTO');
+		$user          = $this->session->userdata('usuario');
+		$usere         = $this->db->escape($user);
+		$r_caja        = $this->datasis->damerow("SELECT r_caja.id,punto_codbanc,defecto_codbanc FROM r_caja JOIN  usuario ON r_caja.id=usuario.caja WHERE us_codigo =$usere");
+
+		if(count($r_caja)>0){
+			$caja                = $r_caja['id'];
+			$punto_codbanc       = $r_caja['punto_codbanc'];
+			if(strlen($r_caja['defecto_codbanc'])>0)
+				$ABONOCODBANCDEFECTO = $r_caja['defecto_codbanc'];
+		}else{
+			$caja=0;
+			$punto_codbanc='';
+		}
+
 		$do = new DataObject("r_abonos");
 		$do->rel_one_to_many('r_abonosit', 'r_abonosit', array('id'=>'abono'));
 		$do->rel_one_to_many('r_mbanc'   , 'r_mbanc'   , array('id'=>'abono'));
@@ -229,6 +265,7 @@ class R_abonos extends Controller {
 
 		$edit->pre_process('insert' ,'_valida');
 		$edit->pre_process('update' ,'_valida');
+		$edit->pre_process('delete' ,'_pre_delete' );
 		$edit->post_process('insert','_post_insert');
 		$edit->post_process('update','_post_update');
 		$edit->post_process('delete','_post_delete');
@@ -293,7 +330,7 @@ class R_abonos extends Controller {
 		$edit->itnombrep->readonly  =true;
 
 /****** CHEQUES *********************/
-		$ABONOCODBANCDEFECTO = $this->datasis->traevalor('ABONOCODBANCDEFECTO');
+		
 		$edit->itcodbanc =  new inputField("(<#o#>) Banco", 'codbanc_<#i#>');
 		$edit->itcodbanc->db_name   = 'codbanc';
 		$edit->itcodbanc-> size     = 4;
@@ -341,18 +378,12 @@ class R_abonos extends Controller {
 		$edit->itmonto->onchange  = "cal_totm();";
 		$edit->itmonto->value     =0;
 		
+		$edit->itid_mbancrel = new hiddenField('Id','id_mbancrel<#i#>');
+		$edit->itid_mbancrel->rel_id ='r_mbanc';
+		$edit->itid_mbancrel->db_name='id_mbancrel';
+		
 /**************** POR COBRAR ******************************************/
-		$user          = $this->session->userdata('usuario');
-		$usere         = $this->db->escape($user);
-		$r_caja        = $this->datasis->damerow("SELECT r_caja.id,punto_codbanc FROM r_caja JOIN  usuario ON r_caja.id=usuario.caja WHERE us_codigo =$usere");
-
-		if(count($r_caja)>0){
-			$caja          = $r_caja['id'];
-			$punto_codbanc = $r_caja['punto_codbanc'];
-		}else{
-			$caja=0;
-			$punto_codbanc='';
-		}
+		
 		
 		if($caja>0){
 			$query="select a.id AS id,a.id_contribu AS id_contribu,a.fecha AS fecha,a.numero AS numero,a.rifci AS rifci,a.nombre AS nombre,a.telefono AS telefono,a.monto AS monto,a.id_parroquia AS id_parroquia,a.parroquia AS parroquia,a.id_zona AS id_zona,a.zona AS zona,a.dir1 AS dir1,a.dir2 AS dir2,a.dir3 AS dir3,a.dir4 AS dir4,a.razon AS razon,a.solvencia AS solvencia,a.solvenciab AS solvenciab,a.licores AS licores,a.caja AS caja 
@@ -411,12 +442,24 @@ class R_abonos extends Controller {
 	function _valida($do){
 		$error='';
 		$t=0;
+		
 		$recibosid=array();
 		$id = $do->get('id');
+		$m=0;
 		for($i=0;$i<$do->count_rel('r_abonosit');$i++){
 			$recibo   =$do->get_rel('r_abonosit','recibo'  ,$i);
 			$m=$this->input->post('montop_'.$i);
+			$fecha=$this->input->post('fechap_'.$i);
+			$fechae=$this->db->escape($fecha);
 			$t+=$m;
+			
+			$fechadb= $this->datasis->dameval("SELECT fecha FROM r_recibo WHERE id=$recibo");
+			$fechadbe=$this->db->escape($fechadb);
+			$cerrado     = $this->datasis->dameval("SELECT COUNT(*) FROM r_cerrar WHERE fecha=REPLACE($fechadbe,'-','')");
+			
+			
+			if($cerrado>0)
+			$error.="<div class='alert' >Error. El Dia ".dbdate_to_human($fecha)." ya se encuetra Cerrado para el recibo $recibo</div>";
 			
 			if(in_array($recibo,$recibosid)){
 				$error.="ERROR. esta cobrando dos vences el mismo recibo Ref ($recibo)</br>";
@@ -430,18 +473,43 @@ class R_abonos extends Controller {
 			$cant = $this->datasis->dameval($query);
 			if($cant>0)
 			$error.="ERROR. El Recibo ya esta cobrado Ref ($recibo)</br>";
-			
 		}
 		
-		$t2=0;
+		$t2=$m2=0;
 		for($i=0;$i<$do->count_rel('r_mbanc');$i++){
-			$m2=$this->input->post('monto_'.$i);
-			$t2+=$m2;
+			//$m2=$this->input->post('monto_'.$i);
+			
 			$cheque    =$do->get_rel('r_mbanc','cheque'  ,$i);
 			$tipo_doc  =$do->get_rel('r_mbanc','tipo_doc',$i);
 			$codbanc   =$do->get_rel('r_mbanc','codbanc' ,$i);
+			$fecha     =$do->get_rel('r_mbanc','fecha'   ,$i);
+			$m2        =$do->get_rel('r_mbanc','monto'   ,$i);
+			
+			$t2+=$m2;
+			$chequee   =$this->db->escape($cheque);
+			$fechadbe  =$this->db->escape($fecha);
+			
+			//$cerrado     = $this->datasis->dameval("SELECT COUNT(*) FROM r_cerrar WHERE fecha=REPLACE($fechadbe,'-','')");
+			//if($cerrado>0)
+			//$error.="<div class='alert' >Error. El Dia ".dbdate_to_human($fecha)." ya se encuetra Cerrado para el Movimiento Bancario para $codbanc $tipo_doc $chequee</div>";
+			
+			if(strlen($cheque)>0){
+				$codbance  = $this->db->escape($codbanc );
+				$chequee   = $this->db->escape($cheque  );
+				$tipo_doce = $this->db->escape($tipo_doc);
+			
+				$query ="SELECT COUNT(*) FROM r_mbanc WHERE codbanc=$codbance AND tipo_doc=$tipo_doce AND cheque=$chequee ";
+				if($id>0)
+				$query.=" AND abono<>$id";
+				
+				$c = 1*$this->datasis->dameval($query);
+				
+				if($c>0)
+				$error.="ERROR. El $tipo_doce numero $chequee del $codbance ya esta registrado ";
+			}
 		}
 		
+		//echo "$t t </br>";
 		if(round($t,2)<>round($t2,2))
 		$error.="ERROR. Los Montos en Bancos y de recibos son diferentes";
 		
@@ -451,6 +519,33 @@ class R_abonos extends Controller {
 		if(!empty($error)){
 			$do->error_message_ar['pre_ins']="<div class='alert'>".$error."</div>";
 			$do->error_message_ar['pre_upd']="<div class='alert'>".$error."</div>";
+			return false;
+		}
+	}
+	
+	function _pre_delete($do){
+		$error="";
+		$id      = $do->get('id');
+
+		$query="
+		SELECT fecha FROM (
+			SELECT b.fecha FROM r_abonosit a JOIN r_recibo b ON a.recibo=b.id WHERE a.abono=$id 
+		)todo GROUP BY fecha
+		";
+		
+		$query = $this->db->query($query);
+		$query = $query->result();
+		foreach($query as $row){
+			$fechae  = $this->db->escape($row->fecha);
+ 			$cerrado = $this->datasis->dameval("SELECT COUNT(*) FROM r_cerrar WHERE fecha=REPLACE($fechae,'-','')");
+			if($cerrado>0)
+			$error.="<div class='alert' >Error. El Dia ".dbdate_to_human($row->fecha)." ya se encuetra Cerrado</div>";
+		}
+
+		if(!empty($error)){
+			$error.="</br>".anchor($this->url."dataedit/show/$id","Ver Cobranza $id");
+			$do->error_string=$error;
+			$do->error_message_ar['pre_del']=$error;
 			return false;
 		}
 	}
@@ -587,6 +682,11 @@ class R_abonos extends Controller {
 		$query="ALTER TABLE `r_mbanc` ADD COLUMN `id_mbancrel` INT NULL DEFAULT NULL AFTER `concepto`";
 		$this->db->simple_query($query);
 		$query="ALTER TABLE `r_mbanc` ADD INDEX `id_mbancrel` (`id_mbancrel`)";
+		$this->db->simple_query($query);
+		
+		$query="ALTER TABLE `r_mbanc` ADD COLUMN `id_mbanc` INT(11) NULL DEFAULT NULL AFTER `id_mbancrel";
+		$this->db->simple_query($query);
+		$query="ALTER TABLE `r_abonos` ADD COLUMN `fecha` DATE NULL DEFAULT NULL AFTER `totmbanc`";
 		$this->db->simple_query($query);
 	}
 

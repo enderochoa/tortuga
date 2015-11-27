@@ -225,24 +225,29 @@ class Opagoc extends Common {
 		$edit->cod_prov->append($bSPRV2);
 		$edit->cod_prov->append($lsnc);
 		$edit->cod_prov->rule  = "required";
-
+		//$edit->cod_prov->mode  = "autohide";
+		
 		$edit->nombrep = new inputField("Nombre", 'nombrep');
 		$edit->nombrep->size = 30;
 		//$edit->nombrep->readonly = true;
 		$edit->nombrep->pointer = true;
+		//$edit->nombrep->mode  = "autohide";
 
 		$edit->rifp  = new inputField("RIF", "rifp");
 		$edit->rifp->size=10;
 		$edit->rifp->pointer = true;
 		$edit->rifp->db_name='rifp';
+		//$edit->rifp->mode  = "autohide";
 		//if($status=='P')
 		//$edit->rif->readonly = true;
 
 		$edit->reteiva_prov  = new inputField("% R.IVA", "reteiva_prov");
 		$edit->reteiva_prov->size=2;
-		$edit->reteiva_prov->readonly=true;
+		//$edit->reteiva_prov->readonly=true;
 		$edit->reteiva_prov->when=array('modify','create');
-		$edit->reteiva_prov->onchange ='cal_total();';
+		$edit->reteiva_prov->onchange ='cal_totalfac();';
+		//if($OPAGOCMODIFICACODPROV=='N')
+		//$edit->reteiva_prov->mode  = "autohide";
 
 		$edit->observa = new textAreaField("Concepto", 'observa');
 		$edit->observa->cols = 70;
@@ -850,18 +855,26 @@ class Opagoc extends Common {
 					$iteracion=0;
 					foreach($ordenes as $k=>$v){
 						$iteracion++;
-						$temp  = explode('_._',$k);		
+						$temp  = explode('_._',$k);	
 						
-						$query ="SELECT SUM(a.xcausar) 
-						FROM v_comproxcausar a
-						WHERE a.ocompra='".$temp[0]."' AND a.codigoadm='".$temp[1]."' AND a.fondo='".$temp[2]."' AND a.codigopres='".$temp[3]."' 
-						";
-						$totcau=$this->datasis->dameval($query);
-						$v      = 1*round($v);
-						$totcau = 1*round($totcau);
-						
-						if($v>$totcau)
-						$error.="<div class='alert'><p> $iteracion ERROR. El monto (".nformat($v).") es Mayor al por causar (".nformat($totcau).") para la partida ".$temp[1]."".$temp[3]." ".$temp[2]." y el Compromiso ".$temp[0]."</p></div>";
+						if(substr($temp[0],0,1)!='N'){
+							
+							$query ="SELECT SUM(a.xcausar) 
+							FROM v_comproxcausar a
+							WHERE a.ocompra='".$temp[0]."' AND a.codigoadm='".$temp[1]."' AND a.fondo='".$temp[2]."' AND a.codigopres='".$temp[3]."' 
+							";
+							$totcau=$this->datasis->dameval($query);
+							$v      = 1*round($v);
+							$totcau = 1*round($totcau);
+							
+							if($v>$totcau)
+							$error.="<div class='alert'><p> $iteracion ERROR. El monto (".nformat($v).") es Mayor al por causar (".nformat($totcau).") para la partida ".$temp[1]."".$temp[3]." ".$temp[2]." y el Compromiso ".$temp[0]."</p></div>";
+						}else{
+							$query="SELECT status FROM nomi WHERE numero=".(1*str_replace('NO','',$temp[0]));
+							$sta= $this->datasis->dameval($query);
+							if($sta!='D')
+								$error.="<div class='alert'><p> $iteracion ERROR. La nomina ".$k[0]." no puede ser causada, porque el estado no es orden asignada</p></div>";
+						}
 					}
 				}
 
@@ -880,7 +893,6 @@ class Opagoc extends Common {
 				}
 			}
 		}
-
 
 		if(empty($error)){
 			logusu('odirect',"Actualizo Orden de Pago Directo Nro $id");
@@ -956,7 +968,7 @@ class Opagoc extends Common {
 		$impt         =$do->get('imptimbre'   );
 		
 		$do->set('multiple','S'    );
-		
+		$OPAGOCMODIFICACODPROV=$this->datasis->traevalor('OPAGOCMODIFICACODPROV','S');
 		$ODIRECTMODIFICARETE=$this->datasis->traevalor('ODIRECTMODIFICARETE','N');
 
 		$rete['tari1'] = 0;
@@ -965,7 +977,7 @@ class Opagoc extends Common {
 
 		$total2=$giva=$aiva=$riva=$exento=$reteiva=$subtotal=$subtotal2=$tiva=$mivag=$mivar=$mivaa=$tivag=$tivar=$tivaa=$treten=0;
 		$admfondo=array();$admfondop=array();$borrarivas=array();$ivasm=0;$totiva=0;
-		
+		$ocompras=array();
 		for($i=0;$i < $do->count_rel('itodirect');$i++){
 			$do->set_rel('itodirect','fondo' ,$fondo       ,$i);
 			$cantidad        = round($do->get_rel('itodirect'  ,'cantidad'     ,$i),2);
@@ -978,6 +990,11 @@ class Opagoc extends Common {
 			$codprov         =       $do->get_rel('itodirect'  ,'codprov'      ,$i);
 			$ordinal         =       $do->get_rel('itodirect'  ,'ordinal'      ,$i);
 			$esiva           =       $do->get_rel('itodirect'  ,'esiva'        ,$i);
+			$ocompra         =       $do->get_rel('itodirect'  ,'ocompra'      ,$i);
+			
+			if(!(substr($ocompra,0,1)=='N')){
+				$ocompras[]=$ocompra;
+			}
 
 			$do->set_rel('itodirect'  ,'importe',$importe          ,$i);
 
@@ -1048,26 +1065,33 @@ class Opagoc extends Common {
 					$error.="Debe introducir un numero de orden de pago</br>";
 			}elseif($this->datasis->traevalor('USANODIRECT')!='S'){
 				$numeroe = $this->db->escape($numero);
-				$chk     = $this->datasis->dameval("SELECT COUNT(*) FROM odirect WHERE numero=$numeroe");
+				$chk     = $this->datasis->dameval("SELECT COUNT(*) FROM odirect WHERE numero= 1 * $numeroe");
 				if($chk>0)
 					$error.="Error el numero de orden de pago ya existe</br>";
 			}
 		}
 		
+		$cod_prov  = $do->get('cod_prov');
+		$cod_prove = $this->db->escape($cod_prov);
+		$cod_prov2 = $this->datasis->dameval("SELECT cod_prov FROM sprv WHERE proveed=$cod_prove");
+		$cod_prov2e= $this->db->escape($cod_prov2);
+		$do->set('cod_prov2',$cod_prov2);
 		if($this->datasis->traevalor('USA2COD_PROVENODIREC')=='S' && empty($error)){
-			$cod_provv  = $do->get('cod_prov');
-			$cod_prov2e = $this->db->escape($cod_provv);
-			$cod_prov   = $this->datasis->dameval("SELECT cod_prov FROM sprv WHERE proveed=$cod_prov2e");
-
-			if(!empty($cod_prov)){
-					$do->set('cod_prov' ,$cod_prov);
-					$do->set('cod_prov2',$cod_provv);
+			if(!empty($cod_prov2)){
+					$do->set('cod_prov' ,$cod_prov2);
+					$do->set('cod_prov2',$cod_prov);
 			}else{
-					$do->set('cod_prov',$cod_provv);
+					$do->set('cod_prov',$cod_prov);
 			}
 		}
-
 		
+		if($OPAGOCMODIFICACODPROV=='N' && count($ocompras)>0){
+			$ocomprasi="'".implode("','",$ocompras)."'";
+			$query="SELECT COUNT(*) FROM ocompra WHERE numero IN ($ocomprasi) AND cod_prov in ($cod_prove,$cod_prov2e) ";
+			$c=$this->datasis->dameval($query);
+			if(!($c>0))
+			$error.="Error. No Puede Crear una  Orden de Pago para un Beneficiario Distinto al del compromiso</br>";
+		}
 
 		if(!empty($error)){
 			$do->error_message_ar['pre_ins']=$error;
@@ -1197,30 +1221,44 @@ class Opagoc extends Common {
 
 		$bSPRV=$this->datasis->p_modbus($mSPRV,"proveed");
 		
+		$from="
+		(
+			SELECT a.certificado, a.compromiso ,  a.numero , a.fecha , a.tipo , a.status , a.cod_prov  , c.nombre proveed, total2, SUM(d.pagos) pagos, SUM(d.xcausar) xcausar 
+			FROM ocompra a 
+			LEFT JOIN sprv c ON c.proveed=a.cod_prov 
+			JOIN v_comproxcausar_encab d ON a.numero=d.ocompra 
+			WHERE a.status = 'C' 
+			GROUP BY a.numero 
+			
+			UNION ALL 
+			
+			SELECT ' ' certificado, null compromiso ,  a.numero , a.fecha ,'NOMINA' tipo , a.status , ' ' cod_prov  , ' ' proveed, a.asig total2, 0 pagos, a.asig xcausar 
+			FROM nomi a
+			WHERE a.status = 'C' 
+		)t
 		
-
+		";
+		
 		$filter = new DataFilter("");
 
-		$filter->db->select("a.certificado,a.compromiso compromiso,a.reverso reverso,a.numero numero,a.fecha fecha,a.tipo tipo,a.status status,a.cod_prov cod_prov,a.beneficiario beneficiario,c.nombre proveed,total2,SUM(d.pagos) pagos,SUM(d.xcausar) xcausar");
-		$filter->db->from("ocompra a");
-		$filter->db->join("sprv c"       ,"c.proveed=a.cod_prov","LEFT");
-		$filter->db->join("v_comproxcausar_encab d"  ,"a.numero=d.ocompra");
-		$filter->db->where("a.status =", "C");
-		$filter->db->groupby("a.numero");
-		//$filter->db->where("a.tipo =", "Trabajo");
+		$filter->db->_escape_char='';
+		$filter->db->_protect_identifiers=false;
+		
+		$filter->db->from($from);
 
 		$filter->numero = new inputField("Numero", 'numero');
 		$filter->numero->size = 6;
 
 		$filter->compromiso = new inputField("Compromiso", 'compromiso');
 		$filter->compromiso->size = 6;
-		$filter->compromiso->db_name='a.compromiso';
+		$filter->compromiso->db_name='t.compromiso';
 
 		$filter->tipo = new dropdownField("Orden de ", "tipo");
-		$filter->tipo->db_name = 'a.tipo';
+		$filter->tipo->db_name = 't.tipo';
 		$filter->tipo->option("","");
 		$filter->tipo->option("Compra"  ,"Compra");
 		$filter->tipo->option("Servicio","Servicio");
+		$filter->tipo->option("NOMINA"  ,"Nomina");
 		$filter->tipo->style="width:100px;";
 
 		$filter->fecha = new dateonlyField("Fecha", "fecha");
@@ -1229,7 +1267,7 @@ class Opagoc extends Common {
 		$filter->fecha->operator='=';
 
 		$filter->cod_prov = new inputField("Beneficiario", 'cod_prov');
-		$filter->cod_prov->db_name="a.cod_prov";
+		$filter->cod_prov->db_name="t.cod_prov";
 		$filter->cod_prov->size = 6;
 		$filter->cod_prov->append($bSPRV);
 		$filter->cod_prov->rule = "required";
@@ -1237,8 +1275,8 @@ class Opagoc extends Common {
 		$filter->buttons("reset","search");
 		$filter->build();
 
-		function sel($numero){
-			return form_checkbox('data[]', $numero);
+		function sel($tipo,$numero){
+			return form_checkbox('data[]', $tipo.'_._'.$numero);
 		}
 
 		if($back=='opagof')
@@ -1254,7 +1292,7 @@ class Opagoc extends Common {
 		$grid->per_page = 100;
 		$grid->use_function('substr','str_pad','sel','nformat');
 
-		$grid->column(""              ,"<sel><#numero#></sel>");
+		$grid->column(""              ,"<sel><#tipo#>|<#numero#></sel>");
 		$grid->column_orderby("N&uacute;mero"   ,"numero","numero");
 		if($this->datasis->traevalor("USACERTIFICADO")=='S')
 		$grid->column_orderby("Certificado"     ,"certificado","certificado");
@@ -1268,6 +1306,7 @@ class Opagoc extends Common {
 		$grid->column_orderby("Por Causar"      ,"<nformat><#xcausar#></nformat>"              ,"xcausar" ,"align='right' ");
 
 		$grid->build();
+		//echo $grid->db->last_query();
 
 		$salida =form_open($this->url.'guarda');
 		$salida.=$grid->output;
@@ -1288,14 +1327,37 @@ class Opagoc extends Common {
 		$data    =$this->input->post('data');
 		$ntransac=$this->datasis->fprox_numero('ntransac');
 		$numero  ='_'.$ntransac;
+		$compromisos =array();
+		$nominas     =array();
+	
+		foreach($data as $row){
+			$tn = explode('_._',$row);
+			if($tn[0]=='NOMINA'){
+				$nominas[]=$tn[1];
+			}else{
+				$compromisos[]=$tn[1];
+			}
+		}
 
-		$query="
-		INSERT INTO itodirect (numero,ocompra,esiva,codigoadm,partida,fondo,importe,cantidad,precio,unidad)
-		SELECT '$numero',a.ocompra,esiva,a.codigoadm,a.codigopres,a.fondo,SUM(a.xcausar) importe,1,SUM(a.xcausar),'MONTO'
-		FROM v_comproxcausar a
-		WHERE ocompra IN ('".implode("','",$data)."')
-		GROUP BY a.ocompra,a.codigoadm,a.codigopres,a.fondo,esiva='N'";
-		$this->db->query($query);
+		if(count($compromisos)>0){
+			$query="
+			INSERT INTO itodirect (numero,ocompra,esiva,codigoadm,partida,fondo,importe,cantidad,precio,unidad)
+			SELECT '$numero',a.ocompra,esiva,a.codigoadm,a.codigopres,a.fondo,SUM(a.xcausar) importe,1,SUM(a.xcausar),'MONTO'
+			FROM v_comproxcausar a
+			WHERE ocompra IN ('".implode("','",$compromisos)."')
+			GROUP BY a.ocompra,a.codigoadm,a.codigopres,a.fondo,esiva='N'";
+			$this->db->query($query);
+		}
+		
+		if(count($nominas)>0){
+			$query="
+			INSERT INTO itodirect (numero,ocompra,esiva,codigoadm,partida,fondo,importe,cantidad,precio,unidad)
+			SELECT '$numero',CONCAT('NO',LPAD(a.numero,8,0)) ocompra,'N' esiva,a.codigoadm,a.codigopres,a.fondo,SUM(a.monto) importe,1,SUM(a.monto) precio,'MONTO'
+			FROM asignomi a
+			WHERE a.numero IN ('".implode("','",$nominas)."')
+			GROUP BY a.numero,a.codigoadm,a.codigopres,a.fondo";
+			$this->db->query($query);
+		}
 
 		//$ordenes=$this->datasis->damerow("SELECT SUM(a.xcausar) importe,a.fondo,b.cod_prov,b.observa,b.reteiva_prov
 		//FROM v_comproxcausar a
@@ -1303,31 +1365,44 @@ class Opagoc extends Common {
 		//WHERE a.ocompra IN ('".implode("','",$data)."')
 		//GROUP BY a.ocompra
 		//");
-		$ordenes=$this->datasis->damerow("
-		SELECT ocompra,SUM(a.xcausar) importe,a.fondo,b.cod_prov,b.reteiva_prov,b.observa,b.reteiva_prov,b.creten
-		,@porcent:=ROUND(SUM(a.pagos)*100/SUM(a.compras),2) porcent
-		,ROUND(subtotal    * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) subtotal
-		,ROUND(exento      * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) exento
-		,ROUND(ivag        * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) ivag
-		,ROUND(mivag       * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) mivag
-		,ROUND(ivar        * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) ivar
-		,ROUND(mivar       * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) mivar
-		,ROUND(ivaa        * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) ivaa
-		,ROUND(mivaa       * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) mivaa
-		,ROUND(breten      * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) breten
-		,ROUND(reteiva     * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) reteiva
-		,ROUND(reten       * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) reten
-		,ROUND(total       * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) total
-		,ROUND(total2      * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) total2
-		,ROUND(impmunicipal* IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) impmunicipal
-		,ROUND(imptimbre   * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) imptimbre
-		,ROUND(otrasrete   * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) otrasrete
+		$query="
+		
+		SELECT ocompra,SUM(importe) importe,MAX(fondo) fondo,cod_prov,reteiva_prov,GROUP_CONCAT(observa SEPARATOR ' ') observa,creten,porcent,SUM(subtotal) subtotal,SUM(exento) exento,SUM(ivag) ivag,SUM(mivag) mivag,SUM(ivar) ivar,SUM(mivar) mivar,
+		SUM(ivaa) ivaa,SUM(mivaa) mivaa,SUM(breten) breten,SUM(reteiva) reteiva,SUM(reten) reten,SUM(total) total,SUM(total2) total2,SUM(impmunicipal) impmunicipal,SUM(imptimbre) imptimbre,SUM(otrasrete) otrasrete 
+		FROM  (
+			SELECT ocompra,SUM(a.xcausar) importe,a.fondo,b.cod_prov,b.reteiva_prov,b.observa,b.creten
+			,@porcent:=ROUND(SUM(a.pagos)*100/SUM(a.compras),2) porcent
+			,ROUND(subtotal    * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) subtotal
+			,ROUND(exento      * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) exento
+			,ROUND(ivag        * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) ivag
+			,ROUND(mivag       * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) mivag
+			,ROUND(ivar        * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) ivar
+			,ROUND(mivar       * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) mivar
+			,ROUND(ivaa        * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) ivaa
+			,ROUND(mivaa       * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) mivaa
+			,ROUND(breten      * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) breten
+			,ROUND(reteiva     * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) reteiva
+			,ROUND(reten       * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) reten
+			,ROUND(total       * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) total
+			,ROUND(total2      * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) total2
+			,ROUND(impmunicipal* IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) impmunicipal
+			,ROUND(imptimbre   * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) imptimbre
+			,ROUND(otrasrete   * IF(SUM(a.pagos)>0,ROUND(SUM(a.pagos)*100/SUM(a.compras),2)/100,1),2) otrasrete
 
-
-		FROM v_comproxcausar a
-		JOIN ocompra b ON a.ocompra=b.numero
-		WHERE a.ocompra IN ('".implode("','",$data)."')
-		");
+			FROM v_comproxcausar a
+			JOIN ocompra b ON a.ocompra=b.numero
+			WHERE a.ocompra IN ('".implode("','",$compromisos)."')
+			
+			UNION ALL
+			
+			SELECT CONCAT('NO',LPAD(a.numero,8,0)) ocompra,SUM(a.monto) importe,a.fondo,null cod_prov,0 reteiva_prov,b.descrip,null creten,0 porcent,SUM(monto) subtotal,SUM(monto) exento,0 ivag,0 mivag,0 ivar,0 mivar,0 ivaa,0 mivaa,0 breten,0 reteiva,0 reten,SUM(monto) total,SUM(monto) total2,0 impmunicipal,0 imptimbre,0 otrasrete
+			FROM asignomi a
+			JOIN nomi b ON a.numero=b.numero
+			WHERE a.numero IN ('".implode("','",$nominas)."')
+		)todo
+		";
+		
+		$ordenes=$this->datasis->damerow($query);
 
 		$ivaplica=$this->ivaplica2();
 		
@@ -1367,7 +1442,9 @@ class Opagoc extends Common {
 		
 		$this->db->insert('odirect', $data); 
 		
-
+		$query="UPDATE nomi SET status='D' WHERE numero IN ('".implode("','",$nominas)."') ";
+		$this->db->query($query);
+		
 		redirect($this->url.'dataedit/modify/'.$numero);
 	}
 	
@@ -1385,6 +1462,22 @@ class Opagoc extends Common {
 	}
 	function _post_delete($do){
 		$status= $do->get('status');
+		
+		$nominas=array();
+		for($i=0;$i  < $do->count_rel('itodirect');$i++){
+			$numero  = $do->get_rel('itodirect','numero' ,$i);
+			$ocompra = $do->get_rel('itodirect','ocompra',$i);
+			if(substr($ocompra,0,1)=='N'){
+				$nominas[]=1*str_replace('NO','',$ocompra);
+			}
+		}
+		
+		if(count($nominas)>0){
+			$nominasi=implode(',',$nominas);
+			$query="UPDATE nomi SET status='C' WHERE numero IN ($nominasi) ";
+			$this->db->query($query);
+		}
+		
 		if(strstr($status,1,1)==2)
 		$this->db->query("call sp_recalculo()");
 

@@ -44,7 +44,7 @@ if($form->_status!='show'){
 	$uri  =$this->datasis->get_uri();
 	?>
 	<script language="javascript" type="text/javascript">
-	r_mbanc_cont   =<?=$form->max_rel_count['r_mbanc'] ?>;
+	r_mbanc_cont   =<?=$form->max_rel_count['r_mbanc'   ] ?>;
 	r_abonosit_cont=<?=$form->max_rel_count['r_abonosit'] ?>;
 	punto_codbanc='<?=$punto_codbanc ?>';
 	ABONOCODBANCDEFECTO='<?=$ABONOCODBANCDEFECTO ?>';
@@ -88,7 +88,7 @@ if($form->_status!='show'){
 				if(val=='DB' || val=='CR' ){
 					$("#codbanc_"+id).val(punto_codbanc);
 				}
-				if(val=='EF'){
+				if(val=='EF' || val=='DF'){
 					$("#codbanc_"+id).val(ABONOCODBANCDEFECTO);
 				}
 			}
@@ -275,6 +275,7 @@ if($form->_status!='show'){
 					$obj2="itfechap_$i";
 					$obj3="itmontop_$i";
 					$obj4="itnombrep_$i";
+					
 					?>
 					<tr id='tr_r_abonosit_<?=$i ?>'>
 					<?php if($form->_status=='show') {?>
@@ -336,19 +337,20 @@ if($form->_status!='show'){
 					}?>
 				</tr>
 				<?php
-				for($i=0;$i<$form->max_rel_count['r_mbanc'];$i++) {
+				for($i=0;$i<$form->max_rel_count['r_mbanc'];$i++) {																										
 					$obj1 = "itcodbanc_$i";
 					$obj2 = "ittipo_doc_$i";
 					$obj3 = "itcheque_$i";
 					$obj4 = "itfecha_$i";
 					$obj5 = "itmonto_$i";
+					$obj6 = "itid_mbancrel_$i";
 					?>
 					<tr id='tr_r_mbanc_<?=$i ?>'>
 						<td class="littletablerow"               ><?=$form->$obj1->output  ?> </td>
 						<td class="littletablerow"               ><?=$form->$obj2->output  ?> </td>
 						<td class="littletablerow"               ><?=$form->$obj3->output  ?> </td>
 						<td class="littletablerow"               ><?=$form->$obj4->output  ?> </td>
-						<td class="littletablerow" align='right' ><?=$form->$obj5->output  ?> </td>
+						<td class="littletablerow" align='right' ><?=$form->$obj5->output.$form->$obj6->output  ?> </td>
 
 						<?php if ($form->_status=='create' || $form->_status=='modify') {?>
 							<td class="littletablerow"><a href=# onclick='del_r_mbanc(<?=$i ?>);return false;'><?=image('delete.jpg','#',array("border"=>0))?></a></td>

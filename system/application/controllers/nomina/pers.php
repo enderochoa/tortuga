@@ -336,6 +336,8 @@ class Pers extends Controller {
 				$edit->m_vari8->insertValue='N';
 				$edit->m_vari8->in ='vari8';
 				$edit->m_vari8->append("Modificar");
+				
+				
                 
                 $edit->sueldo = new inputField("Sueldo ", "sueldo");
                 $edit->sueldo->group = "Relaci&oacute;n Laboral";
@@ -418,13 +420,32 @@ class Pers extends Controller {
                 
                 
                 function damerne(){
-					rifci = $("#cedula").val();
+					rifci = $("#cedula"  ).val();
+					nacio = $("#nacional").val();
 					$.post("'.site_url($this->url.'damerne').'",{ cedula:rifci },function(data){
 						rne=jQuery.parseJSON(data);
 						$("#nombre"   ).val(rne[0].primer_nombre   );
 						$("#nombre2"  ).val(rne[0].segundo_nombre  );
 						$("#apellido" ).val(rne[0].primer_apellido );
 						$("#apellido2").val(rne[0].segundo_apellido);
+					});
+					
+					$.post("'.site_url($this->url.'damerif').'",{ cedula:rifci,nacional:nacio },function(data){
+						$("#rif"   ).val(data  );
+					});
+				}
+				
+				function sugerir(){		
+					$.ajax({
+						url: "'.site_url($this->url.'sugerir').'",
+						success: function(msg){
+							if(msg){
+								$("#codigo").val(msg);
+							}
+							else{
+								alert("No es posible generar otra sugerencia. Coloque el c&oacute;digo manualmente");
+							}
+						}
 					});
 				}
                 '; 
@@ -475,11 +496,13 @@ class Pers extends Controller {
                 
                 $boton1=$this->datasis->modbus($cargo);
 
+				$sugerir='<a href="javascript:sugerir();" title="Sugerir un C&oacute;digo aleatorio">Sugerir C&oacute;digo </a>';
                 $edit->codigo =  new inputField("C&oacute;digo", "codigo");
                 $edit->codigo->rule="required|callback_chexiste";
                 $edit->codigo->mode="autohide";
                 $edit->codigo->maxlength=15;
                 $edit->codigo->size=16;
+                $edit->codigo->append($sugerir);
                 
                 $edit->nacional = new dropdownField("C&eacute;dula", "nacional");
                 $edit->nacional->style = "width:110px;";
@@ -766,6 +789,30 @@ class Pers extends Controller {
                 $edit->vari8->maxlength=14;
                 $edit->vari8->rule="trim";
 //                $edit->vari8->css_class='inputnum';
+
+				$edit->vari9 = new inputField($this->datasis->traevalor("VARI9")."XVARI9", "vari9");
+                $edit->vari9->group = "Variables";
+                $edit->vari9->size =16;
+                $edit->vari9->maxlength=14;
+                $edit->vari9->rule="trim";
+                
+                $edit->vari10 = new inputField($this->datasis->traevalor("VARI10")."XVARI10", "vari10");
+                $edit->vari10->group = "Variables";
+                $edit->vari10->size =16;
+                $edit->vari10->maxlength=14;
+                $edit->vari10->rule="trim";
+                
+                $edit->vari11 = new inputField($this->datasis->traevalor("VARI11")."XVARI11", "vari11");
+                $edit->vari11->group = "Variables";
+                $edit->vari11->size =16;
+                $edit->vari11->maxlength=14;
+                $edit->vari11->rule="trim";
+                
+                $edit->vari12 = new inputField($this->datasis->traevalor("VARI12")."XVARI12", "vari12");
+                $edit->vari12->group = "Variables";
+                $edit->vari12->size =16;
+                $edit->vari12->maxlength=14;
+                $edit->vari12->rule="trim";
                 
                 $edit->sueldo = new inputField("Sueldo ", "sueldo");
                 $edit->sueldo->group = "Relaci&oacute;n Laboral";
@@ -824,6 +871,21 @@ class Pers extends Controller {
 			echo json_encode($arreglo);
 		}
 		
+		function damerif(){
+			$rif='';
+			$cedula   = $this->input->post("cedula");
+			$nacional = $this->input->post("nacional");
+			$cedula = str_replace('.','',$cedula);
+			$cedula = str_replace('-','',$cedula);
+			$cedula = str_replace('V','',$cedula);
+				
+			if(is_numeric($cedula)){
+				$rif   =citorif($nacional.$cedula);
+			}
+			
+			echo $rif;
+		}
+		
 		function colocarif(){
 			$query=" SELECT codigo,CONCAT(nacional,cedula) ced FROM pers";
 			$personas = $this->datasis->consularray($query);
@@ -847,6 +909,12 @@ class Pers extends Controller {
                 }
                 return True;
         }
+        
+        function sugerir(){
+			$ultimo=$this->datasis->dameval("SELECT CONCAT(LPAD(hexa,4,0),'0') FROM serie LEFT JOIN pers ON LPAD(codigo,4,0)=LPAD(hexa,4,0) WHERE valor<65535 AND codigo IS NULL LIMIT 1");
+			echo $ultimo;
+		}
+        
         function _post_insert($do){
                 $codigo=$do->get('codigo');
                 $nombre=$do->get('nombre');
@@ -919,7 +987,14 @@ class Pers extends Controller {
 		$this->db->simple_query($query);
 		$query="ALTER TABLE `pers` 	CHANGE COLUMN `rif` `rif` VARCHAR(50) NULL DEFAULT NULL";
 		$this->db->simple_query($query);
-		
+		$query="ALTER TABLE `pers` ADD COLUMN `vari9`  VARCHAR(50) NULL DEFAULT '0.00' AFTER `vari8` ";
+		$this->db->simple_query($query);
+		$query="ALTER TABLE `pers` ADD COLUMN `vari10` VARCHAR(50) NULL DEFAULT '0.00' AFTER `vari9` ";
+		$this->db->simple_query($query);
+		$query="ALTER TABLE `pers` ADD COLUMN `vari11` VARCHAR(50) NULL DEFAULT '0.00' AFTER `vari10`";
+		$this->db->simple_query($query);
+		$query="ALTER TABLE `pers` ADD COLUMN `vari12` VARCHAR(50) NULL DEFAULT '0.00' AFTER `vari11`";
+		$this->db->simple_query($query);
 	   
 	}
 	

@@ -16,7 +16,6 @@ class R_caja extends Controller {
 
 		$filter = new DataFilter($this->titp, 'r_caja');
 		
-
 		$filter->id = new inputField('Id','id');
 		$filter->id->rule      ='trim';
 		$filter->id->size      =13;
@@ -36,9 +35,11 @@ class R_caja extends Controller {
 		$grid->order_by('id');
 		$grid->per_page = 40;
 
-		$grid->column_orderby('Id'                ,"$uri"                                             ,'id'           ,'align="left"');
-		$grid->column_orderby('Nombre'            ,"nombre"                                           ,'nombre'       ,'align="left"');
-		$grid->column_orderby('Contador'          ,"id_contador"                                      ,'id_contador'  ,'align="left"');
+		$grid->column_orderby('Id'                ,"$uri"                                             ,'id'                         ,'align="left"');
+		$grid->column_orderby('Nombre'            ,"nombre"                                           ,'nombre'                     ,'align="left"');
+		$grid->column_orderby('Contador'          ,"id_contador"                                      ,'id_contador'                ,'align="left"');
+		$grid->column_orderby('Punto'             ,'punto_codbanc'                                    ,'punto_codbanc'              ,'align="left"');
+		$grid->column_orderby('Defecto'           ,'defecto_codbanc'                                  ,'defecto_codbanc'            ,'align="left"');
 
 		$grid->add($this->url.'dataedit/create');
 		$grid->build();
@@ -82,6 +83,11 @@ class R_caja extends Controller {
 		$edit->punto_codbanc->option("","");
 		$edit->punto_codbanc->options("SELECT codbanc,CONCAT(codbanc,' ',banco) FROM banc ORDER BY codbanc");
 		
+		$edit->defecto_codbanc = new dropdownField('Banco por Defecto','defecto_codbanc');
+		$edit->defecto_codbanc->rule     ='';
+		$edit->defecto_codbanc->option("","");
+		$edit->defecto_codbanc->options("SELECT codbanc,CONCAT(codbanc,' ',banco) FROM banc ORDER BY codbanc");
+		
 
 		$edit->buttons('add','modify', 'save', 'undo', 'delete', 'back');
 		$edit->build();
@@ -119,6 +125,8 @@ class R_caja extends Controller {
 		$mSQL="ALTER TABLE `r_caja` ADD COLUMN `id_contador` INT(11) NULL DEFAULT NULL AFTER `id`";
 		$this->db->simple_query($mSQL);
 		$mSQL="ALTER TABLE `r_caja` 	ADD COLUMN `punto_codbanc` VARCHAR(5) NULL DEFAULT NULL";
+		$this->db->simple_query($mSQL);
+		$mSQL="ALTER TABLE `r_caja` ADD COLUMN `defecto_codbanc` VARCHAR(5) NULL DEFAULT NULL AFTER `punto_codbanc`";
 		$this->db->simple_query($mSQL);
 	}
 }

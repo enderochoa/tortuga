@@ -163,16 +163,15 @@ html.ui-autocomplete {
 				}).done(function(data){
 					contribu=jQuery.parseJSON(data);
 					
-					if(contribu.length>0){
+					if(contribu.length==1){
 						$("#id_contribu").val(contribu[0].id);
 						$("#nombre").val(contribu[0].nombre);
-					}else{
+					}
+					if(contribu.length==0){
 						$("#id_contribu").val("");
 						$("#nombre").val("");
 					}
 				});
-				
-				
 				rifci_g=rifci;	
 			}
 		}
@@ -766,6 +765,10 @@ html.ui-autocomplete {
 				idreq=ids;
 		}
 		
+		if(tipod=='PUBLICIDAD' && ids!='null'){
+				idreq=ids;
+		}
+		
 		if(id.length>0){
 			$.post("<?=site_url('recaudacion/r_cxc/damedeuda')?>",{ id_contribu:id,tipo:tipod,id_requiere:idreq },function(data){
 				deuda=jQuery.parseJSON(data);
@@ -785,23 +788,24 @@ html.ui-autocomplete {
 						
 						$("#__UTPL__").before(htm);
 						
-						$("#id_concit_"+can).val(val.id   );
-						$("#denomi_"+can).val(val.denomi     );
-						$("#frecuencia_"+can       ).val(val.frecuencia);
+						$("#id_concit_"+can        ).val(val.id           );
+						$("#denomi_"+can           ).val(val.denomi       );
+						$("#frecuencia_"+can       ).val(val.frecuencia   );
 						//$("#frecuencia_"+can+"_val").text(val.frecuencia);
-						$("#freval_"+can).val(val.freval);
-						$("#freval_"+can+"_val").text(val.freval);
-						$("#id_conc_"+can).val( val.id_conc );
-						$("#ano_"+can).val(val.ano        );
-						$("#ano_"+can+"_val").text( val.ano );
-						$("#observa_"+can).val(val.observa    );
-						$("#monto_"+can).val(val.monto      );
-						$("#id_vehiculo_"+can).val(val.id_vehiculo );
-						$("#id_inmueble_"+can).val(val.id_inmueble );
-						$("#v_placa_"+can).val(val.placa     );
-						$("#requiere_"+can).val(val.requiere   );
-						$("#modo_"+can).val(val.modo   );
-						$("#i_catastro_"+can).val(val.i_catastro  );
+						$("#freval_"+can           ).val(val.freval       );
+						$("#freval_"+can+"_val"    ).text(val.freval      );
+						$("#id_conc_"+can          ).val( val.id_conc     );
+						$("#ano_"+can              ).val(val.ano          );
+						$("#ano_"+can+"_val"       ).text( val.ano        );
+						$("#observa_"+can          ).val(val.observa      );
+						$("#monto_"+can            ).val(val.monto        );
+						$("#id_vehiculo_"+can      ).val(val.id_vehiculo  );
+						$("#id_inmueble_"+can      ).val(val.id_inmueble  );
+						$("#v_placa_"+can          ).val(val.placa        );
+						$("#requiere_"+can         ).val(val.requiere     );
+						$("#modo_"+can             ).val(val.modo         );
+						$("#i_catastro_"+can       ).val(val.i_catastro   );
+						$("#id_publicidad_"+can    ).val(val.id_publicidad);
 						//$("#frecuencia_"+can).prop('disabled',true);
 						//$("#freval_"+can).prop('disabled',true);
 						
@@ -839,6 +843,8 @@ html.ui-autocomplete {
 		idd=$("#id_inmueble_"+i).val();
 		if(requiere=='VEHICULO')
 		idd=$("#id_vehiculo_"+i).val();
+		if(requiere=='PUBLICIDAD')
+		idd=$("#id_publicidad_"+i).val();
 		
 		if(idr>0){
 			$.post("<?=site_url('recaudacion/r_cxc/damemonto')?>",{ id_concit:idr,id:idd,id_contribu:idcontribu },function(data){

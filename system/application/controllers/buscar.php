@@ -153,6 +153,7 @@ class Buscar extends Controller
 			$search[] = '"';  $replace[] = '\'+String.fromCharCode(34)+\'';
 			$search[] = "\n"; $replace[] = '\\n';
 			$search[] = "\r"; $replace[] = '\\r';
+			$search[] = "%BA"; $replace[] = '\% BA';
 
 			$pattern = str_replace($search, $replace, $parr);
 			return '\''.$pattern.'\'';

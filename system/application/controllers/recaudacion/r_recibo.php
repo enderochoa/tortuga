@@ -247,7 +247,8 @@ class r_recibo extends Controller {
 
 		$edit->pre_process('insert','_valida');
 		$edit->pre_process('update','_valida');
-
+		$edit->pre_process('delete','_pre_delete');
+		
 		$edit->post_process('insert','_post_insert');
 		$edit->post_process('update','_post_update');
 		$edit->post_process('delete','_post_delete');
@@ -440,6 +441,16 @@ class r_recibo extends Controller {
 		$edit->iti_catastro->db_name='i_catastro';
 		$edit->iti_catastro->rel_id ='r_reciboit';
 		
+		//$crea = '<a id="creap_<#i#>" href="javascript:creapublicidadid(<#i#>);" title="Agregar/modificar Publicidad">'.image('add.png','#',array("border"=>0)).'</a>';
+		$edit->itid_publicidad = new inputField('id_publicidad','id_publicidad_<#i#>');
+		$edit->itid_publicidad->rule='max_length[11]';
+		$edit->itid_publicidad->size =3;
+		$edit->itid_publicidad->maxlength =11;
+		$edit->itid_publicidad->db_name='id_publicidad';
+		$edit->itid_publicidad->rel_id ='r_reciboit';
+		//$edit->itid_publicidad->append($bPUBLICIDAD);
+		//$edit->itid_publicidad->append($crea);
+		
 		$id     =$edit->get_from_dataobjetct('id');
 		
 		if($id>0){
@@ -481,9 +492,15 @@ class r_recibo extends Controller {
 	
 	function _valida($do){
 		$error="";
-		$id          = $do->get('id');
+		$id          = $do->get('id'         );
 		$id_contribu = $do->get('id_contribu');
-		$numero      = $do->get('numero');
+		$numero      = $do->get('numero'     );
+		$fecha       = $do->get('fecha'      );
+		
+		$cerrado     = $this->datasis->dameval("SELECT COUNT(*) FROM r_cerrar WHERE fecha=$fecha");
+		if($cerrado>0)
+		$error.="<div class='alert' >Error. El Dia ya se encuetra Cerrado</div>";
+		
 		
 		$contribu    =$this->datasis->damerow("SELECT rifci,nombre,id_parroquia,parroquia,id_zona,zona,dir1,dir2,dir3,dir4 FROM r_v_contribu WHERE id='$id_contribu' LIMIT 1");
 		
@@ -518,7 +535,7 @@ class r_recibo extends Controller {
 					if($inmueble['id_contribu']!=$id_contribu)
 						$error.="<div class='alert' >Error el Inmueble $id_inmueble no pertenece al contribuyente</div>";
 				}else{
-					$error.="<div class='alert' >Error. debe seleccionar un inmuble</div>";
+					$error.="<div class='alert' >Error. debe seleccionar un inmueble</div>";
 				}
 			}
 			
@@ -534,6 +551,21 @@ class r_recibo extends Controller {
 					$error.="<div class='alert' >Error el Vehiculo $id_vehiculo no pertenece al contribuyente</div>";
 				}else{
 					$error.="<div class='alert' >Error. Debe seleccionar un Vehiculo</div>";
+				}
+			}
+			
+			if($requiere=='PUBLICIDAD'){
+				$id_publicidad = $do->get_rel('r_reciboit','id_publicidad',$i);
+				if($id_publicidad>0){
+				$publicidad = $this->datasis->damerow("SELECT id_contribu,rp_tipos.id,rp_tipos.descrip FROM r_publicidad JOIN rp_tipos ON  r_publicidad.id_tipo=rp_tipos.id WHERE r_publicidad.id=$id_publicidad");
+				
+				$do->set_rel('r_reciboit','p_id_tipo'      ,$publicidad['id'      ],$i);
+				$do->set_rel('r_reciboit','p_tipo_descrip' ,$publicidad['descrip' ],$i);
+				
+				if($publicidad['id_contribu']!=$id_contribu)
+					$error.="<div class='alert' >Error la publicidad $id_publicidad no pertenece al contribuyente</div>";
+				}else{
+					$error.="<div class='alert' >Error. Debe seleccionar una Publicidad</div>";
 				}
 			}
 			
@@ -751,7 +783,17 @@ class r_recibo extends Controller {
 	
 	function anular($id){
 		$error='';
-		if($id>0){
+		
+		$ide     = $this->db->escape($id);
+		$fecha   = $this->datasis->dameval("SELECT fecha FROM r_recibo WHERE id=$ide");
+		$fechae  = $this->db->escape($fecha);
+		$cerrado = $this->datasis->dameval("SELECT COUNT(*) FROM r_cerrar WHERE fecha=REPLACE($fechae,'-','')");
+		
+		if($cerrado>0)
+		$error.="<div class='alert' >Error. El Dia ".dbdate_to_human($fecha)." ya se encuetra Cerrado</div>";
+		
+		if($id>0 && empty($error)){
+			
 			$id_abono = $this->datasis->dameval("SELECT b.id FROM r_abonosit a JOIN r_abonos b ON a.abono=b.id WHERE a.recibo=$id LIMIT 1");
 			if($id_abono>0){
 					$error .='El Recibo esta Cobrado, debe eliminar la cobranza primero';
@@ -1034,7 +1076,7 @@ class r_recibo extends Controller {
 		
 		$query="
 		SELECT r_cxcit.id id_cxcit,r_cxcit.id_concit id,r_cxcit.ano,r_cxcit.acronimo,r_cxcit.denomi ,r_cxcit.requiere,r_cxcit.id_inmueble,r_cxcit.i_catastro catastro,r_cxcit.frecuencia,r_cxcit.freval
-		,r_cxcit.id_vehiculo,r_cxcit.v_placa,r_cxc.id_contribu,r_cxcit.observa AS observa,r_cxcit.base,r_cxcit.monto,r_cxcit.modo
+		,r_cxcit.id_vehiculo,r_cxcit.v_placa,r_cxc.id_contribu,r_cxcit.observa AS observa,r_cxcit.base,r_cxcit.monto,r_cxcit.modo,r_cxcit.id_publicidad
 		FROM r_cxc
 		JOIN r_cxcit ON r_cxc.id=r_cxcit.id_cxc
 		LEFT JOIN r_reciboit ON r_cxcit.id=r_reciboit.id_cxcit
@@ -1047,8 +1089,12 @@ class r_recibo extends Controller {
 		if($id_contribu && $id_contribu!='null')
 		$query.=" AND r_cxc.id_contribu=$id_contribue ";
 		
-		if($id_cxc && $id_cxc!='null')
-		$query.=" AND r_cxc.id=$id_cxce ";
+		if($id_cxc && $id_cxc!='null'){
+			
+			$id_contribu = $this->datasis->dameval("SELECT id_contribu FROM r_cxc WHERE r_cxc.id=$id_cxce");
+			$id_contribue=$this->db->escape($id_contribu );
+			$query      .=" AND (r_cxc.id=$id_cxce OR (r_cxc.id_contribu=$id_contribue AND r_cxcit.expira='N' ) )";
+		}
 		
 		$mSQL   = $this->db->query($query);
 		$arreglo= $mSQL->result_array($query);
@@ -1060,9 +1106,25 @@ class r_recibo extends Controller {
 		echo json_encode($arreglo);
 	}
 	
+	function _pre_delete($do){
+		$error="";
+		$fecha   = $do->get('fecha' );
+		$fechae  = $this->db->escape($fecha);
+		$cerrado = $this->datasis->dameval("SELECT COUNT(*) FROM r_cerrar WHERE fecha=REPLACE($fechae,'-','')");
+		
+		if($cerrado>0)
+		$error.="<div class='alert' >Error. El Dia ".dbdate_to_human($fecha)." ya se encuetra Cerrado</div>";
+		
+		if(!empty($error)){
+			$do->error_string=$error;
+			$do->error_message_ar['pre_del']=$error;
+			return false;
+		}
+	}
+	
 	function _post_print_solvencia_update($do){
-			$id =$do->get('id');
-			redirect($this->url."dataedit/show/$id");
+		$id =$do->get('id');
+		redirect($this->url."dataedit/show/$id");
 	}
 
 	function _post_insert($do){

@@ -895,6 +895,9 @@ class mbanc extends Common {
 		$edit->rel->group = "Transaccion";
 		$edit->rel->mode  = "autohide";
 		$edit->rel->when  =array("show");
+		
+		$edit->fecha2          = new  dateonlyField("Fecha Aux",  "fecha2");
+		$edit->fecha2->group   = "Otros";
 
 		$edit->buttons("modify","save","undo", "back");
 

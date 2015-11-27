@@ -334,7 +334,9 @@ class Prenom extends Controller {
 				AND a.valor<>0
 				) f
 				LEFT JOIN v_presaldo e ON f.codigoadm=e.codigoadm AND f.fondo = e.fondo AND f.codigopres=e.codigo
-				GROUP BY f.codigoadm,f.fondo,f.codigopres";				
+				GROUP BY f.codigoadm,f.fondo,f.codigopres
+				ORDER BY f.codigoadm,f.codigopres";
+				
 			}
 			if(!$this->db->query($query))
 				$error.="<div calss='alert'>No se Pudieron Guardar Las asignaciones de nomina</div>";
@@ -416,7 +418,7 @@ class Prenom extends Controller {
 		$where ="";
 		if($persona)
 			$where="WHERE  codigo=".$this->db->escape($persona);
-		$query = $this->db->query("SELECT codigo,concepto,formula,monto,modo FROM prenom $where ORDER BY 1*orden");
+		$query = $this->db->query("SELECT codigo,concepto,formula,monto,modo FROM prenom $where ORDER BY 1*orden, (formula LIKE '%ASIGNA()%')");
 
 		foreach ($query->result() as $row){
 			$codigo   = $row->codigo;

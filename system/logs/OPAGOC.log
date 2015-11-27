@@ -1,0 +1,8 @@
+SELECT numero, sprv.nombre, odirect.observa, fecha, status, SUM(IF(LENGTH(fanulado)>0,(total2-amortiza)*(MONTH(fecha)<>MONTH(fanulado)),total2) * (MID(status,1,1) IN ('O','F','B','K','C')) * (MID(status,2,1) IN (2,3)) ) causado, SUM(IF(LENGTH(fanulado)>0,(imptimbre+impmunicipal+crs+reten+odirect.reteiva+odirect.otrasrete )*(MONTH(fecha)<>MONTH(fanulado)),(imptimbre+impmunicipal+crs+reten+odirect.reteiva+odirect.otrasrete ))) retenciones, SUM(IF(LENGTH(fanulado)>0,total*(MONTH(fecha)<>MONTH(fanulado)),total)) total, SUM(IF(LENGTH(fanulado)>0,(retenomina)*(MONTH(fecha)<>MONTH(fanulado)),(retenomina))) retenomina, SUM(IF(LENGTH(fanulado)>0,(imptimbre )*(MONTH(fecha)<>MONTH(fanulado)),(imptimbre ))) imptimbre, SUM(IF(LENGTH(fanulado)>0,(impmunicipal )*(MONTH(fecha)<>MONTH(fanulado)),(impmunicipal ))) impmunicipal, SUM(IF(LENGTH(fanulado)>0,(crs )*(MONTH(fecha)<>MONTH(fanulado)),(crs ))) crs, SUM(IF(LENGTH(fanulado)>0,(reten)*(MONTH(fecha)<>MONTH(fanulado)),(reten))) reten, SUM(IF(LENGTH(fanulado)>0,(odirect.reteiva )*(MONTH(fecha)<>MONTH(fanulado)),(odirect.reteiva ))) reteiva, SUM(IF(LENGTH(fanulado)>0,(odirect.otrasrete )*(MONTH(fecha)<>MONTH(fanulado)),(odirect.otrasrete ))) otrasrete
+FROM odirect
+JOIN sprv ON odirect.cod_prov=sprv.proveed
+WHERE status NOT IN ('K2','K3','C')
+AND fecha >=20140902
+AND fecha <=20140902
+GROUP BY numero
+ORDER BY numero

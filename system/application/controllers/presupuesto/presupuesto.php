@@ -353,10 +353,10 @@ class presupuesto extends validaciones {
 		//	$query = "INSERT IGNORE INTO presupuesto (`codigoadm`,`tipo`,`codigopres`) values ($codigoadm,$tipo,$c)";
 		//	$this->db->simple_query($query);
 		//}
-		$c = $this->db->escape($this->datasis->traevalor('PARTIDAIVA'));
-		//$d = $this->db->escape($this->datasis->dameval("SELECT denominacion FROM ppla WHERE codigo=$c"));
-		$query = "INSERT IGNORE INTO presupuesto (`codigoadm`,`tipo`,`codigopres`,`denominacion`) values ($codigoadm,$tipo,$c,'IMPUESTO AL VALOR AGREGADO')";
-		$this->db->simple_query($query);
+		//$c = $this->db->escape($this->datasis->traevalor('PARTIDAIVA'));
+		////$d = $this->db->escape($this->datasis->dameval("SELECT denominacion FROM ppla WHERE codigo=$c"));
+		//$query = "INSERT IGNORE INTO presupuesto (`codigoadm`,`tipo`,`codigopres`,`denominacion`) values ($codigoadm,$tipo,$c,'IMPUESTO AL VALOR AGREGADO')";
+		//$this->db->simple_query($query);
 	}
 
 	function arregla(){
