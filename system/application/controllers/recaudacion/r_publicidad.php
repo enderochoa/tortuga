@@ -101,6 +101,7 @@ class R_publicidad extends Controller {
 		$grid->column_orderby('Dir4'              ,"dir4"                                             ,'dir4'         ,'align="left"');
 		$grid->column_orderby('Alto'              ,"<nformat><#alto#></nformat>"                      ,'alto'         ,'align="right"');
 		$grid->column_orderby('Ancho'             ,"<nformat><#ancho#></nformat>"                     ,'ancho'        ,'align="right"');
+		$grid->column_orderby('Dimension'         ,"<nformat><#dimension#></nformat>"                 ,'dimension'    ,'align="right"');
 
 		$grid->add($this->url.'dataedit/create');
 		$grid->build();
@@ -183,7 +184,10 @@ class R_publicidad extends Controller {
 						.appendTo( ul );
 					};
 				});
+				
+				
 			});
+			
 			';
 			
 		
@@ -232,7 +236,7 @@ class R_publicidad extends Controller {
 
 		$edit->id_tipo = new dropDownField('Tipo Publicidad','id_tipo');
 		$edit->id_tipo->option("","");
-		$edit->id_tipo->options("SELECT id,descrip FROM rp_tipos ORDER BY descrip");
+		$edit->id_tipo->options("SELECT id,CONCAT(codigo,' ',descrip) descrip FROM rp_tipos ORDER BY id");
 		$edit->id_tipo->rule='required';
 
 		$edit->id_parroquia = new dropDownField('Parroquia','id_parroquia');
@@ -302,12 +306,32 @@ class R_publicidad extends Controller {
 		$edit->alto->css_class='inputnum';
 		$edit->alto->size      =12;
 		$edit->alto->maxlength =10;
+		//$edit->alto->onchange = "dimension();";
 
 		$edit->ancho = new inputField('Ancho','ancho');
 		$edit->ancho->rule     ='trim|numeric';
 		$edit->ancho->css_class='inputnum';
 		$edit->ancho->size      =12;
 		$edit->ancho->maxlength =10;
+		//$edit->ancho->onchange = "dimension();";
+		
+		$edit->dimension = new inputField('Dimension','dimension');
+		$edit->dimension->rule     ='trim|numeric';
+		$edit->dimension->css_class='inputnum';
+		$edit->dimension->size      =12;
+		$edit->dimension->maxlength =10;
+		$edit->dimension->when  =array("show");
+		
+		$edit->descrip = new textAreaField('Descripcion','descrip');
+		$edit->descrip->rows =2;
+		$edit->descrip->cols =40;
+		
+		$edit->ultano = new inputField('Ultimo A&ntilde;o','ultano');
+		$edit->ultano->rule     ='trim|numeric';
+		$edit->ultano->css_class='inputnum';
+		$edit->ultano->size      =12;
+		$edit->ultano->maxlength =10;
+		$edit->ultano->when  =array("show");
 
 		$edit->buttons('add','modify', 'save', 'undo', 'delete', 'back');
 		$edit->build();
@@ -320,6 +344,9 @@ class R_publicidad extends Controller {
 
 	function _valida($do){
 		$error = '';
+		$ancho = $do->get('ancho');
+		$alto  = $do->get('alto' );
+		$do->set('dimension',round($ancho*$alto,2));
 
 		if(!empty($error)){
 			$do->error_message_ar['pre_ins']=$error;
@@ -374,6 +401,17 @@ class R_publicidad extends Controller {
 		ENGINE=MyISAM
 		;
 		";
+		$this->db->simple_query($query);
+		
+		$query="ALTER TABLE `r_publicidad` ADD COLUMN `id_contribu` INT(11) NULL DEFAULT NULL AFTER `id`";
+		$this->db->simple_query($query);
+		$query="ALTER TABLE `r_publicidad` ADD INDEX `id_contribu` (`id_contribu`)";
+		$this->db->simple_query($query);
+		$query="ALTER TABLE `r_publicidad` ADD COLUMN `descrip` TEXT NULL DEFAULT NULL AFTER `ancho`";
+		$this->db->simple_query($query);
+		$query="ALTER TABLE `r_publicidad` ADD INDEX `id_contribu` (`id_contribu`)";
+		$this->db->simple_query($query);
+		$query="ALTER TABLE `r_publicidad` 	ADD COLUMN `dimension` DECIMAL(10,2) NOT NULL DEFAULT '0.00' AFTER `ancho`";
 		$this->db->simple_query($query);
 	}
 

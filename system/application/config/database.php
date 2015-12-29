@@ -38,7 +38,7 @@ $active_group = "default";
 $active_record = TRUE;
 
 $db['default']['hostname'] = "localhost";
-$db['default']['username'] = "root";
+$db['default']['username'] = "datasis";
 $db['default']['password'] = "";
 $db['default']['database'] = "tortuga";
 $db['default']['dbdriver'] = "mysql";

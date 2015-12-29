@@ -728,7 +728,9 @@ html.ui-autocomplete {
 		jQuery.each(arr, function() {
 			nom=this.name;
 			pos=this.name.lastIndexOf('_');
+			console.log("Paso");
 			if(pos>0){
+				console.log("pos>0");
 				id   = this.name.substring(pos+1);
 				
 				f = $("#frecuencia_"+id ).val();
@@ -738,16 +740,19 @@ html.ui-autocomplete {
 				id_concit=$("#id_concit_"+id).val();
 				
 				if(id_concit>0){
+					
 					id= this.name.substring(pos+1);
 					monto=$("#monto_"+id).val();
 					monto=Math.round(monto*100)/100;
 					$("#monto_"+id).val(monto);
-					
 					total+=1*monto;
+					
 				}
 				//del_r_cxcit(id);
 			}
 		});
+		
+		console.log("total:"+total);
 		total=Math.round(total*100)/100
 		$("#monto").val(total);
 	}
@@ -851,6 +856,7 @@ html.ui-autocomplete {
 				$("#monto_"+i).val(data);
 			});
 		}
+		cal_total();
 	}
 	
 	function borratodo(){
@@ -888,7 +894,18 @@ html.ui-autocomplete {
 		
 		id_concitv=$("#id_concit_"+id).val();
 		
-		$.post("<?=site_url('recaudacion/r_cxc/damemonto')?>",{ id_concit:id_concitv,id:null,id_contribu:id_contribuv,base:basev },function(data){
+		requiere=$("#requiere_"+i).val();
+		
+		idd=null;
+		if(requiere=='INMUEBLE')
+		idd=$("#id_inmueble_"+i).val();
+		if(requiere=='VEHICULO')
+		idd=$("#id_vehiculo_"+i).val();
+		if(requiere=='PUBLICIDAD')
+		idd=$("#id_publicidad_"+i).val();
+		
+		
+		$.post("<?=site_url('recaudacion/r_cxc/damemonto')?>",{ id_concit:id_concitv,id:idd,id_contribu:id_contribuv,base:basev },function(data){
 			$("#monto_"+i).val(data);
 		});
 		cal_total();

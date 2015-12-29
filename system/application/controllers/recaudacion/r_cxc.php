@@ -872,6 +872,7 @@ class r_cxc extends Controller {
 				$do->set_rel('r_cxcit','expira'        ,$r_v_conc['expira'    ]   ,$i);
 			}
 			
+			//echo "inmueble:".$id_inmueble."</br>";
 			/* CALCULO DE INTERESES*/
 			foreach($intereses as $k=>$v){
 				$a                       = eval($intereses[$k]['formula']);
@@ -885,6 +886,9 @@ class r_cxc extends Controller {
 				$descuentos[$k]['monto'] += $a;
 			}
 		}
+		
+		
+		//exit();
 		
 		/*
 		 * CREA ITEM DE INTERESES
@@ -975,12 +979,19 @@ class r_cxc extends Controller {
 				$tasas    =$this->db->query($tasas);
 				$tasas    =$tasas->result_array();
 				
+				
 				$impuesto=0;
 				foreach($tasas as $row){
-					if($modo==1)
+					if($modo==1){
+						//echo "$ano	SEMESTRE $freval	AL ".$row['fin'].";$base; $impuesto;".($row['tasa']/100).";".(($base+$impuesto)*$row['tasa']/100)."</br>";
 						$impuesto+=($base+$impuesto)*$row['tasa']/100;
-					elseif($modo==2)
+						
+					}elseif($modo==2){
 						$impuesto+=($base)*$row['tasa']/100;
+					}
+						
+					
+					
 				}
 			}break;
 			case 3:{
@@ -1268,10 +1279,11 @@ class r_cxc extends Controller {
 		}
 		
 		if(!(strpos( $formula,'XX_PUBLICIDAD_')===false)){
-			$query="SELECT alto,ancho,monto tipo_monto FROM r_publicidad JOIN rp_tipos ON  r_publicidad.id_tipo=rp_tipos.id WHERE r_publicidad.id=$id";
+			$query="SELECT alto,ancho,dimension,monto tipo_monto,rp_tipos.codigo tipo_codigo FROM r_publicidad JOIN rp_tipos ON  r_publicidad.id_tipo=rp_tipos.id WHERE r_publicidad.id=$id";
 			$row=$this->datasis->damerow($query);
-			foreach($row as $k=>$v)
+			foreach($row as $k=>$v){
 				$XX["XX_PUBLICIDAD_".strtoupper($k)]=$v;
+			}
 		}
 		
 		if(!(strpos( $formula,'XX_CONTRIBU_')===false) && $id_contribu>0){
@@ -1392,8 +1404,9 @@ class r_cxc extends Controller {
 
 		$grid2->build();
 		
-		$idsi=$this->datasis->dameval("SELECT GROUP_CONCAT(id) FROM r_v_inmueble WHERE id_contribu=".$this->db->escape($id));
-		$idsv=$this->datasis->dameval("SELECT GROUP_CONCAT(id) FROM r_v_vehiculo WHERE id_contribu=".$this->db->escape($id));
+		
+		$idsi=$this->datasis->dameval("SELECT GROUP_CONCAT(id) FROM ( SELECT id FROM r_v_inmueble WHERE id_contribu=".$this->db->escape($id)." LIMIT 1000 )todo");
+		$idsv=$this->datasis->dameval("SELECT GROUP_CONCAT(id) FROM ( SELECT id FROM r_v_vehiculo WHERE id_contribu=".$this->db->escape($id)." LIMIT 1000 )todo");
 
 		$query="SELECT  
 		IF(frecuencia=1,'Año',IF(frecuencia=2,'Semestre',IF(frecuencia=3,'Trimestre',IF(frecuencia=4,'MES','')))) frecuencia
@@ -1445,14 +1458,14 @@ class r_cxc extends Controller {
 		FROM r_cxcit 
 		JOIN r_cxc ON r_cxcit.id_cxc=r_cxc.id 
 		LEFT JOIN r_reciboit ON r_cxcit.id=r_reciboit.id_cxcit
-		WHERE r_reciboit.id IS NULL AND  r_cxc.id_contribu=".$this->db->escape($id);
+		WHERE r_reciboit.id IS NULL AND  (r_cxc.id_contribu=".$this->db->escape($id);
 		
 		if(strlen($idsv)>0)
 		$query.=" OR r_cxcit.id_vehiculo IN (".$idsv.")";
 		if(strlen($idsi)>0)
 		$query.=" OR r_cxcit.id_inmueble IN (".$idsi.")";
 		
-		$query.=" ORDER BY r_cxc.fecha desc,r_cxcit.ano,r_cxcit.requiere";
+		$query.=" ) ORDER BY r_cxc.fecha desc,r_cxcit.ano,r_cxcit.requiere";
 		
 		$data = $this->db->query($query);
 		$data = $data->result_array();
@@ -1507,13 +1520,13 @@ class r_cxc extends Controller {
 		$tablas.='<tr><td scrollbar="yes" width="100%" height="50px">';
 		$tablas.=str_replace('mainbackgroundtable','',$grid2->output);
 		$tablas.='</td></tr>';
-		$tablas.='<tr><td scrollbar="yes" width="100%" height="100px">';
+		$tablas.='<tr><td scrollbar="yes" width="100%" height="100px" bgcolor=#FFFFAA>';
 		$tablas.=str_replace('mainbackgroundtable','',$grid3->output);
 		$tablas.='</td></tr>';
-		$tablas.='<tr><td scrollbar="yes" width="100%" height="100px">';
+		$tablas.='<tr><td scrollbar="yes" width="100%" height="100px" bgcolor=#FFAAFF>';
 		$tablas.=str_replace('mainbackgroundtable','',$grid5->output);
 		$tablas.='</td></tr>';
-		$tablas.='<tr><td scrollbar="yes" width="100%" height="100px">';
+		$tablas.='<tr><td scrollbar="yes" width="100%" height="100px" bgcolor=#AAFFFF>';
 		$tablas.=str_replace('mainbackgroundtable','',$grid4->output);
 		$tablas.='</td></tr>';
 		$tablas.='</table>';

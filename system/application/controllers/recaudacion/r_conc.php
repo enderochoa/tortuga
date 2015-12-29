@@ -119,6 +119,7 @@ class r_conc extends Controller {
 		$edit->itexpira->option('N','Nunca'  );
 		$edit->itexpira->option('M','Mensual');
 		$edit->itexpira->option('A','Anual');
+		$edit->itexpira->option('2','Semestral'    );
 		$edit->itexpira->option('T','Trimestral');
 		$edit->itexpira->style="width:40px;";
 		$edit->itexpira->db_name='expira';

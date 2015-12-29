@@ -242,7 +242,7 @@ if($form->_status!='show'){
 		$("#preten").val(tari);
 		$("#preten_val").text(tari);
 		
-		ret=redondear((breten*(tari/100))-(utribuactual*(tari/100)*porcentsustra));
+		ret=redondear((breten*(tari/100))-redondear(utribuactual*(tari/100)*porcentsustra));
 		if(ret <0)ret=0;
 		$("#reten").val(ret);
 		

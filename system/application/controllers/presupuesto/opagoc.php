@@ -1480,6 +1480,7 @@ class Opagoc extends Common {
 		
 		if(strstr($status,1,1)==2)
 		$this->db->query("call sp_recalculo()");
+		
 
 		$numero = $do->get('numero');
 		logusu('opagoc'," Elimino Orden de Pago contrato Nro $numero");
