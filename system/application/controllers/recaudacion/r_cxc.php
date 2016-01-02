@@ -13,7 +13,6 @@ class r_cxc extends Controller {
 	}
 	function filteredgrid(){
 		$this->rapyd->load('datafilter','datagrid');
-
 		$filter = new DataFilter($this->titp, 'r_cxc');
 		
 		//$user          = $this->session->userdata('usuario');
@@ -121,8 +120,7 @@ class r_cxc extends Controller {
 				'nombre'=>'nombre',
 				'rifci' =>'rifci'
 			),
-			'titulo'  =>'Buscar Contribuyente'//,
-			//'script'  =>array('cargadeuda()'),
+			'titulo'  =>'Buscar Contribuyente'
 		);
 
 		$button  = $this->datasis->modbus($modbus);
@@ -130,27 +128,27 @@ class r_cxc extends Controller {
 		$modbus=array(
 			'tabla'   =>'r_v_conc',
 			'columnas'=>array(
-				'id'          =>'Ref',          
-				'ano'         =>'A&ntilde;o',        
-				'acronimo'    =>'Acronimo',     
+				'id'          =>'Ref'         ,           
+				'ano'         =>'A&ntilde;o'  ,        
+				'acronimo'    =>'Acronimo'    ,     
 				'denomi'      =>'Denominacion', 
 				'denomiconc'  =>'Denomi Padre', 
-				'partida'     =>'Partida',     
+				'partida'     =>'Partida'     ,     
 			),
 			'filtro'  =>array(
 				'denomi'      =>'Denominacion', 
 				'denomiconc'  =>'Denomi Padre', 
-				'partida'     =>'Partida',     
+				'partida'     =>'Partida'     ,     
 			),
 			'retornar'=>array(
 				'id'          =>'id_concit_<#i#>',
-				'ano'         =>'ano_<#i#>',
-				'denomi'      =>'denomi_<#i#>',
-				'requiere'    =>'requiere_<#i#>',
+				'ano'         =>'ano_<#i#>'      ,
+				'denomi'      =>'denomi_<#i#>'   ,
+				'requiere'    =>'requiere_<#i#>' ,
 				'modo'        =>'modo_<#i#>'
 			),
 			'titulo'  =>'Buscar Concepto',
-			'script'  =>array('post_conc(<#i#>,0)'),//,'traemonto(<#i#>,1)'
+			'script'  =>array('post_conc(<#i#>,0)'),
 			'p_uri'=>array(
 				4=>'<#i#>'
 			)

@@ -1,5 +1,0 @@
-SELECT `codbanc`, `fondo`, `banco`, `saldo`, `numcuent`
-FROM `banc`
-WHERE `activo` = "S"
-ORDER BY `banc`.`codbanc` asc
-LIMIT 20
