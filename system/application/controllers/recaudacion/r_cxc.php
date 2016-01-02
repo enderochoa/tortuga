@@ -879,16 +879,14 @@ class r_cxc extends Controller {
 				$intereses[$k]['monto'] += $a;
 			}
 			
-			
 			/* CALCULO DE DESCUENTOS*/
 			foreach($descuentos as $k=>$v){
-				$a                       = eval($descuentos[$k]['formula']);
+				
+				$a                        = eval($descuentos[$k]['formula']);
+				echo $descuentos[$k]['formula'].":".$a."</br>"; 
 				$descuentos[$k]['monto'] += $a;
 			}
 		}
-		
-		
-		//exit();
 		
 		/*
 		 * CREA ITEM DE INTERESES
@@ -925,6 +923,12 @@ class r_cxc extends Controller {
 				$total+=$descuentos[$k]['monto' ];
 			}
 		}
+		
+		print_r($do->get_all());
+		
+		
+		
+		//exit();
 		
 		if(empty($error)){
 			$do->set('monto',$total);
