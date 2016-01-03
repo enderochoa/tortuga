@@ -664,9 +664,9 @@ class R_abonos extends Controller {
 		AUTO_INCREMENT=1";
 		$this->db->simple_query($query);
 		
-		$query="ALTER TABLE `r_abonos`	ADD COLUMN `totrecibos` DECIMAL(19,2) NULL DEFAULT '0' AFTER `estampa` ";
+		$query="ALTER TABLE `r_abonos`	ADD COLUMN `totrecibos` DECIMAL(19,2) NULL DEFAULT '0'";
 		$this->db->simple_query($query);
-		$query="ALTER TABLE `r_abonos`  ADD COLUMN `totmbanc` DECIMAL(19,2) NULL DEFAULT '0' AFTER `totrecibos`";
+		$query="ALTER TABLE `r_abonos`  ADD COLUMN `totmbanc` DECIMAL(19,2) NULL DEFAULT '0' ";
 		$this->db->simple_query($query);
 		
 		$query="CREATE TABLE `r_abonosit` (
@@ -679,14 +679,14 @@ class R_abonos extends Controller {
 		ENGINE=MyISAM
 		AUTO_INCREMENT=1";
 		$this->db->simple_query($query);		
-		$query="ALTER TABLE `r_mbanc` ADD COLUMN `id_mbancrel` INT NULL DEFAULT NULL AFTER `concepto`";
+		$query="ALTER TABLE `r_mbanc` ADD COLUMN `id_mbancrel` INT NULL DEFAULT NULL";
 		$this->db->simple_query($query);
 		$query="ALTER TABLE `r_mbanc` ADD INDEX `id_mbancrel` (`id_mbancrel`)";
 		$this->db->simple_query($query);
 		
-		$query="ALTER TABLE `r_mbanc` ADD COLUMN `id_mbanc` INT(11) NULL DEFAULT NULL AFTER `id_mbancrel";
+		$query="ALTER TABLE `r_mbanc` ADD COLUMN `id_mbanc` INT(11) NULL DEFAULT NULL ";
 		$this->db->simple_query($query);
-		$query="ALTER TABLE `r_abonos` ADD COLUMN `fecha` DATE NULL DEFAULT NULL AFTER `totmbanc`";
+		$query="ALTER TABLE `r_abonos` ADD COLUMN `fecha` DATE NULL DEFAULT NULL";
 		$this->db->simple_query($query);
 	}
 
