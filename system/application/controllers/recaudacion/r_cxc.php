@@ -1749,13 +1749,15 @@ class r_cxc extends Controller {
 	}
 
 	function instalar(){
-		$mSQL="CREATE TABLE `r_recibo` (
+		$query="CREATE TABLE `r_cxc` (
 		  `id` int(11) NOT NULL AUTO_INCREMENT,
 		  `id_contribu` int(11) NOT NULL,
 		  `fecha` date NOT NULL,
+		  `numero` varchar(12) DEFAULT NULL,
 		  `rifci` varchar(12) DEFAULT NULL,
 		  `nombre` varchar(100) DEFAULT NULL,
 		  `telefono` varchar(50) DEFAULT NULL,
+		  `monto` decimal(19,2) DEFAULT '0.00',
 		  `id_parroquia` int(11) DEFAULT NULL,
 		  `parroquia` varchar(100) DEFAULT NULL,
 		  `id_zona` int(11) DEFAULT NULL,
@@ -1764,60 +1766,56 @@ class r_cxc extends Controller {
 		  `dir2` varchar(255) DEFAULT NULL,
 		  `dir3` varchar(255) DEFAULT NULL,
 		  `dir4` varchar(255) DEFAULT NULL,
+		  `razon` varchar(255) DEFAULT NULL,
+		  `solvencia` varchar(10) DEFAULT NULL,
+		  `solvenciab` varchar(10) DEFAULT NULL,
+		  `licores` varchar(10) DEFAULT NULL,
+		  `caja` int(11) DEFAULT NULL,
+		  `estampa` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 		  PRIMARY KEY (`id`)
-		) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8";
-		$this->db->simple_query($mSQL);
+		) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8";
+		$this->db->simple_query($query);
 		
-		$query="
-		CREATE TABLE `r_reciboit` (
-			`id` INT(11) NOT NULL AUTO_INCREMENT,
-			`id_recibo` INT(11) NULL DEFAULT NULL,
-			`id_concit` INT(11) NULL DEFAULT NULL,
-			`id_conc` INT(11) NULL DEFAULT NULL,
-			`id_vehiculo` INT(11) NULL DEFAULT NULL,
-			`id_inmueble` INT(11) NULL DEFAULT NULL,
-			`ano` INT(11) NULL DEFAULT NULL,
-			`monto` DECIMAL(19,2) NULL DEFAULT '0.00',
-			`observa` VARCHAR(255) NULL DEFAULT NULL,
-			`acronimo` VARCHAR(50) NOT NULL,
-			`denomi` VARCHAR(80) NOT NULL,
-			`i_id_parroquia` INT(11) NULL DEFAULT NULL,
-			`i_parroquia` VARCHAR(100) NULL DEFAULT NULL,
-			`i_id_zona` INT(11) NULL DEFAULT NULL,
-			`i_zona` VARCHAR(100) NULL DEFAULT NULL,
-			`i_dir1` VARCHAR(255) NULL DEFAULT NULL,
-			`i_dir2` VARCHAR(255) NULL DEFAULT NULL,
-			`i_dir3` VARCHAR(255) NULL DEFAULT NULL,
-			`i_dir4` VARCHAR(255) NULL DEFAULT NULL,
-			`v_placa` VARCHAR(12) NULL DEFAULT NULL,
-			`i_catastro` VARCHAR(20) NULL DEFAULT NULL,
-			`requiere` VARCHAR(20) NULL DEFAULT NULL,
-			`partida` VARCHAR(20) NULL DEFAULT NULL,
-			`v_marca` VARCHAR(50) NULL DEFAULT NULL,
-			`v_modelo` VARCHAR(50) NULL DEFAULT NULL,
-			`partida_denomi` VARCHAR(100) NULL DEFAULT NULL,
-			`conc_denomi` VARCHAR(100) NULL DEFAULT NULL,
-			PRIMARY KEY (`id`)
-		)
-		COLLATE='utf8_general_ci'
-		ENGINE=InnoDB
-		AUTO_INCREMENT=1
-		";
-		$this->db->simple_query($mSQL);
-		$mSQL="ALTER TABLE `r_recibo` 	ADD COLUMN `caja` INT NULL DEFAULT NULL";
-		$this->db->simple_query($mSQL);
-		$query="ALTER TABLE `r_recibo` ADD COLUMN `numero` VARCHAR(12) NULL DEFAULT NULL ";
+		$query="CREATE TABLE `r_cxcit` (
+		  `id` int(11) NOT NULL AUTO_INCREMENT,
+		  `id_cxc` int(11) DEFAULT NULL,
+		  `id_concit` int(11) DEFAULT NULL,
+		  `id_conc` int(11) DEFAULT NULL,
+		  `id_vehiculo` int(11) DEFAULT NULL,
+		  `id_inmueble` int(11) DEFAULT NULL,
+		  `id_publicidad` int(11) DEFAULT NULL,
+		  `ano` int(11) DEFAULT NULL,
+		  `frecuencia` smallint(6) DEFAULT '0',
+		  `freval` smallint(6) DEFAULT NULL,
+		  `base` decimal(19,2) DEFAULT '0.00',
+		  `monto` decimal(19,2) DEFAULT '0.00',
+		  `observa` varchar(255) DEFAULT NULL,
+		  `acronimo` varchar(50) NOT NULL,
+		  `denomi` varchar(80) NOT NULL,
+		  `i_id_parroquia` int(11) DEFAULT NULL,
+		  `i_parroquia` varchar(100) DEFAULT NULL,
+		  `i_id_zona` int(11) DEFAULT NULL,
+		  `i_zona` varchar(100) DEFAULT NULL,
+		  `i_dir1` varchar(255) DEFAULT NULL,
+		  `i_dir2` varchar(255) DEFAULT NULL,
+		  `i_dir3` varchar(255) DEFAULT NULL,
+		  `i_dir4` varchar(255) DEFAULT NULL,
+		  `v_placa` varchar(12) DEFAULT NULL,
+		  `i_catastro` varchar(20) DEFAULT NULL,
+		  `requiere` varchar(20) DEFAULT NULL,
+		  `modo` varchar(10) DEFAULT NULL,
+		  `partida` varchar(20) DEFAULT NULL,
+		  `v_marca` varchar(50) DEFAULT NULL,
+		  `v_modelo` varchar(50) DEFAULT NULL,
+		  `partida_denomi` varchar(100) DEFAULT NULL,
+		  `conc_denomi` varchar(100) DEFAULT NULL,
+		  `p_id_tipo` int(11) DEFAULT NULL,
+		  `p_tipo_descrip` varchar(100) DEFAULT NULL,
+		  `expira` char(1) DEFAULT NULL,
+		  PRIMARY KEY (`id`)
+		) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8";
 		$this->db->simple_query($query);
-		$query="ALTER TABLE `r_recibo` ADD COLUMN `monto` DECIMAL(19,2) NULL DEFAULT '0'";
-		$this->db->simple_query($query);
-		$query="ALTER TABLE `r_recibo` ADD COLUMN `razon` VARCHAR(255) NULL DEFAULT NULL";
-		$this->db->simple_query($query);
-		$query="ALTER TABLE `r_recibo` ADD COLUMN `solvencia` VARCHAR(10) NULL DEFAULT NULL ";
-		$this->db->simple_query($query);
-		$query="ALTER TABLE `r_recibo` ADD COLUMN `solvenciab` VARCHAR(10) NULL DEFAULT NULL ";
-		$this->db->simple_query($query);
-		$query="ALTER TABLE `r_recibo` ADD COLUMN `licores` VARCHAR(10) NULL DEFAULT NULL";
-		$this->db->simple_query($query);
+		
 		$query="
 		CREATE TABLE `r_otrospagos` (
 			`id` BIGINT(20) NOT NULL AUTO_INCREMENT,
