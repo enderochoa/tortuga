@@ -1258,7 +1258,7 @@ class r_cxc extends Controller {
 		}
 		
 		if(!(strpos( $formula,'XX_INMUEBLE_')===false)){
-			$query="SELECT zona,techo,mt2,monto,zona_monto,clase_monto,tipoi,clasea_monto,clasea_monto2 FROM r_v_inmueble WHERE id=$id";
+			$query="SELECT zona,techo,mt2,monto,zona_monto,clase_monto,tipoi,clasea_monto,clase_monto2 FROM r_v_inmueble WHERE id=$id";
 			$row=$this->datasis->damerow($query);
 			foreach($row as $k=>$v)
 				$XX["XX_INMUEBLE_".strtoupper($k)]=$v;
