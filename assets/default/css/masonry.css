@@ -33,19 +33,19 @@
 }
 
 .col2 {
-	width: 180px;
+	width: 160px;
 }
 
 .col3 {
-	width: 280px;
+	width: 240px;
 }
 
 .col4 {
-	width: 380px;
+	width: 320px;
 }
 
 .col5 {
-	width: 480px;
+	width: 400px;
 }
 
 .col6 {
@@ -99,7 +99,7 @@
 
 /* Magazine page */
 #tumblelog {
-	background: #FFF;
+	/*background: #FFF;*/
 	padding: 1.0em;
 }
 
