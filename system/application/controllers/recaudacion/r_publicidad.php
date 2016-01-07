@@ -13,20 +13,40 @@ class R_publicidad extends Controller {
 	}
 	function filteredgrid(){
 		$this->rapyd->load('datafilter','datagrid');
+		
+		$modbus=array(
+			'tabla'   =>'r_contribu',
+			'columnas'=>array(
+				'id'    =>'Ref.',
+				'rifci' =>'Rif/CI',
+				'nombre'=>'Nombre'
+				),
+			'filtro'  =>array(
+				'id'    =>'Ref.',
+				'rifci' =>'Rif/CI',
+				'nombre'=>'Nombre'
+			),
+			'retornar'=>array(
+				'id'=>'id_contribu'
+			),
+			'titulo'  =>'Buscar Contribuyente'
+		);
+
+		$button  = $this->datasis->modbus($modbus);
 
 		$filter = new DataFilter($this->titp, 'r_publicidad a');
-		$filter->db->select(array('vi_parroquia.nombre parroquia','r_zona.descrip zona',"r_contribu.nombre","r_contribu.rifci","a.id","a.id_contribu","a.id_tipo","a.id_parroquia","a.id_zona","a.id_sector","a.dir1","a.dir2","a.dir3","a.dir4","a.alto","a.ancho","b.codigo","b.descrip","b.monto"));
+		$filter->db->select(array('vi_parroquia.nombre parroquia','r_zona.descrip zona',"r_contribu.nombre","r_contribu.rifci","a.id","a.id_contribu","a.id_tipo","a.id_parroquia","a.id_zona","a.id_sector","a.alto","a.ancho","b.codigo","b.descrip","b.monto","CONCAT_WS(' ',a.dir1,a.dir2,a.dir3,a.dir4) direccion","r_contribu.rifci rifci","r_contribu.nombre"));
 		$filter->db->join('rp_tipos b','a.id_tipo=b.id','LEFT');
 		$filter->db->join('r_contribu','a.id_contribu=r_contribu.id','LEFT');
 		$filter->db->join('vi_parroquia','a.id_parroquia=vi_parroquia.id','LEFT');
 		$filter->db->join('r_zona','a.id_zona=r_zona.id','LEFT');
 
-		$filter->id = new inputField('Id','id');
+		$filter->id = new inputField('Ref.','id');
 		$filter->id->rule      ='trim';
 		$filter->id->size      =13;
 		$filter->id->maxlength =11;
 
-		$filter->id_tipo = new inputField('Id_tipo','id_tipo');
+		$filter->id_tipo = new inputField('Ref Tipo Publicidad','id_tipo');
 		$filter->id_tipo->rule      ='trim';
 		$filter->id_tipo->size      =13;
 		$filter->id_tipo->maxlength =11;
@@ -35,11 +55,13 @@ class R_publicidad extends Controller {
 		$filter->id_parroquia->option('','');
 		$filter->id_parroquia->options("SELECT id,nombre FROM vi_parroquia ORDER BY nombre");
 		$filter->id_parroquia->group = "Datos De Ubicacion";
+		$filter->id_parroquia->db_name ='a.id_parroquia';
 
 		$filter->id_zona = new dropDownField('Zona','id_zona');
 		$filter->id_zona->option('','');
 		$filter->id_zona->options("SELECT id,descrip FROM r_zona ORDER BY descrip");
 		$filter->id_zona->group = "Datos De Ubicacion";
+		$filter->id_zona->db_name ='a.id_zona';
 
 		$filter->dir1 = new inputField('Direcci&oacute;n 1','dir1');
 		$filter->dir1->rule='max_length[255]';
@@ -47,6 +69,7 @@ class R_publicidad extends Controller {
 		$filter->dir1->maxlength =255;
 		$filter->dir1->append("Urbanizacion, Barrio, Sector");
 		$filter->dir1->group = "Datos De Ubicacion";
+		$filter->dir1->db_name = 'a.dir1';
 
 		$filter->dir2 = new inputField('Direcci&oacute;n 2','dir2');
 		$filter->dir2->rule='max_length[255]';
@@ -54,6 +77,7 @@ class R_publicidad extends Controller {
 		$filter->dir2->maxlength =255;
 		$filter->dir2->append("Calle, avenida");
 		$filter->dir2->group = "Datos De Ubicacion";
+		$filter->dir2->db_name = 'a.dir2';
 
 		$filter->dir3 = new inputField('Direcci&oacute;n 3','dir3');
 		$filter->dir3->rule='max_length[255]';
@@ -61,6 +85,7 @@ class R_publicidad extends Controller {
 		$filter->dir3->maxlength =255;
 		$filter->dir3->append("Con Calle o avenida");
 		$filter->dir3->group = "Datos De Ubicacion";
+		$filter->dir3->db_name = 'a.dir3';
 
 		$filter->dir4 = new inputField('Direcci&oacute;n 4','dir4');
 		$filter->dir4->rule='max_length[255]';
@@ -68,6 +93,7 @@ class R_publicidad extends Controller {
 		$filter->dir4->maxlength =255;
 		$filter->dir4->append("Casa #, o apto #");
 		$filter->dir4->group = "Datos De Ubicacion";
+		$filter->dir4->db_name = 'a.dir4';
 
 		$filter->alto = new inputField('Alto','alto');
 		$filter->alto->rule      ='trim|numeric';
@@ -80,6 +106,26 @@ class R_publicidad extends Controller {
 		$filter->ancho->css_class ='inputnum';
 		$filter->ancho->size      =12;
 		$filter->ancho->maxlength =10;
+		
+		$filter->dimension = new inputField('Dimension','dimension');
+		$filter->dimension->rule      ='trim|numeric';
+		$filter->dimension->css_class ='inputnum';
+		$filter->dimension->size      =12;
+		$filter->dimension->maxlength =10;
+		
+		$filter->id_contribu = new inputField('Ref. Contribu','id_contribu');
+		$filter->id_contribu->rule      ='max_length[11]';
+		$filter->id_contribu->size      =5;
+		$filter->id_contribu->maxlength =11;
+		$filter->id_contribu->append($button);
+		$filter->id_contribu->clause    ='where';
+		$filter->id_contribu->operator  ='=';
+		
+		$filter->rifci = new inputField('R.I.F./C.I','rifci');
+		$filter->rifci->rule      ='max_length[11]';
+		$filter->rifci->size      =13;
+		$filter->rifci->maxlength =11;
+		$filter->rifci->db_name='r_contribu.rifci';
 
 		$filter->buttons('reset', 'search');
 		$filter->build();
@@ -90,18 +136,15 @@ class R_publicidad extends Controller {
 		$grid->order_by('a.id','desc');
 		$grid->per_page = 40;
 
-		$grid->column_orderby('Id'                ,"$uri"                                             ,'id'           ,'align="left"');
-		$grid->column_orderby('Id_tipo'           ,"descrip"                                          ,'id_tipo'      ,'align="right"');
-		$grid->column_orderby('Id_parroquia'      ,"parroquia"                                        ,'id_parroquia' ,'align="right"');
-		$grid->column_orderby('Id_zona'           ,"zona"                                             ,'id_zona'      ,'align="right"');
-		$grid->column_orderby('Id_sector'         ,"sector"                                           ,'id_sector'    ,'align="right"');
-		$grid->column_orderby('Dir1'              ,"dir1"                                             ,'dir1'         ,'align="left"');
-		$grid->column_orderby('Dir2'              ,"dir2"                                             ,'dir2'         ,'align="left"');
-		$grid->column_orderby('Dir3'              ,"dir3"                                             ,'dir3'         ,'align="left"');
-		$grid->column_orderby('Dir4'              ,"dir4"                                             ,'dir4'         ,'align="left"');
-		$grid->column_orderby('Alto'              ,"<nformat><#alto#></nformat>"                      ,'alto'         ,'align="right"');
-		$grid->column_orderby('Ancho'             ,"<nformat><#ancho#></nformat>"                     ,'ancho'        ,'align="right"');
-		$grid->column_orderby('Dimension'         ,"<nformat><#dimension#></nformat>"                 ,'dimension'    ,'align="right"');
+		$grid->column_orderby('Ref'               ,"$uri"                                             ,'id'                  ,'align="left"');
+		$grid->column_orderby('R.I.F/C.I'         ,"rifci"                                            ,'rifci'               ,'align="right"');
+		$grid->column_orderby('Nombre'            ,"nombre"                                           ,'nombre'              ,'align="right"');
+		$grid->column_orderby('Parroquia'         ,"parroquia"                                        ,'vi_parroquia.nombre' ,'align="right"');
+		$grid->column_orderby('Zona'              ,"zona"                                             ,'r_zona.descrip'      ,'align="right"');
+		$grid->column_orderby('Direcci&oacute;n'  ,"direccion"                                        ,'direccion'           ,'align="left"' );
+		$grid->column_orderby('Alto'              ,"<nformat><#alto#></nformat>"                      ,'alto'                ,'align="right"');
+		$grid->column_orderby('Ancho'             ,"<nformat><#ancho#></nformat>"                     ,'ancho'               ,'align="right"');
+		$grid->column_orderby('Dimension'         ,"<nformat><#dimension#></nformat>"                 ,'dimension'           ,'align="right"');
 
 		$grid->add($this->url.'dataedit/create');
 		$grid->build();
