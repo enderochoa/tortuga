@@ -881,7 +881,7 @@ class r_cxc extends Controller {
 			foreach($descuentos as $k=>$v){
 				
 				$a                        = eval($descuentos[$k]['formula']);
-				echo $descuentos[$k]['formula'].":".$a."</br>"; 
+				$descuentos[$k]['formula'].":".$a."</br>"; 
 				$descuentos[$k]['monto'] += $a;
 			}
 		}
@@ -1258,14 +1258,14 @@ class r_cxc extends Controller {
 		}
 		
 		if(!(strpos( $formula,'XX_INMUEBLE_')===false)){
-			$query="SELECT zona,techo,mt2,monto,zona_monto,clase_monto,tipoi,clasea_monto,clase_monto2 FROM r_v_inmueble WHERE id=$id";
+			$query="SELECT zona,techo,mt2,monto,zona_monto,clase_monto,tipoi,clasea_monto,clase_monto2,clasea_monto2 FROM r_v_inmueble WHERE id=$id";
 			$row=$this->datasis->damerow($query);
 			foreach($row as $k=>$v)
 				$XX["XX_INMUEBLE_".strtoupper($k)]=$v;
 		}
 
 		if(!(strpos( $formula,'XX_VEHICULO_')===false)){
-			$query="SELECT a.capacidad,a.ejes,a.ano,a.peso,b.monto clase_monto
+			$query="SELECT a.capacidad,a.ejes,a.ano,a.peso,b.monto clase_monto,b.monto2 clase_monto2
 			FROM r_vehiculo a
 			JOIN rv_clase b ON a.id_clase=b.id
 			WHERE a.id=$id";
@@ -1509,12 +1509,41 @@ class r_cxc extends Controller {
 
 		$grid4->build();
 		
+		$data = $this->db->query(
+		"SELECT  
+		a.id,b.codigo,b.descrip,a.dir1,a.dir2,a.dir3,a.dir4,a.alto,a.ancho,a.dimension,a.ultano
+		FROM r_publicidad a
+		LEFT JOIN rp_tipos b ON a.id_tipo=b.id
+		WHERE  id_contribu=".$this->db->escape($id)
+		);
+		$data = $data->result_array();
+		$grid5 = new DataGrid("Publicidades",$data);
+		$grid5->per_page = 3000;
+		
+		$uri = anchor_popup('recaudacion/r_publicidad/dataedit/show/<raencode><#id#></raencode>','<#id#>',$atts);
+
+		$grid5->column('Ref.'           ,"$uri"                               ,'id'          ,'align="left"' );
+		$grid5->column('Codigo'         ,"codigo"                             ,'codigo'      ,'align="left"' );
+		$grid5->column('Direccion 1'    ,"dir1"                               ,'dir1'        ,'align="left"' );
+		$grid5->column('Direccion 2'    ,"dir2"                               ,'dir2'        ,'align="left"' );
+		$grid5->column('Direccion 3'    ,"dir3"                               ,'dir3'        ,'align="left"' );
+		$grid5->column('Direccion 4'    ,"dir4"                               ,'dir4'        ,'align="left"' );
+		$grid5->column('Alto'           ,"alto"                               ,'alto'        ,'align="left"' );
+		$grid5->column('Ancho'          ,"ancho"                              ,'ancho'       ,'align="right"');
+		$grid5->column('Dimension'      ,"dimension"                          ,'dimension'   ,'align="left"' );
+		$grid5->column('ua'             ,"ua"                                 ,'ua'          ,'align="right"');
+
+		$grid5->build();
+		
 		$tablas ='<table width=\'100%\'>';
 		$tablas.='<tr><td scrollbar="yes" width="100%" height="50px">';
 		$tablas.=str_replace('mainbackgroundtable','',$grid->output);
 		$tablas.='</td></tr>';
 		$tablas.='<tr><td scrollbar="yes" width="100%" height="50px">';
 		$tablas.=str_replace('mainbackgroundtable','',$grid2->output);
+		$tablas.='</td></tr>';
+		$tablas.='<tr><td scrollbar="yes" width="100%" height="50px">';
+		$tablas.=str_replace('mainbackgroundtable','',$grid5->output);
 		$tablas.='</td></tr>';
 		$tablas.='<tr><td scrollbar="yes" width="100%" height="100px" bgcolor=#FFFFAA>';
 		$tablas.=str_replace('mainbackgroundtable','',$grid3->output);
