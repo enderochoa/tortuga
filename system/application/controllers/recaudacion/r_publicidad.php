@@ -136,7 +136,7 @@ class R_publicidad extends Controller {
 		$grid->order_by('a.id','desc');
 		$grid->per_page = 40;
 
-		$grid->column_orderby('Ref'               ,"$uri"                                             ,'id'                  ,'align="left"');
+		$grid->column_orderby('Ref'               ,"$uri"                                             ,'a.id'                ,'align="left"');
 		$grid->column_orderby('R.I.F/C.I'         ,"rifci"                                            ,'rifci'               ,'align="right"');
 		$grid->column_orderby('Nombre'            ,"nombre"                                           ,'nombre'              ,'align="right"');
 		$grid->column_orderby('Parroquia'         ,"parroquia"                                        ,'vi_parroquia.nombre' ,'align="right"');
