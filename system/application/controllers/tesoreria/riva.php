@@ -225,10 +225,10 @@ class Riva extends Controller {
 		$edit->emision->size=12;
 		//$edit->emision->when =array('show');
 		
-		$edit->periodo = new dateonlyField("Periodo", "periodo","m/Y");
+		$edit->periodo = new inputField("Periodo", "periodo","m/Y");
 		$edit->periodo->dbformat = "Ym";
 		$edit->periodo->size=12;
-		//$edit->periodo->when =array('show');
+		$edit->periodo->when =array('show');
 		
 		$edit->ffactura = new dateonlyField("Fecha Factura", "ffactura");
 		$edit->ffactura->size=12;
