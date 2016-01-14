@@ -182,9 +182,37 @@ class r_contribu extends Controller {
 
 		$buttonsocios  = $this->datasis->p_modbus($modbus,'<#i#>');
 		
+		$modbusnegocio=array(
+			'tabla'   =>'r_negocio',
+			'columnas'=>array(
+				'id'       =>'Ref.',
+				'descrip'  =>'Descripcion',
+				'monto'    =>'Monto',
+				'monto2'   =>'Monto2'  ,
+				'aforo'    =>'Aforo'   ,
+				'mintribu' =>'Minimo Tributable'
+				),
+			'filtro'  =>array(
+				'id'       =>'Ref.',
+				'descrip'  =>'Descripcion',
+				'monto'    =>'Monto',
+				'monto2'   =>'Monto2'  ,
+				'aforo'    =>'Aforo'   ,
+				'mintribu' =>'Minimo Tributable'
+			),
+			'retornar'=>array(
+				'id'=>'id_negocio',
+				'descrip'=>'negociop'
+			),
+			'titulo'  =>'Buscar Negocio'
+		);
+
+		$buttonnegocio  = $this->datasis->modbus($modbusnegocio);
+		
 		$do = new DataObject("r_contribu");
 		$do->rel_one_to_many('r_contribuit'   , 'r_contribuit'   , array('id' =>'id_contribu'));
 		$do->pointer('r_contribu b' ,'r_contribu.id_repre=b.id',"b.nombre nombrep","LEFT");
+		$do->pointer('r_negocio' ,'r_contribu.id_negocio=r_negocio.id',"r_negocio.descrip negociop","LEFT");
 		$do->rel_pointer('r_contribuit','r_contribu c' ,'r_contribuit.id_contribuit=c.id',"c.rifci rifcipit,c.nombre nombrepit","LEFT");
 
 		$edit = new DataDetails($this->tits, $do);
@@ -303,11 +331,20 @@ class r_contribu extends Controller {
 		if($this->datasis->traevalor('R_CONTRIBU_OBLIGA_DIR4','N')=='S')
 		$edit->dir4->rule      = "required";
 		
-		$edit->id_negocio = new dropdownField('Negocio','id_negocio');
-		$edit->id_negocio->option('','');
-		$edit->id_negocio->options("SELECT id,descrip FROM r_negocio ORDER BY descrip");
-		$edit->id_negocio->style='width:600px';
+		$edit->id_negocio = new inputField('Negocio','id_negocio');
+		//$edit->id_negocio->option('','');
+		//$edit->id_negocio->options("SELECT id,descrip FROM r_negocio ORDER BY descrip");
+		$edit->id_negocio->size='5';
 		$edit->id_negocio->group="Datos de Patente";
+		$edit->id_negocio->append($buttonnegocio);
+		$edit->id_negocio->readonly=true;
+		
+		$edit->negociop = new inputField('Negocio','negociop');
+		$edit->negociop->size='60';
+		$edit->negociop->group="Datos de Patente";
+		$edit->negociop->readonly=true;
+		$edit->negociop->pointer=true;
+		$edit->negociop->in      ="id_negocio";
 
 		if($this->datasis->puede(398)){
 

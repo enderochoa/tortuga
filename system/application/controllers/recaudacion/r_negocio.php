@@ -61,11 +61,16 @@ class r_negocio extends Controller {
 		$edit->id->maxlength =11;
 		$edit->id->mode='autohide';
 		$edit->id->when=array('show','modify');
+		
+		$edit->codigo = new inputField('Codigo','codigo');
+		$edit->codigo->rule='max_length[100]';
+		$edit->codigo->size =40;
+		$edit->codigo->maxlength =100;
 
 		$edit->descrip = new inputField('Descripcion','descrip');
-		$edit->descrip->rule='max_length[100]';
+		//$edit->descrip->rule='max_length[100]';
 		$edit->descrip->size =40;
-		$edit->descrip->maxlength =100;
+		//$edit->descrip->maxlength =100;
 
 		$edit->monto = new inputField('Monto','monto');
 		$edit->monto->rule='max_length[19]|numeric';
@@ -78,6 +83,18 @@ class r_negocio extends Controller {
 		$edit->monto2->css_class='inputnum';
 		$edit->monto2->size =21;
 		$edit->monto2->maxlength =19;
+		
+		$edit->aforo = new inputField('Aforo','aforo');
+		$edit->aforo->rule='max_length[19]|numeric';
+		$edit->aforo->css_class='inputnum';
+		$edit->aforo->size =21;
+		$edit->aforo->maxlength =19;
+		
+		$edit->mintribu = new inputField('Minimo Tributable','mintribu');
+		$edit->mintribu->rule='max_length[19]|numeric';
+		$edit->mintribu->css_class='inputnum';
+		$edit->mintribu->size =21;
+		$edit->mintribu->maxlength =19;
 
 		$edit->buttons('add','modify', 'save', 'undo', 'delete', 'back');
 		$edit->build();
@@ -107,7 +124,7 @@ class r_negocio extends Controller {
 		  `descrip` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
 		  `monto` decimal(19,2) DEFAULT '0.00',
 		  PRIMARY KEY (`id`)
-		) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf32";
+		) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8";
 		$this->db->simple_query($mSQL);
 		
 		$query="ALTER TABLE `r_negocio` 	ADD COLUMN `codigo` VARCHAR(10) NULL DEFAULT NULL AFTER `id`";
@@ -115,6 +132,12 @@ class r_negocio extends Controller {
 		$query="ALTER TABLE `r_negocio` CHANGE COLUMN `descrip` `descrip` TEXT NULL DEFAULT NULL AFTER `id`";
 		$this->db->simple_query($query);
 		$query="ALTER TABLE `r_negocio` ADD COLUMN `monto2` DECIMAL(19,2) NULL DEFAULT '0.00' AFTER `monto`";
+		$this->db->simple_query($query);
+		$query="ALTER TABLE `r_negocio` ADD COLUMN `aforo` DECIMAL(19,2) NULL DEFAULT '0.00'   ";
+		$this->db->simple_query($query);
+		$query="ALTER TABLE `r_negocio` ADD COLUMN `mintribu` DECIMAL(19,2) NULL DEFAULT '0.00'"; 
+		$this->db->simple_query($query);
+		$query="ALTER TABLE `r_negocio` 	ADD COLUMN `codigo` VARCHAR(10) NULL DEFAULT NULL AFTER `id`";
 		$this->db->simple_query($query);
 	}
 
