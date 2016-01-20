@@ -456,6 +456,8 @@ class R_publicidad extends Controller {
 		$this->db->simple_query($query);
 		$query="ALTER TABLE `r_publicidad` 	ADD COLUMN `dimension` DECIMAL(10,2) NOT NULL DEFAULT '0.00' AFTER `ancho`";
 		$this->db->simple_query($query);
+		$query="ALTER TABLE `r_publicidad` 	ADD COLUMN `ultano` VARCHAR(50) NULL ";
+		$this->db->simple_query($query);
 	}
 
 }

@@ -414,7 +414,7 @@ class r_inmueble extends Controller {
 		$this->db->simple_query($query);
 		$query="ALTER TABLE `r_inmueble` 	ADD COLUMN `id_clase` INT NULL DEFAULT NULL";
 		$this->db->simple_query($query);
-		$query="ALTER TABLE `r_inmueble` ADD COLUMN `id_clasea` INT(11) NULL DEFAULT NULL AFTER `id_clase`";
+		$query="ALTER TABLE `r_inmueble` ADD COLUMN `id_clasea` INT(11) NULL DEFAULT NULL`";
 		$this->db->simple_query($query);
 		$query="ALTER TABLE `r_inmueble` 	ADD COLUMN `id_sector` INT(11) NULL DEFAULT NULL AFTER `id_clasea`";
 		$this->db->simple_query($query);

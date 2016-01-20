@@ -115,6 +115,9 @@ class Ri_clase extends Controller {
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8";
 		$this->db->simple_query($mSQL);
 	}
+	
+	$query="ALTER TABLE `ri_clase` 	ADD COLUMN `monto2` DECIMAL(19,2) NULL DEFAULT '0.00'";
+	$this->db->simple_query($query);
 
 }
 ?>

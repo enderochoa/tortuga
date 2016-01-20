@@ -2,9 +2,12 @@
 class Recaudacion {
 	
 	var $ci;
+	var $R_RECIBO_WHERECONTRIBU_DEUDAMIGRA=NULL;
 	
 	function Recaudacion(){
 		$this->ci     =& get_instance();
+		$R_RECIBO_WHERECONTRIBU_DEUDAMIGRA = $this->ci->datasis->traevalor('R_RECIBO_WHERECONTRIBU_DEUDAMIGRA','S','USA CONDICION WHERE DE CONTRIBUYENTE EN CONSULTAS DE DEDUDA PARA LOS RECIBOS CREADOS');
+		
 	}
 	
 	function calculamonto($formula,$ano=null,$id=null,$id_contribu=null,$base=null){
@@ -134,7 +137,12 @@ class Recaudacion {
 			SELECT id_inmueble,id_conc ,MAX(ano) ano,MAX(CONCAT(ano,LPAD(freval,2,0))) anofreval
 			FROM r_reciboit
 			JOIN r_recibo ON r_reciboit.id_recibo=r_recibo.id
-			WHERE id_inmueble>0 AND id_contribu=$id_contribu $where
+			WHERE id_inmueble>0  $where ";
+			
+		if($this->R_RECIBO_WHERECONTRIBU_DEUDAMIGRA=='S')
+			$query.=" AND id_contribu=$id_contribu ";
+			
+		$query.=" 
 			GROUP BY  id_inmueble,id_conc
 		)maximo ON b.id_conc=maximo.id_conc AND a.id=maximo.id_inmueble 
 		where ((`b`.`requiere` = 'INMUEBLE') and (CONCAT(b.ano,LPAD(b.freval,2,0)) > 0) ) 
@@ -166,7 +174,13 @@ class Recaudacion {
 			SELECT id_publicidad,id_conc ,MAX(ano) ano,MAX(CONCAT(ano,LPAD(freval,2,0))) anofreval
 			FROM r_reciboit
 			JOIN r_recibo ON r_reciboit.id_recibo=r_recibo.id
-			WHERE id_publicidad>0 AND id_contribu=$id_contribu $where
+			WHERE id_publicidad>0 $where ";
+			
+		if($this->R_RECIBO_WHERECONTRIBU_DEUDAMIGRA=='S')
+			$query.=" AND id_contribu=$id_contribu ";
+			
+		$query.=" 
+			
 			GROUP BY  id_publicidad,id_conc
 		)maximo ON b.id_conc=maximo.id_conc AND a.id=maximo.id_publicidad
 		where ((`b`.`requiere` = 'PUBLICIDAD') and (CONCAT(b.ano,LPAD(b.freval,2,0)) > 0) ) 
@@ -190,17 +204,22 @@ class Recaudacion {
 		}
 		
 		$query="
-		select b.id_conc,`b`.`id` AS `id`,`b`.`ano` AS `ano`,`b`.`acronimo` AS `acronimo`,`b`.`denomi` AS `denomi`,`b`.`requiere` AS `requiere`,NULL AS `id_inmueble`,NULL AS `catastro`,`a`.`id` AS `id_vehiculo`,`a`.`placa` AS `placa`,`a`.`id_contribu` AS `id_contribu`,'' AS `observa`,`b`.`formula` AS `formula` ,b.frecuencia,b.freval,b.modo,null id_publicidad
-		from `r_vehiculo` `a` 
-		join `r_concit` `b` on 1 = 1
+		select b.id_conc,b.id AS id,b.ano AS ano,b.acronimo AS acronimo,b.denomi AS denomi,b.requiere AS requiere,NULL AS id_inmueble,NULL AS catastro,a.id AS id_vehiculo,a.placa AS placa,a.id_contribu AS id_contribu,'' AS observa,b.formula AS formula ,b.frecuencia,b.freval,b.modo,null id_publicidad
+		from r_vehiculo a 
+		join r_concit b on 1 = 1
 		LEFT JOIN (
 			SELECT id_vehiculo,id_conc ,MAX(ano) ano,MAX(CONCAT(ano,LPAD(freval,2,0))) anofreval
 			FROM r_reciboit
 			JOIN r_recibo ON r_reciboit.id_recibo=r_recibo.id
-			WHERE id_vehiculo>0 AND id_contribu=$id_contribu $where
+			WHERE id_vehiculo>0  $where ";
+			
+		if($this->R_RECIBO_WHERECONTRIBU_DEUDAMIGRA=='S')
+			$query.=" AND id_contribu=$id_contribu ";
+			
+		$query.="  
 			GROUP BY  id_vehiculo,id_conc
 		)maximo ON b.id_conc=maximo.id_conc AND a.id=maximo.id_vehiculo 
-		where ((`b`.`requiere` = 'VEHICULO') and (CONCAT(b.ano,LPAD(b.freval,2,0)) > 0) ) 
+		where ((b.requiere = 'VEHICULO') and (CONCAT(b.ano,LPAD(b.freval,2,0)) > 0) ) 
 		AND b.ano >= a.ano
 		AND a.id_contribu=$id_contribu
 		AND b.deleted=0
@@ -210,10 +229,10 @@ class Recaudacion {
 		
 		UNION ALL 
 		
-		select b.id_conc,`b`.`id` AS `id`,`b`.`ano` AS `ano`,`b`.`acronimo` AS `acronimo`,`b`.`denomi` AS `denomi`,`b`.`requiere` AS `requiere`,NULL AS `id_inmueble`,NULL AS `catastro`,`a`.`id` AS `id_vehiculo`,`a`.`placa` AS `placa`,`a`.`id_contribu` AS `id_contribu`,'' AS `observa`,`b`.`formula` AS `formula` ,b.frecuencia,b.freval,b.modo,null id_publicidad
-		from `r_vehiculo` `a` 
-		join `r_concit` `b` on 1 = 1
-		where `b`.`requiere` = 'VEHICULO'
+		select b.id_conc,b.id AS id,b.ano AS ano,b.acronimo AS acronimo,b.denomi AS denomi,b.requiere AS requiere,NULL AS id_inmueble,NULL AS catastro,a.id AS id_vehiculo,a.placa AS placa,a.id_contribu AS id_contribu,'' AS observa,b.formula AS formula ,b.frecuencia,b.freval,b.modo,null id_publicidad
+		from r_vehiculo a 
+		join r_concit b on 1 = 1
+		where b.requiere = 'VEHICULO'
 		AND a.id_contribu=$id_contribu
 		AND b.deleted=0
 		AND (SELECT count(*) FROM r_reciboit WHERE r_reciboit.id_vehiculo=a.id)=0

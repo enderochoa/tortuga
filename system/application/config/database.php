@@ -37,10 +37,10 @@
 $active_group = "default";
 $active_record = TRUE;
 
-$db['default']['hostname'] = "localhost";
+$db['default']['hostname'] = "192.168.0.99";
 $db['default']['username'] = "datasis";
 $db['default']['password'] = "";
-$db['default']['database'] = "tortuga";
+$db['default']['database'] = "tortuga2016";
 $db['default']['dbdriver'] = "mysql";
 $db['default']['dbprefix'] = "";
 $db['default']['pconnect'] = false;
