@@ -18,7 +18,7 @@ $scampos .='<td class="littletablerow" align="left" >'.$campos['itid_vehiculo'][
 $scampos .='<td class="littletablerow" align="left" ><div id="temporal_<#i#>" ></div>'.$campos['itobserva'    ]['field'].'</td>';
 $scampos .='<td class="littletablerow" align="right" >'.$campos['itbase'    ]['field'].'</td>';
 $scampos .='<td class="littletablerow" align="right" >'.$campos['itmonto'    ]['field'].'</td>';
-$scampos .= '<td class="littletablerow" align="center"><a href=# onclick="del_r_cxcit(<#i#>);return false;">'.image('delete.jpg','#',array("border"=>0)).'</a><span class="papelerait">_._<#i#>_._</span></td>';
+$scampos .= '<td class="littletablerow" align="center"><a href=# onclick="del_r_reciboit(<#i#>);return false;">'.image('delete.jpg','#',array("border"=>0)).'</a><span class="papelerait">_._<#i#>_._</span></td>';
 
 $campos=$form->js_escape($scampos);
 
