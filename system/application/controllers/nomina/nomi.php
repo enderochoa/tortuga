@@ -302,7 +302,7 @@ class Nomi extends Common {
 		//$edit->itmonto->mode      = 'autohide';
 		//$edit->itmonto->when     = array('show');
 		$edit->itmontoa->size      = 15;
-		$edit->itmontoa->rule      ='';
+		$edit->itmontoa->rule      ='callback_positivo';
 		$edit->itmontoa->rel_id    ='asignomi';
 		$edit->itmontoa->css_class ='inputnum';
 		$edit->itmontoa->onchange  = "cal_asig();";
@@ -414,11 +414,12 @@ class Nomi extends Common {
 	}
 
 	function positivo($valor){
+		
 		if ($valor < 0){
 			$this->validation->set_message('positivo',"El campo Monto dede ser mayor a cer0(0)");
 			return FALSE;
 		}
-  	return TRUE;
+  	
 	}
 
 	function validac(&$do){
@@ -554,7 +555,8 @@ class Nomi extends Common {
 		$do->rel_one_to_many('asignomi', 'asignomi', array('numero'=>'numero'));
 		$do->rel_one_to_many('retenomi', 'retenomi', array('numero'=>'numero'));
 		$do->load($numero);
-
+		
+		$error='';
 		$status = $do->get('status');
 
 		$tasig=0;$b=array();$error='';
@@ -566,6 +568,9 @@ class Nomi extends Common {
 				$codigoadm = $do->get_rel('asignomi','codigoadm'  ,$i);
 				$fondo     = $do->get_rel('asignomi','fondo'      ,$i);
 				$monto     = $do->get_rel('asignomi','monto'      ,$i);
+				if(!($monto>0))
+					$error.="Error. Los montos deben ser positivos</br>";
+				
 
 				$error.=$this->chequeapresup($codigoadm,$fondo,$codigopres,$ordinal,$monto,0,'round($monto,2) > round(($presupuesto-($comprometido+$apartado)),2)',"El Monto ($monto) es mayor al disponible para la partida ($codigoadm) ($fondo) ($codigopres)");//
 			}
