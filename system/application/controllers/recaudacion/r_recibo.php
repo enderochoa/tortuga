@@ -614,6 +614,8 @@ class r_recibo extends Controller {
 	}
 	
 	function _valida($do){
+		$this->load->library('recaudacion');
+		
 		$error="";
 		$id          = $do->get('id'         );
 		$id_contribu = $do->get('id_contribu');
@@ -637,7 +639,28 @@ class r_recibo extends Controller {
 		$do->set('dir3'          ,$contribu['dir3'           ] );
 		$do->set('dir4'          ,$contribu['dir4'           ] );
 		
-		$total=0;
+		$intereses=$this->recaudacion->trae_conc_interes();
+		
+		/***********BORRAR INTERESES******************************/
+		for($i=0;$i < $do->count_rel('r_reciboit');$i++){
+			$requiere    = $do->get_rel('r_reciboit','requiere'   ,$i);
+			if($requiere=='INTERESES'){
+				array_splice($do->data_rel['r_reciboit'],$i,1);
+			}
+		}
+		
+		/************** TRAE CONCEPTOS DESCUENTOS *****************/
+		$descuentos=$this->recaudacion->trae_conc_descuento();
+		
+		/***********BORRAR DESCUENTOS******************************/
+		for($i=0;$i < $do->count_rel('r_reciboit');$i++){
+			$requiere    = $do->get_rel('r_reciboit','requiere'   ,$i);
+			if($requiere=='DESCUENTO'){
+				array_splice($do->data_rel['r_reciboit'],$i,1);
+			}
+		}
+		
+		$total=0;$interes=0;
 		for($i=0;$i < $do->count_rel('r_reciboit');$i++){
 			$requiere = $do->get_rel('r_reciboit','requiere',$i);
 			if($requiere=='INMUEBLE'){
@@ -677,32 +700,92 @@ class r_recibo extends Controller {
 			}
 			
 			if($requiere=='PUBLICIDAD'){
-				$id_publicidad = $do->get_rel('r_reciboit','id_publicidad',$i);
+				$id_publicidad = $do->get_rel('r_cxcit','id_publicidad',$i);
 				if($id_publicidad>0){
-				$publicidad = $this->datasis->damerow("SELECT id_contribu,rp_tipos.id,rp_tipos.descrip FROM r_publicidad JOIN rp_tipos ON  r_publicidad.id_tipo=rp_tipos.id WHERE r_publicidad.id=$id_publicidad");
-				
-				$do->set_rel('r_reciboit','p_id_tipo'      ,$publicidad['id'      ],$i);
-				$do->set_rel('r_reciboit','p_tipo_descrip' ,$publicidad['descrip' ],$i);
-				
-				if($publicidad['id_contribu']!=$id_contribu)
-					$error.="<div class='alert' >Error la publicidad $id_publicidad no pertenece al contribuyente</div>";
+					$publicidad = $this->datasis->damerow("SELECT * FROM r_v_publicidad WHERE id=$id_publicidad");
+					$do->set_rel('r_cxcit','id_publicidad'   ,$publicidad['id'          ],$i);
+					$do->set_rel('r_cxcit','p_id_tipo'       ,$publicidad['id_tipo'     ],$i);
+					$do->set_rel('r_cxcit','p_tipo_descrip'  ,$publicidad['descrip'     ],$i);
+					$do->set_rel('r_cxcit','i_id_parroquia'  ,$publicidad['id_parroquia'],$i);
+					$do->set_rel('r_cxcit','i_parroquia'     ,$publicidad['parroquia'   ],$i);
+					$do->set_rel('r_cxcit','i_id_zona'       ,$publicidad['id_zona'     ],$i);
+					$do->set_rel('r_cxcit','i_zona'          ,$publicidad['zona'        ],$i);
+					$do->set_rel('r_cxcit','i_dir1'          ,$publicidad['dir1'        ],$i);
+					$do->set_rel('r_cxcit','i_dir2'          ,$publicidad['dir2'        ],$i);
+					$do->set_rel('r_cxcit','i_dir3'          ,$publicidad['dir3'        ],$i);
+					$do->set_rel('r_cxcit','i_dir4'          ,$publicidad['dir4'        ],$i);
+					
+					if($publicidad['id_contribu']!=$id_contribu)
+						$error.="<div class='alert' >Error. La publicidad $id_publicidad no pertenece al contribuyente</div>";
 				}else{
-					$error.="<div class='alert' >Error. Debe seleccionar una Publicidad</div>";
+					$error.="<div class='alert' >Error. Debe seleccionar un Vehiculo</div>";
 				}
 			}
 			
 			$monto = $do->get_rel('r_reciboit','monto',$i);
 			$total+=$monto;
+			
 			$id_concit = $do->get_rel('r_reciboit','id_concit',$i);
 			if(!($id_concit>0))
 				$error.="Error. Debe Seleccionar un Concepto</br>";
 			
 			if($id_concit){
-				$r_v_conc = $this->datasis->damerow("SELECT id_conc,partida,denopart,denomiconc FROM r_v_conc WHERE id=$id_concit");
-				$do->set_rel('r_reciboit','id_conc',$r_v_conc['id_conc'],$i);
-				$do->set_rel('r_reciboit','partida',$r_v_conc['partida'],$i);
+				$r_v_conc = $this->datasis->damerow("SELECT id_conc,partida,denopart,denomiconc,expira FROM r_v_conc WHERE id=$id_concit");
+				$do->set_rel('r_reciboit','id_conc'       ,$r_v_conc['id_conc'],$i);
+				$do->set_rel('r_reciboit','partida'       ,$r_v_conc['partida'],$i);
 				$do->set_rel('r_reciboit','partida_denomi',$r_v_conc['denopart']     ,$i);
-				$do->set_rel('r_reciboit','conc_denomi'   ,$r_v_conc['denomiconc']   ,$i);			
+				$do->set_rel('r_reciboit','conc_denomi'   ,$r_v_conc['denomiconc']   ,$i);
+				$do->set_rel('r_reciboit','expira'        ,$r_v_conc['expira'    ]   ,$i);		
+			}
+			
+			/* CALCULO DE INTERESES*/
+			foreach($intereses as $k=>$v){
+				$a                       = eval($intereses[$k]['formula']);
+				$intereses[$k]['monto'] += $a;
+			}
+			
+			/* CALCULO DE DESCUENTOS*/
+			foreach($descuentos as $k=>$v){
+				
+				$a                        = eval($descuentos[$k]['formula']);
+				$descuentos[$k]['formula'].":".$a."</br>"; 
+				$descuentos[$k]['monto'] += $a;
+			}
+		}
+		
+		/*
+		 * CREA ITEM DE INTERESES
+		 */
+		foreach($intereses as $k=>$v){
+			if($intereses[$k]['monto'] >0){
+				$i++;
+				$do->set_rel('r_reciboit','monto'          ,$intereses[$k]['monto'           ],$i);
+				$do->set_rel('r_reciboit','id_conc'        ,$intereses[$k]['id_conc'         ],$i);
+				$do->set_rel('r_reciboit','id_concit'      ,$intereses[$k]['id_concit'       ],$i);
+				$do->set_rel('r_reciboit','denomi'         ,$intereses[$k]['denomi'          ],$i);
+				$do->set_rel('r_reciboit','requiere'       ,$intereses[$k]['requiere'        ],$i);
+				$do->set_rel('r_reciboit','partida'        ,$intereses[$k]['partida'         ],$i);
+				$do->set_rel('r_reciboit','partida_denomi' ,$intereses[$k]['partida_denomi'  ],$i);
+				$do->set_rel('r_reciboit','conc_denomi'    ,$intereses[$k]['conc_denomi'     ],$i);
+				$total+=$intereses[$k]['monto' ];
+			}
+		}
+		
+		/*
+		 * CREA ITEM DE DESCUENTOS
+		 */
+		foreach($descuentos as $k=>$v){
+			if($descuentos[$k]['monto'] <0){
+				$i++;
+				$do->set_rel('r_reciboit','monto'          ,$descuentos[$k]['monto'           ],$i);
+				$do->set_rel('r_reciboit','id_conc'        ,$descuentos[$k]['id_conc'         ],$i);
+				$do->set_rel('r_reciboit','id_concit'      ,$descuentos[$k]['id_concit'       ],$i);
+				$do->set_rel('r_reciboit','denomi'         ,$descuentos[$k]['denomi'          ],$i);
+				$do->set_rel('r_reciboit','requiere'       ,$descuentos[$k]['requiere'        ],$i);
+				$do->set_rel('r_reciboit','partida'        ,$descuentos[$k]['partida'         ],$i);
+				$do->set_rel('r_reciboit','partida_denomi' ,$descuentos[$k]['partida_denomi'  ],$i);
+				$do->set_rel('r_reciboit','conc_denomi'    ,$descuentos[$k]['conc_denomi'     ],$i);
+				$total+=$descuentos[$k]['monto' ];
 			}
 		}
 		
