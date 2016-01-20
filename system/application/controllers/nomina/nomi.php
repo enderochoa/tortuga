@@ -571,7 +571,6 @@ class Nomi extends Common {
 				if(!($monto>0))
 					$error.="Error. Los montos deben ser positivos</br>";
 				
-
 				$error.=$this->chequeapresup($codigoadm,$fondo,$codigopres,$ordinal,$monto,0,'round($monto,2) > round(($presupuesto-($comprometido+$apartado)),2)',"El Monto ($monto) es mayor al disponible para la partida ($codigoadm) ($fondo) ($codigopres)");//
 			}
 
