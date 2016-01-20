@@ -386,7 +386,6 @@ html.ui-autocomplete {
 		
 		id_inmueble = $("#id_inmueble").val();
 		if(id_inmueble>0){
-			console.log("mayor a cer");	
 			cargadeuda('INMUEBLE',id_inmueble);
 		}
 	}
@@ -880,7 +879,7 @@ html.ui-autocomplete {
 	function analizar(){
 		id_contribu=$("#id_contribu").val();
 		if(id_contribu>0)
-		vent=window.open("<?=site_url($this->url.'/resumen_contribu')?>"+"/"+id_contribu,"Analisis Contribuyente","height=750,width=1024,scrollbars=yes");
+		vent=window.open("<?=site_url('recaudacion/r_contribu/resumen_contribu')?>"+"/"+id_contribu,"Analisis Contribuyente","height=750,width=1024,scrollbars=yes");
 		else
 		alert("Error. Primero debe seleccionar un cliente");
 	}

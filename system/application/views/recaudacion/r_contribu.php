@@ -322,7 +322,7 @@ if($form->_status!='show'){
 				</tr>
 				<tr id="tr_id_negocio" >
 					<td  style="width:120px;" class="littletablerowth"><?=$form->id_negocio->label  ?> </td>
-					<td                       class="littletablerow"  ><?=$form->id_negocio->output ?> </td>
+					<td                       class="littletablerow"  ><?=$form->id_negocio->output.$form->negociop->output ?> </td>
 				</tr>
 			</table>
 			<?php if($this->datasis->puede(398)){ ?>

@@ -131,7 +131,9 @@ class rv_clase extends Controller {
 		  PRIMARY KEY (`id`)
 		) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf32";
 		$this->db->simple_query($mSQL);
+		
+		$query="ALTER TABLE `rv_clase` 	ADD COLUMN `monto2` DECIMAL(19,2) NULL DEFAULT '0.00' AFTER `monto`";
+		$this->db->simple_query($query);
 	}
-
 }
 ?>

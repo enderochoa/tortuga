@@ -114,7 +114,9 @@ class Ri_clasea extends Controller {
 		  PRIMARY KEY (`id`)
 		) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 		$this->db->simple_query($mSQL);
+		
+		$query="ALTER TABLE `ri_clasea` ADD COLUMN `monto2` DECIMAL(19,2) NULL DEFAULT '0.00' ";
+		$this->db->simple_query($query);
 	}
-
 }
 ?>

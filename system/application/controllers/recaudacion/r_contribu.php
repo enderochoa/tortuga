@@ -678,6 +678,221 @@ class r_contribu extends Controller {
 		echo json_encode($arreglo);
 	}
 	
+	function resumen_contribu($id=null){
+		$this->rapyd->load('dataobject','datagrid');
+		
+		$atts = array(
+		'width'     =>'1024',
+		'height'    =>'720',
+		'scrollbars'=>'yes',
+		'status'    =>'yes',
+		'resizable' =>'yes',
+		'screenx'   =>'5',
+		'screeny'   =>'5',
+		'id'        =>'vehiculo' 
+		);
+		
+		$data = $this->db->query("SELECT id,catastro,parroquia,zona,dir1,dir2,dir3,dir4,mt2,techo,techodecrip,monto,id_contribu,direccion,id_parroquia,id_zona,zona_monto,id_clase,clase,clase_monto,IF(tipoi='V','Vivienda',IF(tipoi='I','Terreno',IF(tipoi='C','Comercio',IF(tipoi='N','Industria',tipoi)))) tipoi,id_clasea,clasea,clasea_monto  FROM r_v_inmueble WHERE id_contribu=".$this->db->escape($id));
+		$data = $data->result_array();
+		$grid = new DataGrid("Inmuebles",$data);
+		$grid->per_page = 3000;
+		
+		$uri = anchor_popup('recaudacion/r_inmueble/dataedit/show/<raencode><#id#></raencode>','<#id#>',$atts);
+
+		$grid->column('Ref.'           ,"$uri"                               ,'id','align="left"');
+		$grid->column('Cod. Catastro'  ,"catastro"                           ,'catastro','align="left"');
+		$grid->column('Parroquia'      ,"parroquia"                          ,'id_parroquia','align="left"');
+		$grid->column('Zona'           ,"zona"                               ,'id_zona','align="left"');
+		$grid->column('Direccion 1'    ,"dir1"                               ,'dir1','align="left"');
+		$grid->column('Direccion 2'    ,"dir2"                               ,'dir2','align="left"');
+		$grid->column('Direccion 3'    ,"dir3"                               ,'dir3','align="left"');
+		$grid->column('Direccion 4'    ,"dir4"                               ,'dir4','align="left"');
+		$grid->column('Tipo'           ,"tipoi"                              ,'tipoi','align="left"');
+		$grid->column('Mts2'           ,"<nformat><#mt2#></nformat>"         ,'mt2','align="right"');
+		
+		$grid->build();
+		
+		$data = $this->db->query("SELECT * FROM r_v_vehiculo WHERE id_contribu=".$this->db->escape($id));
+		$data = $data->result_array();
+		$grid2 = new DataGrid('Vehiculo',$data);
+		$grid2->per_page = 3000;
+		
+		$uri = anchor_popup('recaudacion/r_vehiculo/dataedit/show/<raencode><#id#></raencode>','<#id#>',$atts);
+	         
+		$grid2->column('Ref.'           ,"$uri"       ,'id'        ,'align="left"');
+		$grid2->column('Placa'          ,"placa"      ,'placa'     ,'align="left"');
+		$grid2->column('A&ntilde;o'     ,"ano"        ,'ano'       ,'align="left"');
+		$grid2->column('Color'          ,"color"      ,'color'     ,'align="left"');
+		$grid2->column('Marca'          ,"marca"      ,'id_marca'  ,'align="left"');
+		$grid2->column('Modelo'         ,"modelo"     ,'id_modelo' ,'align="left"');
+		$grid2->column('Tipo'           ,"tipo"       ,'id_tipo'   ,'align="left"');
+		$grid2->column('Clase'          ,"clase"      ,'id_tipo'   ,'align="left"');
+
+		$grid2->build();
+		
+		
+		$idsi=$this->datasis->dameval("SELECT GROUP_CONCAT(id) FROM ( SELECT id FROM r_v_inmueble WHERE id_contribu=".$this->db->escape($id)." LIMIT 1000 )todo");
+		$idsv=$this->datasis->dameval("SELECT GROUP_CONCAT(id) FROM ( SELECT id FROM r_v_vehiculo WHERE id_contribu=".$this->db->escape($id)." LIMIT 1000 )todo");
+
+		$query="SELECT  
+		IF(frecuencia=1,'Año',IF(frecuencia=2,'Semestre',IF(frecuencia=3,'Trimestre',IF(frecuencia=4,'MES','')))) frecuencia
+		,freval
+		,r_recibo.id,numero, r_recibo.fecha,r_reciboit.id_concit, denomi,ano,v_placa,i_catastro,observa, (r_reciboit.monto) monto,id_vehiculo,id_inmueble
+		FROM r_reciboit 
+		JOIN r_recibo ON r_reciboit.id_recibo=r_recibo.id 
+		JOIN r_abonosit ON r_recibo.id=r_abonosit.recibo
+		JOIN r_abonos ON r_abonos.id=r_abonosit.abono
+		WHERE id_contribu=".$this->db->escape($id);
+		
+		if(strlen($idsv)>0)
+		$query.=" OR id_vehiculo IN (".$idsv.")";
+		if(strlen($idsi)>0)
+		$query.=" OR id_inmueble IN (".$idsi.")";
+		
+		$query.=" ORDER BY fecha desc,ano,requiere";
+		
+		$data = $this->db->query($query);
+		$data = $data->result_array();
+		$grid3 = new DataGrid('Pagos',$data);
+		$grid3->per_page = 3000;
+		
+		$uri = anchor_popup('recaudacion/r_recibo/dataedit/show/<raencode><#id#></raencode>','<#id#>',$atts);
+	         
+		$grid3->column('Ref.'           ,"$uri"                                        ,'align="left"');
+		$grid3->column('Numero'         ,"<#numero#>"                                  ,'align="left"');
+		$grid3->column('Fecha'          ,"<dbdate_to_human><#fecha#></dbdate_to_human>",'align="center"');
+		$grid3->column('Ref Conc'       ,"id_concit"                                   ,'align="left"');
+		$grid3->column('Denominacion'   ,"denomi"                                      ,'align="left"');
+		$grid3->column('A&ntilde;o'     ,"ano"                                         ,'align="left"');
+		$grid3->column('Frecuencia'     ,"frecuencia"                                  ,'align="left"');
+		$grid3->column('Valor'          ,"freval"                                      ,'align="left"');
+		$grid3->column('Ref. Vehi'      ,"id_vehiculo"                                 ,'align="left"');
+		$grid3->column('Placa'          ,"v_placa"                                     ,'align="left"');
+		$grid3->column('Ref. Inmu'      ,"id_inmueble"                                 ,'align="left"');
+		$grid3->column('Catastro'       ,"i_catastro"                                  ,'align="left"');
+		$grid3->column('Observacion'    ,"observa"                                     ,'align="left"');
+		$grid3->column('Monto'          ,"<nformat><#monto#></nformat>"                ,'align="right"');
+
+		$grid3->build();
+		
+		
+		/* CUENTAS POR COBRAR*/
+		$query="SELECT  
+		IF(r_cxcit.frecuencia=1,'Año',IF(r_cxcit.frecuencia=2,'Semestre',IF(r_cxcit.frecuencia=3,'Trimestre',IF(r_cxcit.frecuencia=4,'MES','')))) frecuencia
+		,r_cxcit.freval
+		,r_cxc.id,numero, r_cxc.fecha,r_cxcit.id_concit, r_cxcit.denomi,r_cxcit.ano,r_cxcit.v_placa,r_cxcit.i_catastro,r_cxcit.observa, (r_cxcit.monto) monto,r_cxcit.id_vehiculo,r_cxcit.id_inmueble,r_reciboit.id_recibo
+		FROM r_cxcit 
+		JOIN r_cxc ON r_cxcit.id_cxc=r_cxc.id 
+		LEFT JOIN r_reciboit ON r_cxcit.id=r_reciboit.id_cxcit
+		WHERE r_reciboit.id IS NULL AND  (r_cxc.id_contribu=".$this->db->escape($id);
+		
+		if(strlen($idsv)>0)
+		$query.=" OR r_cxcit.id_vehiculo IN (".$idsv.")";
+		if(strlen($idsi)>0)
+		$query.=" OR r_cxcit.id_inmueble IN (".$idsi.")";
+		
+		$query.=" ) ORDER BY r_cxc.fecha desc,r_cxcit.ano,r_cxcit.requiere";
+		
+		$data = $this->db->query($query);
+		$data = $data->result_array();
+		$grid5 = new DataGrid('Cuentas por Cobrar',$data);
+		$grid5->per_page = 3000;
+		
+		$uri = anchor_popup('recaudacion/r_cxc/dataedit/show/<raencode><#id#></raencode>','<#id#>',$atts);
+		$uri2= anchor_popup('recaudacion/r_recibo/dataedit/show/<raencode><#id_recibo#></raencode>','<#id_recibo#>',$atts);
+	         
+		$grid5->column('Ref.'           ,"$uri"                                         ,'align="left"');
+		$grid5->column('Fecha'          ,"<dbdate_to_human><#fecha#></dbdate_to_human>",'align="center"');
+		$grid5->column('Ref Conc'       ,"id_concit"                                   ,'align="left"');
+		$grid5->column('Denominacion'   ,"denomi"                                      ,'align="left"');
+		$grid5->column('A&ntilde;o'     ,"ano"                                         ,'align="left"');
+		$grid5->column('Frecuencia'     ,"frecuencia"                                  ,'align="left"');
+		$grid5->column('Valor'          ,"freval"                                      ,'align="left"');
+		$grid5->column('Ref. Vehi'      ,"id_vehiculo"                                 ,'align="left"');
+		$grid5->column('Placa'          ,"v_placa"                                     ,'align="left"');
+		$grid5->column('Ref. Inmu'      ,"id_inmueble"                                 ,'align="left"');
+		$grid5->column('Catastro'       ,"i_catastro"                                  ,'align="left"');
+		$grid5->column('Observacion'    ,"observa"                                     ,'align="left"');
+		$grid5->column('Monto'          ,"<nformat><#monto#></nformat>"                ,'align="right"');
+		$grid5->column('Recibo'         ,$uri2                                         ,'align="right"');
+
+		$grid5->build();	
+		/* CUENTAS POR COBRAR*/
+		
+		$rifci = $this->datasis->dameval("SELECT rifci FROM r_contribu WHERE id=".$this->db->escape($id));
+		if(empty($rifci))
+		$rifci=0;
+		$rifcie=$this->db->escape('%'.$rifci.'%');
+		
+		$query ="SELECT * FROM r_otrospagos WHERE rifci like $rifcie ORDER BY fecha desc";
+		$data = $this->db->query($query);
+		$data = $data->result_array();
+		$grid4 = new DataGrid('Otros Pagos',$data);
+		$grid4->per_page = 3000;
+		
+		$grid4->column('Numero'         ,"numero"                                      ,'align="left"');
+		$grid4->column('Fecha'          ,"<dbdate_to_human><#fecha#></dbdate_to_human>",'align="center"');
+		$grid4->column('Nombre'         ,"nombre"                                      ,'align="center"');
+		$grid4->column('Concepto'       ,"concepto"                                    ,'align="left"');
+		$grid4->column('Observacion'    ,"observa"                                     ,'align="left"');
+		$grid4->column('Monto'          ,"<nformat><#monto#></nformat>"                ,'align="right"');
+
+		$grid4->build();
+		
+		$data = $this->db->query(
+		"SELECT  
+		a.id,b.codigo,b.descrip,a.dir1,a.dir2,a.dir3,a.dir4,a.alto,a.ancho,a.dimension,a.ultano
+		FROM r_publicidad a
+		LEFT JOIN rp_tipos b ON a.id_tipo=b.id
+		WHERE  id_contribu=".$this->db->escape($id)
+		);
+		$data = $data->result_array();
+		$grid5 = new DataGrid("Publicidades",$data);
+		$grid5->per_page = 3000;
+		
+		$uri = anchor_popup('recaudacion/r_publicidad/dataedit/show/<raencode><#id#></raencode>','<#id#>',$atts);
+
+		$grid5->column('Ref.'           ,"$uri"                               ,'id'          ,'align="left"' );
+		$grid5->column('Codigo'         ,"codigo"                             ,'codigo'      ,'align="left"' );
+		$grid5->column('Direccion 1'    ,"dir1"                               ,'dir1'        ,'align="left"' );
+		$grid5->column('Direccion 2'    ,"dir2"                               ,'dir2'        ,'align="left"' );
+		$grid5->column('Direccion 3'    ,"dir3"                               ,'dir3'        ,'align="left"' );
+		$grid5->column('Direccion 4'    ,"dir4"                               ,'dir4'        ,'align="left"' );
+		$grid5->column('Alto'           ,"alto"                               ,'alto'        ,'align="left"' );
+		$grid5->column('Ancho'          ,"ancho"                              ,'ancho'       ,'align="right"');
+		$grid5->column('Dimension'      ,"dimension"                          ,'dimension'   ,'align="left"' );
+		$grid5->column('ua'             ,"ua"                                 ,'ua'          ,'align="right"');
+
+		$grid5->build();
+		
+		$tablas ='<table width=\'100%\'>';
+		$tablas.='<tr><td scrollbar="yes" width="100%" height="50px">';
+		$tablas.=str_replace('mainbackgroundtable','',$grid->output);
+		$tablas.='</td></tr>';
+		$tablas.='<tr><td scrollbar="yes" width="100%" height="50px">';
+		$tablas.=str_replace('mainbackgroundtable','',$grid2->output);
+		$tablas.='</td></tr>';
+		$tablas.='<tr><td scrollbar="yes" width="100%" height="50px">';
+		$tablas.=str_replace('mainbackgroundtable','',$grid5->output);
+		$tablas.='</td></tr>';
+		$tablas.='<tr><td scrollbar="yes" width="100%" height="100px" bgcolor=#FFFFAA>';
+		$tablas.=str_replace('mainbackgroundtable','',$grid3->output);
+		$tablas.='</td></tr>';
+		$tablas.='<tr><td scrollbar="yes" width="100%" height="100px" bgcolor=#FFAAFF>';
+		$tablas.=str_replace('mainbackgroundtable','',$grid5->output);
+		$tablas.='</td></tr>';
+		$tablas.='<tr><td scrollbar="yes" width="100%" height="100px" bgcolor=#AAFFFF>';
+		$tablas.=str_replace('mainbackgroundtable','',$grid4->output);
+		$tablas.='</td></tr>';
+		$tablas.='</table>';
+		
+		$data['content'] = $tablas;
+		$data['head']    = $this->rapyd->get_head();
+		$data['title']   = "";
+		$this->load->view('view_ventanas', $data);
+	}
+	
+	
 	function eliminadupli(){
 		$query="
 		SELECT group_concat(id),rifci

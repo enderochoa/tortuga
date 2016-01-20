@@ -118,7 +118,7 @@ class Riva extends Controller {
 		$grid->column_orderby("F. Multiple"        ,"itfac"                                            ,"itfac"   ,"align='center'");		
 		$grid->column_orderby("Beneficiario"       ,"clipro"                                           ,"clipro"  ,"align='left'"  );
 		$grid->column_orderby("F. emision"         ,"<dbdate_to_human><#emision#></dbdate_to_human>"   ,"emision" ,"align='center'");
-		$grid->column_orderby("Periodo"            ,"<dbdate_to_human><#periodo#></dbdate_to_human>"   ,"periodo" ,"align='center'");
+		$grid->column_orderby("Periodo"            ,"periodo"                                          ,"periodo" ,"align='center'");
 		$grid->column_orderby("Fecha Fac"          ,"<dbdate_to_human><#ffactura#></dbdate_to_human>"  ,"ffactura","align='center'");
 		$grid->column_orderby("Fecha"              ,"numero"                                           ,"numero"  ,"align='center'");
 		$grid->column_orderby("Control Fiscal"     ,"nfiscal"                                          ,"align='center'");

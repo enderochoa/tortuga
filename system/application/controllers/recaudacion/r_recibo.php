@@ -229,6 +229,99 @@ class r_recibo extends Controller {
 		$bINMUEBLE=$this->datasis->p_modbus($mINMUEBLE,'<#id_contribu#>/<#i#>');
 		$bINMUEBLE='<img id="modbusi_<#i#>" src="/tortuga/assets/default/images/system-search.png"  alt="Busqueda de Vehiculos" title="Busqueda de Vehiculos" border="0" onclick="modbusdepeni(<#i#>)"/>';
 		
+		$mPUBLICIDAD=array(
+				'tabla'   =>'r_v_publicidad',
+				'columnas' =>array(
+					'id'       =>'Ref.',
+					'direccion'=>'Direccion',
+					'ancho'    =>'Ancho',
+					'alto'     =>'Alto', 
+					'descrip'  =>'Descripcion',
+					),
+				'filtro'  =>array(
+					'id'       =>'Ref.',
+					'direccion'=>'Direccion',
+					'ancho'    =>'Ancho',
+					'alto'     =>'Alto', 
+					'descrip'  =>'Descripcion',
+					),
+				'retornar'=>array(
+					'id'       =>'id_publicidad_<#i#>',
+					'CONCAT(ancho,"X",alto," mts2")'=>'observa_<#i#>',
+					),
+				'p_uri'  =>array(
+					4=>'<#id_contribu#>',
+					5=>'<#i#>'
+					),
+				'where'  =>'id_contribu = <#id_contribu#>',
+				'script' =>array('traemonto(<#i#>)'),
+				'titulo' =>'Buscar Vehiculo');
+		
+		$bPUBLICIDAD=$this->datasis->p_modbus($mPUBLICIDAD,'<#id_contribu#>/<#i#>');
+		$bPUBLICIDAD='<img id="modbusp_<#i#>" src="/tortuga/assets/default/images/system-search.png"  alt="Busqueda de Publicidades" title="Busqueda de Publicidad" border="0" onclick="modbusdepenp(<#i#>)"/>';
+		
+		$mINMUEBLET=array(
+				'tabla'   =>'r_v_inmueble',
+				'columnas' =>array(
+					'id'       =>'Ref.',
+					'catastro' =>'Catastro',
+					'direccion'=>'Direccion',
+					'mt2'      =>'Mts2',
+					'tipoi'    =>'Tipo',
+					),
+				'filtro'  =>array(
+					'id'       =>'Ref.',
+					'catastro' =>'Catastro',
+					'direccion'=>'Direccion',
+					'mt2'      =>'Mts2',
+					'tipoi'    =>'Tipo',
+					),
+				'retornar'=>array(
+					'id'       =>'id_inmueble'
+					),
+				'p_uri'  =>array(
+					4=>'<#id_contribu#>'
+					),
+				'where'  =>'id_contribu = <#id_contribu#>',
+				'script' =>array('post_inmueblet()'),
+				'titulo' =>'Buscar Inmueble');
+		
+		$bINMUEBLET=$this->datasis->modbus($mINMUEBLET,'r_v_inmueblet',800,600,'r_v_inmueblet');
+		$bINMUEBLET='<img id="modbusit" src="/tortuga/assets/default/images/system-search.png"  alt="Busqueda de Inmuebles" title="Busqueda de Inmuebles" border="0" onclick="modbusdepenit()"/>';
+		
+		$mVEHICULOT=array(
+				'tabla'   =>'r_v_vehiculo',
+				'columnas' =>array(
+					'id'       =>'Ref.',
+					'placa'    =>'Placa',
+					'marca'    =>'Marca',
+					'modelo'   =>'Modelo',
+					'color'    =>'Color',
+					'tipo'     =>'Tipo' ,
+					'clase'    =>'Clase'
+					),
+				'filtro'  =>array(
+					'id'       =>'Ref.',
+					'placa'    =>'Placa',
+					'marca'    =>'Marca',
+					'modelo'   =>'Modelo',
+					'color'    =>'Color',
+					'tipo'     =>'Tipo' ,
+					'clase'    =>'Clase'
+					),
+				'retornar'=>array(
+					'id'       =>'id_vehiculo'
+					),
+				'p_uri'  =>array(
+					4=>'<#id_contribu#>'
+					),
+				'where'  =>'id_contribu = <#id_contribu#>',
+				'script' =>array('post_vehiculot()'),
+				'titulo' =>'Buscar Vehiculos');
+		
+		$bVEHICULOT=$this->datasis->modbus($mVEHICULOT,'r_v_vehiculot',800,600,'r_v_vehiculot');
+		$bVEHICULOT='<img id="modbusvt" src="/tortuga/assets/default/images/system-search.png"  alt="Busqueda de Vehiculos" title="Busqueda de Vehiculos" border="0" onclick="modbusdepenvt()"/>';
+		
 		
 		$contribu=array();
 		$contribu['id']     ='';
@@ -313,10 +406,25 @@ class r_recibo extends Controller {
 		$edit->solvencia->size =5;
 		$edit->solvencia->when=array('show','modify');
 		
+		$edit->id_inmueble = new hiddenField('id_inmueble','id_inmueble');
+		$edit->id_inmueble->rule='max_length[11]';
+		$edit->id_inmueble->size =6;
+		$edit->id_inmueble->maxlength =11;
+		$edit->id_inmueble->db_name=' ';
+		$edit->id_inmueble->append($bINMUEBLET);
+		
+		$edit->id_vehiculo = new hiddenField('id_vehiculo','id_vehiculo');
+		$edit->id_vehiculo->rule='max_length[11]';
+		$edit->id_vehiculo->size =6;
+		$edit->id_vehiculo->maxlength =11;
+		$edit->id_vehiculo->db_name=' ';
+		$edit->id_vehiculo->append($bVEHICULOT);
+		
 		/*
 		 * DETALLE
 		 * 
 		 * */
+		 
 		 
 		$edit->itid_cxcit = new inputField('id_cxcit','id_cxcit_<#i#>');
 		$edit->itid_cxcit->rule='max_length[11]';
@@ -325,6 +433,21 @@ class r_recibo extends Controller {
 		$edit->itid_cxcit->db_name='id_cxcit';
 		$edit->itid_cxcit->rel_id ='r_reciboit';
 		$edit->itid_cxcit->type='hidden';
+		
+		$edit->itid =  new inputField("(<#o#>) Referencia", 'id_<#i#>');
+		$edit->itid->db_name   = 'id';
+		$edit->itid->rel_id    ='r_reciboit';
+		//$edit->itid->when     =array('show');
+		$edit->itid->readonly=true;
+		$edit->itid->size      =1;
+		$edit->itid->type      ='hidden';
+		
+		$edit->itid_conc =  new inputField("(<#o#>) Id Concepto", 'id_conc_<#i#>');
+		$edit->itid_conc->db_name   = 'id_conc';
+		$edit->itid_conc->rel_id    = 'r_reciboit';
+		$edit->itid_conc->readonly  = true;
+		$edit->itid_conc->size      = 1;
+		$edit->itid_conc->type      = 'hidden';
 		 
 		$edit->itid_concit = new inputField('id_concit','id_concit_<#i#>');
 		$edit->itid_concit->rule='max_length[11]';
@@ -441,15 +564,15 @@ class r_recibo extends Controller {
 		$edit->iti_catastro->db_name='i_catastro';
 		$edit->iti_catastro->rel_id ='r_reciboit';
 		
-		//$crea = '<a id="creap_<#i#>" href="javascript:creapublicidadid(<#i#>);" title="Agregar/modificar Publicidad">'.image('add.png','#',array("border"=>0)).'</a>';
+		$crea = '<a id="creap_<#i#>" href="javascript:creapublicidadid(<#i#>);" title="Agregar/modificar Publicidad">'.image('add.png','#',array("border"=>0)).'</a>';
 		$edit->itid_publicidad = new inputField('id_publicidad','id_publicidad_<#i#>');
 		$edit->itid_publicidad->rule='max_length[11]';
 		$edit->itid_publicidad->size =3;
 		$edit->itid_publicidad->maxlength =11;
 		$edit->itid_publicidad->db_name='id_publicidad';
 		$edit->itid_publicidad->rel_id ='r_reciboit';
-		//$edit->itid_publicidad->append($bPUBLICIDAD);
-		//$edit->itid_publicidad->append($crea);
+		$edit->itid_publicidad->append($bPUBLICIDAD);
+		$edit->itid_publicidad->append($crea);
 		
 		$id     =$edit->get_from_dataobjetct('id');
 		
@@ -501,10 +624,9 @@ class r_recibo extends Controller {
 		if($cerrado>0)
 		$error.="<div class='alert' >Error. El Dia ya se encuetra Cerrado</div>";
 		
-		
 		$contribu    =$this->datasis->damerow("SELECT rifci,nombre,id_parroquia,parroquia,id_zona,zona,dir1,dir2,dir3,dir4 FROM r_v_contribu WHERE id='$id_contribu' LIMIT 1");
 		
-		$do->set('nombre'        ,$contribu['nombre'         ]);
+		$do->set('nombre'        ,$contribu['nombre'         ] );
 		$do->set('rifci'         ,$contribu['rifci'          ] );
 		$do->set('id_parroquia'  ,$contribu['id_parroquia'   ] );
 		$do->set('parroquia'     ,$contribu['parroquia'      ] );
@@ -620,165 +742,31 @@ class r_recibo extends Controller {
 	}
 	
 	function damedeuda(){
+		$this->load->library('recaudacion');
+		
 		$id_contribu = $this->input->post('id_contribu');
+		$tipo        = $this->input->post('tipo');
+		$idreq       = $this->input->post('id_requiere');
 		
-		$query="
-		select `b`.`id` AS `id`,`b`.`ano` AS `ano`,`b`.`acronimo` AS `acronimo`,`b`.`denomi` AS `denomi`,`b`.`requiere` AS `requiere`,`a`.`id` AS `id_inmueble`,`a`.`catastro` AS `catastro`,NULL AS `id_vehiculo`,NULL AS `placa`,`a`.`id_contribu` AS `id_contribu`,`d`.`direccion` AS `observa`,`b`.`formula` AS `formula` 
-		from (((`r_inmueble` `a` 
-		join `r_v_inmueble` `d` on((`a`.`id` = `d`.`id`))) 
-		join `r_concit` `b` on((1 = 1))) 
-		LEFT JOIN (
-			SELECT id_inmueble,id_conc ,MAX(ano) ano
-			FROM r_reciboit
-			WHERE id_inmueble>0
-			GROUP BY  id_inmueble,id_conc
-		)maximo ON b.id_conc=maximo.id_conc AND d.id=maximo.id_inmueble AND b.ano>maximo.ano
-		left join `r_reciboit` `c` on(((`b`.`id` = `c`.`id_concit`) and (`a`.`id` = `c`.`id_inmueble`)))) 
-		where ((`b`.`requiere` = 'INMUEBLE') and (`b`.`ano` > 0) and isnull(`c`.`id`)) 
-		AND a.id_contribu=$id_contribu
-		AND b.deleted=0
-		AND (maximo.ano>0 OR maximo.ano IS NULL)
-		
-		union all 
-
-		select `b`.`id` AS `id`,`b`.`ano` AS `ano`,`b`.`acronimo` AS `acronimo`,`b`.`denomi` AS `denomi`,`b`.`requiere` AS `requiere`,NULL AS `id_inmueble`,NULL AS `catastro`,`a`.`id` AS `id_vehiculo`,`a`.`placa` AS `placa`,`a`.`id_contribu` AS `id_contribu`,'' AS `observa`,`b`.`formula` AS `formula` 
-		from ((`r_vehiculo` `a` 
-		join `r_concit` `b` on((1 = 1)))
-		JOIN (
-			SELECT id_vehiculo,id_conc ,MAX(ano) ano
-			FROM r_reciboit
-			WHERE id_vehiculo>0
-			GROUP BY  id_vehiculo,id_conc
-		)maximo ON b.id_conc=maximo.id_conc AND a.id=maximo.id_vehiculo AND b.ano>maximo.ano 
-		left join `r_reciboit` `c` on(((`b`.`id` = `c`.`id_concit`) and (`a`.`id` = `c`.`id_vehiculo`)))) 
-		where ((`b`.`requiere` = 'VEHICULO') and (`b`.`ano` > 0) and isnull(`c`.`id`)) 
-		AND b.ano >= a.ano
-		AND a.id_contribu=$id_contribu
-		AND b.deleted=0
-		AND maximo.ano>0
-		
-		UNION ALL 
-		
-		select `b`.`id` AS `id`,`b`.`ano` AS `ano`,`b`.`acronimo` AS `acronimo`,`b`.`denomi` AS `denomi`,`b`.`requiere` AS `requiere`,NULL AS `id_inmueble`,NULL AS `catastro`,`a`.`id` AS `id_vehiculo`,`a`.`placa` AS `placa`,`a`.`id_contribu` AS `id_contribu`,'' AS `observa`,`b`.`formula` AS `formula` 
-		from `r_vehiculo` `a` 
-		join `r_concit` `b` on 1 = 1
-		where `b`.`requiere` = 'VEHICULO'
-		AND a.id_contribu=$id_contribu
-		AND b.deleted=0
-		AND (SELECT count(*) FROM r_reciboit WHERE r_reciboit.id_vehiculo=a.id)=0
-		AND (b.ano=0 OR b.ano=(SELECT valor FROM valores WHERE nombre='EJERCICIO'))
-
-		union all 
-
-		select `b`.`id` AS `id`,`b`.`ano` AS `ano`,`b`.`acronimo` AS `acronimo`,`b`.`denomi` AS `denomi`,`b`.`requiere` AS `requiere`,NULL AS `id_inmueble`,NULL AS `catastro`,NULL AS `id_vehiculo`,NULL AS `placa`,`a`.`id` AS `id_contribu`,'' AS `observa`,`b`.`formula` AS `formula` 
-		from (((`r_contribu` `a` 
-		join `r_concit` `b` on((1 = 1))) 
-		left join `r_reciboit` `c` on((`b`.`id` = `c`.`id_concit`))) 
-		left join `r_recibo` `d` on(((`c`.`id_recibo` = `d`.`id`) and (`a`.`id` = `d`.`id_contribu`)))) 
-		where ((length(`b`.`requiere`) = 0) and (`b`.`ano` > 0) and isnull(`d`.`id`))
-		AND a.id=$id_contribu
-		AND b.deleted=0
-		
-		union all 
-
-		select `b`.`id` AS `id`,`b`.`ano` AS `ano`,`b`.`acronimo` AS `acronimo`,`b`.`denomi` AS `denomi`,`b`.`requiere` AS `requiere`,NULL AS `id_inmueble`,NULL AS `catastro`,NULL AS `id_vehiculo`,NULL AS `placa`,`a`.`id` AS `id_contribu`,'' AS `observa`,`b`.`formula` AS `formula` 
-		from (((`r_contribu` `a` 
-		join `r_concit` `b` on((1 = 1))) 
-		left join `r_reciboit` `c` on((`b`.`id` = `c`.`id_concit`))) 
-		left join `r_recibo` `d` on(((`c`.`id_recibo` = `d`.`id`) and (`a`.`id` = `d`.`id_contribu`)))) 
-		where ((`b`.`requiere` = 'PETENTE') and (`b`.`ano` > 0) and isnull(`d`.`id`) and a.patente='S')
-		AND a.id=$id_contribu
-		AND b.deleted=0
-		";
-		
-		$mSQL   = $this->db->query($query);
-		$arreglo= $mSQL->result_array($query);
-		foreach($arreglo as $key=>$row){
-			$id=null;
-			switch($row['requiere']){
-					case 'INMUEBLE':$id=$row['id_inmueble'];break;
-					case 'VEHICULO':$id=$row['id_vehiculo'];break;
-			}
-			$arreglo[$key]['monto']=$this->calculamonto($row['formula'],$row['ano'],$id,$id_contribu);
-		}
-		
-		foreach($arreglo as $key=>$value)
-			foreach($value as $key2=>$value2) 
-			$arreglo[$key][$key2] = ($value2);
-
-		echo json_encode($arreglo);
+		echo json_encode($this->recaudacion->damedeuda($id_contribu,$tipo,$idreq));
 	}
 	
 	function damemonto(){
-		$id_concit = $this->input->post('id_concit');
-		$id          = $this->input->post('id');
+		$this->load->library('recaudacion');
+		
+		$id_concit   = $this->input->post('id_concit'  );
+		$id          = $this->input->post('id'         );
 		$id_contribu = $this->input->post('id_contribu');
+		$base        = $this->input->post('base'       );
 		
 		$formula     = $this->datasis->damerow("SELECT formula,ano FROM r_concit WHERE id=$id_concit");
-		echo $this->calculamonto($formula['formula'],$formula['ano'],$id,$id_contribu);
-	}
-	
-	function calculamonto($formula,$ano=null,$id=null,$id_contribu=null){
-		$XX=array();
-		$anoe=$this->db->escape($ano);
-		
-		if(!(strpos( $formula,'XX_UTRIBUACTUAL')===false)){
-			
-			$XX['XX_UTRIBUACTUAL']=$this->datasis->dameval("SELECT valor FROM utribu WHERE ano=(SELECT MAX(ano) FROM utribu)");
-		}
-		
-		if(!(strpos( $formula,'XX_UTRIBUANO')===false)){
-			$XX['XX_UTRIBUANO']=$this->datasis->dameval("SELECT valor FROM utribu WHERE ano=$anoe");
-		}
-		
-		if(!(strpos( $formula,'XX_INMUEBLE_')===false)){
-			$query="SELECT zona,techo,mt2,monto,zona_monto,clase_monto,tipoi FROM r_v_inmueble WHERE id=$id";
-			$row=$this->datasis->damerow($query);
-			foreach($row as $k=>$v)
-				$XX["XX_INMUEBLE_".strtoupper($k)]=$v;
-		}
-
-		if(!(strpos( $formula,'XX_VEHICULO_')===false)){
-			$query="SELECT a.capacidad,a.ejes,a.ano,a.peso,b.monto clase_monto
-			FROM r_vehiculo a
-			JOIN rv_clase b ON a.id_clase=b.id
-			WHERE a.id=$id";
-			$row=$this->datasis->damerow($query);
-			foreach($row as $k=>$v)
-				$XX["XX_VEHICULO_".strtoupper($k)]=$v;
-		}
-		
-		if(!(strpos( $formula,'XX_CONTRIBU_')===false) && $id_contribu>0){
-			$query="SELECT negocio_monto FROM r_v_contribu WHERE id=$id_contribu";
-			$row=$this->datasis->damerow($query);
-			foreach($row as $k=>$v)
-				$XX["XX_CONTRIBU_".strtoupper($k)]=$v;
-		}
-		
-		$monto=$this->evaluaformula($formula,$XX);
-		return $monto;
-	}
-	
-	function evaluaformula($formula,$XX){
-		foreach($XX as $k=>$v){
-			$formula=str_replace($k,'$'.$k,$formula);
-			$formula=str_replace("$$","$",$formula);
-			$$k=$v;
-		}
-		
-		return eval($formula);
+		echo $this->recaudacion->calculamonto($formula['formula'],$formula['ano'],$id,$id_contribu,$base);
 	}
 	
 	function dameconc(){
-		$query  ="SELECT id,ano,acronimo,denomi,requiere FROM r_v_conc";
-		$mSQL   = $this->db->query($query);
-		$arreglo= $mSQL->result_array($query);
+		$this->load->library('recaudacion');
 		
-		foreach($arreglo as $key=>$value)
-			foreach($value as $key2=>$value2) 
-			$arreglo[$key][$key2] = ($value2);
-
-		echo json_encode($arreglo);
+		echo json_encode($this->recaudacion->dameconc());
 	}
 	
 	function anular($id){
@@ -817,142 +805,6 @@ class r_recibo extends Controller {
 			$data["head"]    = $this->rapyd->get_head();
 			$this->load->view('view_ventanas', $data);
 		}
-	}
-	
-	function resumen_contribu($id=null){
-		$this->rapyd->load('dataobject','datagrid');
-		
-		$atts = array(
-		'width'     =>'1024',
-		'height'    =>'720',
-		'scrollbars'=>'yes',
-		'status'    =>'yes',
-		'resizable' =>'yes',
-		'screenx'   =>'5',
-		'screeny'   =>'5',
-		'id'        =>'vehiculo' 
-		);
-		
-		$data = $this->db->query("SELECT id,catastro,parroquia,zona,dir1,dir2,dir3,dir4,mt2,techo,techodecrip,monto,id_contribu,direccion,id_parroquia,id_zona,zona_monto,id_clase,clase,clase_monto,IF(tipoi='V','Vivienda',IF(tipoi='I','Terreno',IF(tipoi='C','Comercio',IF(tipoi='N','Industria',tipoi)))) tipoi,id_clasea,clasea,clasea_monto  FROM r_v_inmueble WHERE id_contribu=".$this->db->escape($id));
-		$data = $data->result_array();
-		$grid = new DataGrid("Inmuebles",$data);
-		$grid->per_page = 50;
-		
-		$uri = anchor_popup('recaudacion/r_inmueble/dataedit/show/<raencode><#id#></raencode>','<#id#>',$atts);
-
-		$grid->column('Ref.'           ,"$uri"                               ,'id','align="left"');
-		$grid->column('Cod. Catastro'  ,"catastro"                           ,'catastro','align="left"');
-		$grid->column('Parroquia'      ,"parroquia"                          ,'id_parroquia','align="left"');
-		$grid->column('Zona'           ,"zona"                               ,'id_zona','align="left"');
-		$grid->column('Direccion 1'    ,"dir1"                               ,'dir1','align="left"');
-		$grid->column('Direccion 2'    ,"dir2"                               ,'dir2','align="left"');
-		$grid->column('Direccion 3'    ,"dir3"                               ,'dir3','align="left"');
-		$grid->column('Direccion 4'    ,"dir4"                               ,'dir4','align="left"');
-		$grid->column('Tipo'           ,"tipoi"                              ,'tipoi','align="left"');
-		$grid->column('Mts2'           ,"<nformat><#mt2#></nformat>"         ,'mt2','align="right"');
-		
-		$grid->build();
-		
-		$data = $this->db->query("SELECT * FROM r_v_vehiculo WHERE id_contribu=".$this->db->escape($id));
-		$data = $data->result_array();
-		$grid2 = new DataGrid('Vehiculo',$data);
-		$grid2->per_page = 50;
-		
-		$uri = anchor_popup('recaudacion/r_vehiculo/dataedit/show/<raencode><#id#></raencode>','<#id#>',$atts);
-	         
-		$grid2->column('Ref.'           ,"$uri"       ,'id'        ,'align="left"');
-		$grid2->column('Placa'          ,"placa"      ,'placa'     ,'align="left"');
-		$grid2->column('A&ntilde;o'     ,"ano"        ,'ano'       ,'align="left"');
-		$grid2->column('Color'          ,"color"      ,'color'     ,'align="left"');
-		$grid2->column('Marca'          ,"marca"      ,'id_marca'  ,'align="left"');
-		$grid2->column('Modelo'         ,"modelo"     ,'id_modelo' ,'align="left"');
-		$grid2->column('Tipo'           ,"tipo"       ,'id_tipo'   ,'align="left"');
-		$grid2->column('Clase'          ,"clase"      ,'id_tipo'   ,'align="left"');
-
-		$grid2->build();
-		
-		$idsi=$this->datasis->dameval("SELECT GROUP_CONCAT(id) FROM r_v_inmueble WHERE id_contribu=".$this->db->escape($id));
-		$idsv=$this->datasis->dameval("SELECT GROUP_CONCAT(id) FROM r_v_vehiculo WHERE id_contribu=".$this->db->escape($id));
-
-		$query="SELECT  
-		IF(frecuencia=1,'Año',IF(frecuencia=2,'Semestre',IF(frecuencia=3,'Trimestre',IF(frecuencia=4,'MES','')))) frecuencia
-		,freval
-		,r_recibo.id,numero, fecha,r_reciboit.id_concit, denomi,ano,v_placa,i_catastro,observa, (r_reciboit.monto) monto,id_vehiculo,id_inmueble
-		FROM r_reciboit 
-		JOIN r_recibo ON r_reciboit.id_recibo=r_recibo.id 
-		JOIN r_abonosit ON r_recibo.id=r_abonosit.recibo
-		JOIN r_abonos ON r_abonos.id=r_abonosit.abono
-		WHERE id_contribu=".$this->db->escape($id);
-		
-		if(strlen($idsv)>0)
-		$query.=" OR id_vehiculo IN (".$idsv.")";
-		if(strlen($idsi)>0)
-		$query.=" OR id_inmueble IN (".$idsi.")";
-		
-		$query.=" ORDER BY fecha desc,ano,requiere";
-		
-		$data = $this->db->query($query);
-		$data = $data->result_array();
-		$grid3 = new DataGrid('Pagos',$data);
-		$grid3->per_page = 40;
-		
-		$uri = anchor_popup('recaudacion/r_recibo/dataedit/show/<raencode><#id#></raencode>','<#numero#>',$atts);
-	         
-		$grid3->column('Numero'         ,"$uri"                                         ,'align="left"');
-		$grid3->column('Fecha'          ,"<dbdate_to_human><#fecha#></dbdate_to_human>",'align="center"');
-		$grid3->column('Ref Conc'       ,"id_concit"                                   ,'align="left"');
-		$grid3->column('Denominacion'   ,"denomi"                                      ,'align="left"');
-		$grid3->column('A&ntilde;o'     ,"ano"                                         ,'align="left"');
-		$grid3->column('Frecuencia'     ,"frecuencia"                                  ,'align="left"');
-		$grid3->column('Valor'          ,"freval"                                      ,'align="left"');
-		$grid3->column('Ref. Vehi'      ,"id_vehiculo"                                 ,'align="left"');
-		$grid3->column('Placa'          ,"v_placa"                                     ,'align="left"');
-		$grid3->column('Ref. Inmu'      ,"id_inmueble"                                 ,'align="left"');
-		$grid3->column('Catastro'       ,"i_catastro"                                  ,'align="left"');
-		$grid3->column('Observacion'    ,"observa"                                     ,'align="left"');
-		$grid3->column('Monto'          ,"<nformat><#monto#></nformat>"                ,'align="right"');
-
-		$grid3->build();		
-		
-		$rifci = $this->datasis->dameval("SELECT rifci FROM r_contribu WHERE id=".$this->db->escape($id));
-		if(empty($rifci))
-		$rifci=0;
-		$rifcie=$this->db->escape('%'.$rifci.'%');
-		
-		$query ="SELECT * FROM r_otrospagos WHERE rifci like $rifcie ORDER BY fecha desc";
-		$data = $this->db->query($query);
-		$data = $data->result_array();
-		$grid4 = new DataGrid('Otros Pagos',$data);
-		$grid4->per_page = 40;
-		
-		$grid4->column('Numero'         ,"numero"                                      ,'align="left"');
-		$grid4->column('Fecha'          ,"<dbdate_to_human><#fecha#></dbdate_to_human>",'align="center"');
-		$grid4->column('Nombre'         ,"nombre"                                      ,'align="center"');
-		$grid4->column('Concepto'       ,"concepto"                                    ,'align="left"');
-		$grid4->column('Observacion'    ,"observa"                                     ,'align="left"');
-		$grid4->column('Monto'          ,"<nformat><#monto#></nformat>"                ,'align="right"');
-
-		$grid4->build();
-		
-		$tablas ='<table width=\'100%\'>';
-		$tablas.='<tr><td scrollbar="yes" width="100%" height="50px">';
-		$tablas.=str_replace('mainbackgroundtable','',$grid->output);
-		$tablas.='</td></tr>';
-		$tablas.='<tr><td scrollbar="yes" width="100%" height="50px">';
-		$tablas.=str_replace('mainbackgroundtable','',$grid2->output);
-		$tablas.='</td></tr>';
-		$tablas.='<tr><td scrollbar="yes" width="100%" height="100px">';
-		$tablas.=str_replace('mainbackgroundtable','',$grid3->output);
-		$tablas.='</td></tr>';
-		$tablas.='<tr><td scrollbar="yes" width="100%" height="100px">';
-		$tablas.=str_replace('mainbackgroundtable','',$grid4->output);
-		$tablas.='</td></tr>';
-		$tablas.='</table>';
-		
-		$data['content'] = $tablas;
-		$data['head']    = $this->rapyd->get_head();
-		$data['title']   = "";
-		$this->load->view('view_ventanas', $data);
 	}
 	
 	function dataprint_solvencia($tipo='A',$st,$uid){
@@ -1120,6 +972,30 @@ class r_recibo extends Controller {
 			$do->error_message_ar['pre_del']=$error;
 			return false;
 		}
+	}
+	
+	function inmueble_cant(){
+		$this->load->library('recaudacion');
+		$id_contribu = $this->input->post('id_contribu');
+		echo $this->recaudacion->inmueble_cant($id_contribu);
+	}
+	
+	function inmueble_get(){
+		$this->load->library('recaudacion');
+		$id_contribu = $this->input->post('id_contribu');
+		echo json_encode($this->recaudacion->inmueble_get($id_contribu));
+	}
+	
+	function vehiculo_cant(){
+		$this->load->library('recaudacion');
+		$id_contribu = $this->input->post('id_contribu');
+		echo $this->recaudacion->vehiculo_cant($id_contribu);
+	}
+	
+	function vehiculo_get(){
+		$this->load->library('recaudacion');
+		$id_contribu = $this->input->post('id_contribu');
+		echo json_encode($this->recaudacion->vehiculo_get($id_contribu));
 	}
 	
 	function _post_print_solvencia_update($do){
