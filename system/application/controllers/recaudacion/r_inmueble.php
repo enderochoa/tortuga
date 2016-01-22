@@ -253,7 +253,7 @@ class r_inmueble extends Controller {
 		}
 
 		$do = new DataObject("r_inmueble");
-		$do->pointer('r_negocio' ,'r_inmueble.id_negocio=r_negocio.id',"r_negocio.descrip negociop","LEFT");
+		//$do->pointer('r_negocio' ,'r_inmueble.id_negocio=r_negocio.id',"r_negocio.descrip negociop","LEFT");
 		//$do->pointer('r_contribu' ,'r_inmueble.id_contribu=r_contribu.id',"r_contribu.nombre nombrep,r_contribu.rifci rifcip","LEFT");
 
 		$edit = new DataEdit($this->tits, $do);
