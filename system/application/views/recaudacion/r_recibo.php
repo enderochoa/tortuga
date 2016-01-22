@@ -12,7 +12,7 @@ $link=site_url('presupuesto/requisicion/getadmin');
 $campos=$form->template_details('r_reciboit');
 	
 $scampos  ='<tr id="tr_r_reciboit_<#i#>">';
-$scampos .='<td class="littletablerow" align="left" >'.$campos['itid' ]['field'].$campos['itrequiere' ]['field'].$campos['itmodo' ]['field'].$campos['itid_concit' ]['field'].$campos['itdenomi' ]['field'].$campos['itid_conc' ]['field'].'</td>';
+$scampos .='<td class="littletablerow" align="left" >'.$campos['itid_cxcit' ]['field'].$campos['itid' ]['field'].$campos['itrequiere' ]['field'].$campos['itmodo' ]['field'].$campos['itid_concit' ]['field'].$campos['itdenomi' ]['field'].$campos['itid_conc' ]['field'].'</td>';
 $scampos .='<td class="littletablerow" align="left" >'.$campos['itano'    ]['field'].'&nbsp;'.$campos['itfrecuencia'    ]['field'].'&nbsp;'.$campos['itfreval'    ]['field'].'</td>';
 $scampos .='<td class="littletablerow" align="left" >'.$campos['itid_vehiculo']['field'].$campos['itv_placa']['field'].$campos['itid_inmueble']['field'].$campos['iti_catastro']['field'].$campos['itid_publicidad']['field'].'</td>';
 $scampos .='<td class="littletablerow" align="left" ><div id="temporal_<#i#>" ></div>'.$campos['itobserva'    ]['field'].'</td>';
