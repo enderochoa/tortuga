@@ -81,10 +81,13 @@ class Usuariosopt extends Controller {
 		
 		$clave=$this->datasis->dameval("SELECT us_clave FROM usuario WHERE us_codigo=$us_codigoe");
 
-		if($an_clave!=$clave)
+		if(sha1($an_clave)!=$clave)
 		$error.="<div class='alert' >ERROR. La CLave Introducida es erronea</div>";
 
 		if(empty($error)){
+			$us_clave=$do->get('us_clave');
+			$do->set('us_clave',sha1($us_clave));
+		
 		
 		}else{
 			$do->error_message_ar['pre_ins']=$error;
