@@ -23,7 +23,7 @@ class Recaudacion {
 		}
 		
 		if(!(strpos( $formula,'XX_INMUEBLE_')===false)){
-			$query="SELECT zona,techo,mt2,monto,zona_monto,clase_monto,tipoi,clasea_monto,clase_monto2,clasea_monto2 FROM r_v_inmueble WHERE id=$id";
+			$query="SELECT zona,techo,mt2,monto,zona_monto,clase_monto,tipoi,clasea_monto,clase_monto2,clasea_monto2,negocio_monto,negocio_monto2  FROM r_v_inmueble WHERE id=$id";
 			$row=$this->ci->datasis->damerow($query);
 			foreach($row as $k=>$v)
 				$XX["XX_INMUEBLE_".strtoupper($k)]=$v;
@@ -68,7 +68,6 @@ class Recaudacion {
 			$formula=str_replace("$$","$",$formula);
 			$$k=$v;
 		}
-		
 		return eval($formula);
 	}
 	

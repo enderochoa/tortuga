@@ -220,12 +220,40 @@ class r_inmueble extends Controller {
 
 		$button  = $this->datasis->modbus($modbus);
 		
+		$modbusnegocio=array(
+			'tabla'   =>'r_negocio',
+			'columnas'=>array(
+				'id'       =>'Ref.',
+				'descrip'  =>'Descripcion',
+				'monto'    =>'Monto',
+				'monto2'   =>'Monto2'  ,
+				'aforo'    =>'Aforo'   ,
+				'mintribu' =>'Minimo Tributable'
+				),
+			'filtro'  =>array(
+				'id'       =>'Ref.',
+				'descrip'  =>'Descripcion',
+				'monto'    =>'Monto',
+				'monto2'   =>'Monto2'  ,
+				'aforo'    =>'Aforo'   ,
+				'mintribu' =>'Minimo Tributable'
+			),
+			'retornar'=>array(
+				'id'=>'id_negocio',
+				'descrip'=>'negociop'
+			),
+			'titulo'  =>'Buscar Negocio'
+		);
+
+		$buttonnegocio  = $this->datasis->modbus($modbusnegocio);
+		
 		if($id_contribu && $status=='create'){
 			$id_contribue = $this->db->escape($id_contribu);
 			$CONTRIBU=$this->datasis->damerow("SELECT id_parroquia,id_zona,dir1,dir2,dir3,dir4 FROM r_contribu WHERE id=$id_contribue");
 		}
 
 		$do = new DataObject("r_inmueble");
+		$do->pointer('r_negocio' ,'r_inmueble.id_negocio=r_negocio.id',"r_negocio.descrip negociop","LEFT");
 		//$do->pointer('r_contribu' ,'r_inmueble.id_contribu=r_contribu.id',"r_contribu.nombre nombrep,r_contribu.rifci rifcip","LEFT");
 
 		$edit = new DataEdit($this->tits, $do);
@@ -306,6 +334,19 @@ class r_inmueble extends Controller {
 		$edit->monto->css_class='inputnum';
 		$edit->monto->size =15;
 		$edit->monto->maxlength =19;
+		
+		$edit->id_negocio = new inputField('Negocio','id_negocio');
+		//$edit->id_negocio->option('','');
+		//$edit->id_negocio->options("SELECT id,descrip FROM r_negocio ORDER BY descrip");
+		$edit->id_negocio->size='5';
+		$edit->id_negocio->append($buttonnegocio);
+		$edit->id_negocio->readonly=true;
+		
+		$edit->negociop = new inputField('Negocio','negociop');
+		$edit->negociop->size='60';
+		$edit->negociop->readonly=true;
+		$edit->negociop->pointer=true;
+		$edit->negociop->in      ="id_negocio";
 
 		$edit->id_parroquia = new dropDownField('Parroquia','id_parroquia');
 		$edit->id_parroquia->option("","");
@@ -418,6 +459,9 @@ class r_inmueble extends Controller {
 		$this->db->simple_query($query);
 		$query="ALTER TABLE `r_inmueble` 	ADD COLUMN `id_sector` INT(11) NULL DEFAULT NULL AFTER `id_clasea`";
 		$this->db->simple_query($query);
+		$query="ALTER TABLE `r_inmueble` ADD COLUMN `id_negocio` INT(11) NULL DEFAULT NULL AFTER `id_clasea";
+		$this->db->simple_query($query);
+		
 	}
 
 }
