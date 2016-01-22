@@ -61,6 +61,8 @@ class Usuarios extends Controller {
 		$edit->back_url = site_url("supervisor/usuarios/filteredgrid");
 		
 		$edit->pre_process( 'delete','_pre_delete');
+		$edit->pre_process( 'insert','_valida');
+		$edit->pre_process( 'update','_valida');
 		$edit->post_process('delete','_pos_delete');
 		$edit->post_process('insert','_pos_insert');
 		$edit->post_process('update','_pos_update');
@@ -104,6 +106,11 @@ class Usuarios extends Controller {
 		$data['title']   = " Usuarios ";
 		$data["head"]    = $this->rapyd->get_head();
 		$this->load->view('view_ventanas', $data); 
+	}
+	
+	function _valida($do){
+		$us_clave=$do->get('us_clave');
+		$do->set('us_clave',sha1($us_clave));
 	}
 
 	function accesos($usr){
@@ -165,8 +172,11 @@ class Usuarios extends Controller {
 		$this->rapyd->load("dataedit");
 		
 		$edit = new DataEdit("Cambio de clave de usuario", "usuario");
+		
 		$edit->back_url = site_url("supervisor/usuarios/filteredgrid");
 		$edit->post_process('update','_pos_updatec');
+		$edit->pre_process( 'insert','_valida');
+		$edit->pre_process( 'update','_valida');
 		
 		$edit->us_codigo = new inputField("C&oacute;digo de Usuario", "us_codigo");
 		$edit->us_codigo->mode = "autohide";
