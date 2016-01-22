@@ -1172,6 +1172,7 @@ html.ui-autocomplete {
 					$obj15="itmodo_$i";
 					$obj16="itid_publicidad_$i";
 					$obj17="itid_conc_$i";
+					
 				?>
 				 <tr id='tr_r_reciboit_<?=$i ?>'>
 					<td class="littletablerow"              ><?=$form->$obj11->output.$form->$obj9->output.$form->$obj15->output.$form->$obj0->output.$form->$obj1->output.$form->$obj14->output  ?></td>

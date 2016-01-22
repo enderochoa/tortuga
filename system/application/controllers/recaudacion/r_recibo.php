@@ -655,6 +655,7 @@ class r_recibo extends Controller {
 		/***********BORRAR DESCUENTOS******************************/
 		for($i=0;$i < $do->count_rel('r_reciboit');$i++){
 			$requiere    = $do->get_rel('r_reciboit','requiere'   ,$i);
+			$id_conc     = $do->get_rel('r_reciboit','id_conc'    ,$i);
 			if($requiere=='DESCUENTO'){
 				array_splice($do->data_rel['r_reciboit'],$i,1);
 			}
@@ -667,6 +668,7 @@ class r_recibo extends Controller {
 				$id_inmueble = $do->get_rel('r_reciboit','id_inmueble',$i);
 				if($id_inmueble>0){
 					$inmueble = $this->datasis->damerow("SELECT * FROM r_v_inmueble WHERE id=$id_inmueble");
+					
 					$do->set_rel('r_reciboit','i_catastro'     ,$inmueble['catastro'    ],$i);
 					$do->set_rel('r_reciboit','i_id_parroquia' ,$inmueble['id_parroquia'],$i);
 					$do->set_rel('r_reciboit','i_parroquia'    ,$inmueble['parroquia'   ],$i);
@@ -700,20 +702,20 @@ class r_recibo extends Controller {
 			}
 			
 			if($requiere=='PUBLICIDAD'){
-				$id_publicidad = $do->get_rel('r_cxcit','id_publicidad',$i);
+				$id_publicidad = $do->get_rel('r_reciboit','id_publicidad',$i);
 				if($id_publicidad>0){
 					$publicidad = $this->datasis->damerow("SELECT * FROM r_v_publicidad WHERE id=$id_publicidad");
-					$do->set_rel('r_cxcit','id_publicidad'   ,$publicidad['id'          ],$i);
-					$do->set_rel('r_cxcit','p_id_tipo'       ,$publicidad['id_tipo'     ],$i);
-					$do->set_rel('r_cxcit','p_tipo_descrip'  ,$publicidad['descrip'     ],$i);
-					$do->set_rel('r_cxcit','i_id_parroquia'  ,$publicidad['id_parroquia'],$i);
-					$do->set_rel('r_cxcit','i_parroquia'     ,$publicidad['parroquia'   ],$i);
-					$do->set_rel('r_cxcit','i_id_zona'       ,$publicidad['id_zona'     ],$i);
-					$do->set_rel('r_cxcit','i_zona'          ,$publicidad['zona'        ],$i);
-					$do->set_rel('r_cxcit','i_dir1'          ,$publicidad['dir1'        ],$i);
-					$do->set_rel('r_cxcit','i_dir2'          ,$publicidad['dir2'        ],$i);
-					$do->set_rel('r_cxcit','i_dir3'          ,$publicidad['dir3'        ],$i);
-					$do->set_rel('r_cxcit','i_dir4'          ,$publicidad['dir4'        ],$i);
+					$do->set_rel('r_reciboit','id_publicidad'   ,$publicidad['id'          ],$i);
+					$do->set_rel('r_reciboit','p_id_tipo'       ,$publicidad['id_tipo'     ],$i);
+					$do->set_rel('r_reciboit','p_tipo_descrip'  ,$publicidad['descrip'     ],$i);
+					$do->set_rel('r_reciboit','i_id_parroquia'  ,$publicidad['id_parroquia'],$i);
+					$do->set_rel('r_reciboit','i_parroquia'     ,$publicidad['parroquia'   ],$i);
+					$do->set_rel('r_reciboit','i_id_zona'       ,$publicidad['id_zona'     ],$i);
+					$do->set_rel('r_reciboit','i_zona'          ,$publicidad['zona'        ],$i);
+					$do->set_rel('r_reciboit','i_dir1'          ,$publicidad['dir1'        ],$i);
+					$do->set_rel('r_reciboit','i_dir2'          ,$publicidad['dir2'        ],$i);
+					$do->set_rel('r_reciboit','i_dir3'          ,$publicidad['dir3'        ],$i);
+					$do->set_rel('r_reciboit','i_dir4'          ,$publicidad['dir4'        ],$i);
 					
 					if($publicidad['id_contribu']!=$id_contribu)
 						$error.="<div class='alert' >Error. La publicidad $id_publicidad no pertenece al contribuyente</div>";

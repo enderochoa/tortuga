@@ -269,9 +269,9 @@ class Recaudacion {
 	}
 	
 	function ultimo_pago($id_conc,$id_inmueble=null,$id_vehiculo=null){
-		$id_conce    = $this->db->escape($id_conc    );
-		$id_inmueblee= $this->db->escape($id_inmueble);
-		$id_vehiculoe= $this->db->escape($id_vehiculo);
+		$id_conce    = $this->ci->db->escape($id_conc    );
+		$id_inmueblee= $this->ci->db->escape($id_inmueble);
+		$id_vehiculoe= $this->ci->db->escape($id_vehiculo);
 		
 		$where       = '';
 				
