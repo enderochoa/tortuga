@@ -1095,9 +1095,9 @@ class Common extends Controller {
 
 		$do  = new DataObject("odirect");
 		$do->load($id);
-		$factura    = $do->get('factura'      );
-		$controlfac = $do->get('controlfac'   );
-		$fechafac   = $do->get('fechafac'     );
+		//$factura    = $do->get('factura'      );
+		//$controlfac = $do->get('controlfac'   );
+		//$fechafac   = $do->get('fechafac'     );
 		$reteiva    = $do->get('reteiva'      );
 		$ivaa       = $do->get('ivaa');
 		$ivag       = $do->get('ivag');
@@ -1107,8 +1107,8 @@ class Common extends Controller {
 		$total2     = $do->get('total2'   );
 		$status     = $do->get('status'   );
 
-		if($reteiva > 0 && (empty($factura) || empty($controlfac) || empty($fechafac)))
-			$error.="<div class='alert'><p> Los campos Nro. Factura, Nro Control y Fecha factura no pueden estar en blanco</p></div>";
+		//if($reteiva > 0 && (empty($factura) || empty($controlfac) || empty($fechafac)))
+		//	$error.="<div class='alert'><p> Los campos Nro. Factura, Nro Control y Fecha factura no pueden estar en blanco</p></div>";
 
 		if(empty($error)){
 			if($status=="M2" ){
