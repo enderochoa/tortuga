@@ -818,6 +818,7 @@ class r_recibo extends Controller {
 			}
 		}
 		
+		
 		if(!empty($error)){
 			$do->error_string=$error;
 			$do->error_message_ar['pre_ins']=$error;
@@ -1090,15 +1091,40 @@ class r_recibo extends Controller {
 
 	function _post_insert($do){
 		$primary =implode(',',$do->pk);
-		logusu($do->table,"Creo $this->tits $primary ");
+		
+		$sal ='';
+		$sal.= " numero:".$do->get("numero");
+		$sal.= " fecha:".$do->get("fecha" );
+		$sal.= " rifci:" .$do->get("rifci" );
+		$sal.= " nombre:".$do->get("nombre");
+		$sal.= " monto:" .$do->get("monto" );
+		
+		//292344
+		logusu($do->table,"Creo $this->tits $primary $sal ");
 	}
+
 	function _post_update($do){
 		$primary =implode(',',$do->pk);
-		logusu($do->table,"Modifico $this->tits $primary ");
+		
+		$sal ='';
+		$sal.= " numero:".$do->get("numero");
+		$sal.= " fecha:".$do->get("fecha" );
+		$sal.= " rifci:" .$do->get("rifci" );
+		$sal.= " nombre:".$do->get("nombre");
+		$sal.= " monto:" .$do->get("monto" );
+		
+		logusu($do->table,"Modifico $this->tits $primary $sal");
 	}
 	function _post_delete($do){
 		$primary =implode(',',$do->pk);
-		logusu($do->table,"Elimino $this->tits $primary ");
+		$sal ='';
+		$sal.= " numero:".$do->get("numero");
+		$sal.= " fecha:".$do->get("fecha" );
+		$sal.= " rifci:" .$do->get("rifci" );
+		$sal.= " nombre:".$do->get("nombre");
+		$sal.= " monto:" .$do->get("monto" );
+		
+		logusu($do->table,"Elimino $this->tits $primary $sal");
 	}
 
 	function instalar(){
@@ -1207,7 +1233,8 @@ class r_recibo extends Controller {
 		$this->db->simple_query($query);
 		$query="ALTER TABLE `r_reciboit` ADD COLUMN `p_tipo_descrip` VARCHAR(100) NULL DEFAULT NULL AFTER `p_id_tipo`";
 		$this->db->simple_query($query);
+		$query="ALTER TABLE `r_reciboit` ADD COLUMN `expira` CHAR(1) NULL DEFAULT NULL";
+		$this->db->simple_query($query);
 	}
-
 }
 ?>
