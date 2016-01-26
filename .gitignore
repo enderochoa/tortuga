@@ -39,5 +39,5 @@ Thumbs.db
 TORTUGA
 ###########
 .htaccess
-system/application/config.php
-system/application/database.php
+system/application/config/config.php
+system/application/config/database.php
