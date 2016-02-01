@@ -940,6 +940,7 @@ html.ui-autocomplete {
 				$("#__UTPL__").before(htm);
 				
 				$("#id_cxcit_"+can).val(val.id_cxcit   );
+				$("#id_conc_"+can).val(val.id_conc   );
 				$("#id_concit_"+can).val(val.id   );
 				$("#denomi_"+can).val(val.denomi     );
 				$("#frecuencia_"+can).prop('selectedIndex',val.frecuencia);

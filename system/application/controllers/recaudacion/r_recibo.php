@@ -126,7 +126,7 @@ class r_recibo extends Controller {
 				'rifci' =>'rifci'
 			),
 			'titulo'  =>'Buscar Contribuyente',
-			'script'  =>array('cargadeuda()'),
+			//'script'  =>array('cargadeuda()'),
 		);
 
 		$button  = $this->datasis->modbus($modbus);
@@ -663,7 +663,14 @@ class r_recibo extends Controller {
 		
 		$total=0;$interes=0;
 		for($i=0;$i < $do->count_rel('r_reciboit');$i++){
-			$requiere = $do->get_rel('r_reciboit','requiere',$i);
+			$requiere   = $do->get_rel('r_reciboit','requiere'  ,$i);
+			$id_conc    = $do->get_rel('r_reciboit','id_conc'   ,$i);
+			
+			
+			$id_concit  = $do->get_rel('r_reciboit','id_concit' ,$i);
+			$frecuencia = $do->get_rel('r_reciboit','frecuencia',$i);
+			$freval     = $do->get_rel('r_reciboit','freval'    ,$i);
+			$ano        = $do->get_rel('r_reciboit','ano'       ,$i);
 			if($requiere=='INMUEBLE'){
 				$id_inmueble = $do->get_rel('r_reciboit','id_inmueble',$i);
 				if($id_inmueble>0){
@@ -740,6 +747,8 @@ class r_recibo extends Controller {
 				$do->set_rel('r_reciboit','expira'        ,$r_v_conc['expira'    ]   ,$i);		
 			}
 			
+			
+			
 			/* CALCULO DE INTERESES*/
 			foreach($intereses as $k=>$v){
 				$a                       = eval($intereses[$k]['formula']);
@@ -758,6 +767,10 @@ class r_recibo extends Controller {
 		/*
 		 * CREA ITEM DE INTERESES
 		 */
+		 
+		 print_r($intereses);
+		 //exit();
+		 
 		foreach($intereses as $k=>$v){
 			if($intereses[$k]['monto'] >0){
 				$i++;
@@ -853,6 +866,17 @@ class r_recibo extends Controller {
 		$this->load->library('recaudacion');
 		
 		echo json_encode($this->recaudacion->dameconc());
+	}
+	
+	function dameinteres($base,$frecibo,$ano,$frecuencia,$freval,$modo=1){
+		/*
+		 * Modo 1: Calcula Intereses Sobre Intereses
+		 * Modo 2: Calcula Sin Intereses Sobre intereses
+		 * */
+		
+		$this->load->library('recaudacion');
+		
+		return $this->recaudacion->dameinteres($base,$frecibo,$ano,$frecuencia,$freval,$modo);
 	}
 	
 	function anular($id){
@@ -1013,7 +1037,7 @@ class r_recibo extends Controller {
 		$id_cxce     =$this->db->escape($id_cxc        );
 		
 		$query="
-		SELECT r_cxcit.id id_cxcit,r_cxcit.id_concit id,r_cxcit.ano,r_cxcit.acronimo,r_cxcit.denomi ,r_cxcit.requiere,r_cxcit.id_inmueble,r_cxcit.i_catastro catastro,r_cxcit.frecuencia,r_cxcit.freval
+		SELECT r_cxcit.id_conc,r_cxcit.id id_cxcit,r_cxcit.id_concit id,r_cxcit.ano,r_cxcit.acronimo,r_cxcit.denomi ,r_cxcit.requiere,r_cxcit.id_inmueble,r_cxcit.i_catastro catastro,r_cxcit.frecuencia,r_cxcit.freval
 		,r_cxcit.id_vehiculo,r_cxcit.v_placa,r_cxc.id_contribu,r_cxcit.observa AS observa,r_cxcit.base,r_cxcit.monto,r_cxcit.modo,r_cxcit.id_publicidad
 		FROM r_cxc
 		JOIN r_cxcit ON r_cxc.id=r_cxcit.id_cxc
@@ -1087,6 +1111,12 @@ class r_recibo extends Controller {
 	function _post_print_solvencia_update($do){
 		$id =$do->get('id');
 		redirect($this->url."dataedit/show/$id");
+	}
+	
+	function ultimo_pago($id_conc,$id_inmueble=null,$id_vehiculo=null){
+		$this->load->library('recaudacion');
+		
+		return $this->recaudacion->ultimo_pago($id_conc,$id_inmueble,$id_vehiculo);
 	}
 
 	function _post_insert($do){
