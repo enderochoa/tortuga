@@ -51,9 +51,6 @@ class Bienvenido extends Controller {
 		
 		$ip=$_SERVER['REMOTE_ADDR'];
 		
-		
-		
-		
 		$usr=sha1($_POST['user']);
 		$pws=sha1($_POST['pws']);
 		
@@ -70,11 +67,13 @@ class Bienvenido extends Controller {
 		
 		$cursor=$this->db->query($query);
 		
-		if($cursor->num_rows() > 0){
+		if($cursor->num_rows() > 0){	
+			logusu("bienvenido","Error al entrar al sistema desde la ip $ip");
 			$rr = $cursor->row_array();
 			$sal = each($rr);
 			$sess_data = array('usuario' => $_POST['user'],'nombre'  => $sal[1],'logged_in'=> TRUE );
-		} else {
+		}else{
+			logusu("bienvenido","Entro al sistema desde la ip $ip");
 			$sess_data = array('logged_in'=> FALSE);
 		}
 		$this->session->set_userdata($sess_data);
