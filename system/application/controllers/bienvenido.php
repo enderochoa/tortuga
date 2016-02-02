@@ -68,12 +68,14 @@ class Bienvenido extends Controller {
 		$cursor=$this->db->query($query);
 		
 		if($cursor->num_rows() > 0){	
-			logusu("bienvenido","Error al entrar al sistema desde la ip $ip");
+			
 			$rr = $cursor->row_array();
 			$sal = each($rr);
 			$sess_data = array('usuario' => $_POST['user'],'nombre'  => $sal[1],'logged_in'=> TRUE );
-		}else{
+			$this->session->set_userdata($sess_data);
 			logusu("bienvenido","Entro al sistema desde la ip $ip");
+		}else{
+			logusu("bienvenido","Eror de intento ingresar al sistema desde la ip $ip con el usuario ".$_POST['user']." clave ".$_POST['pws']);
 			$sess_data = array('logged_in'=> FALSE);
 		}
 		$this->session->set_userdata($sess_data);
