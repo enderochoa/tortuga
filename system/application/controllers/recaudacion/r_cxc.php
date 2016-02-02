@@ -631,23 +631,29 @@ class r_cxc extends Controller {
 		$intereses=$this->recaudacion->trae_conc_interes();
 		
 		/***********BORRAR INTERESES******************************/
+		$temp=array();
 		for($i=0;$i < $do->count_rel('r_cxcit');$i++){
 			$requiere    = $do->get_rel('r_cxcit','requiere'   ,$i);
-			if($requiere=='INTERESES'){
-				array_splice($do->data_rel['r_cxcit'],$i,1);
+			if($requiere!='INTERESES'){
+				//array_splice($do->data_rel['r_cxcit'],$i,1);
+				$temp[]=$do->data_rel['r_cxcit'][$i];
 			}
 		}
+		$do->data_rel['r_cxcit']=$temp;	
 		
 		/************** TRAE CONCEPTOS DESCUENTOS *****************/
 		$descuentos=$this->recaudacion->trae_conc_descuento();
 		
 		/***********BORRAR DESCUENTOS******************************/
+		$temp=array();
 		for($i=0;$i < $do->count_rel('r_cxcit');$i++){
 			$requiere    = $do->get_rel('r_cxcit','requiere'   ,$i);
-			if($requiere=='DESCUENTO'){
-				array_splice($do->data_rel['r_cxcit'],$i,1);
+			if($requiere!='DESCUENTO'){
+				//array_splice($do->data_rel['r_cxcit'],$i,1);
+				$temp[]=$do->data_rel['r_cxcit'][$i];
 			}
 		}
+		$do->data_rel['r_cxcit']=$temp;	
 		
 		/********************
 		 * INICIO VERIFICA PERIODOS SEGUROS

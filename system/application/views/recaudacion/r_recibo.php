@@ -426,6 +426,7 @@ html.ui-autocomplete {
 				},
 				select: function( event, ui ) {
 					$("#id_concit_"+id).val( ui.item.id );
+					$("#id_conc_"+id).val( ui.item.id_conc );
 					$("#denomi_"+id).val( ui.item.denomi );
 					$("#frecuencia_"+id).prop('selectedIndex',ui.item.frecuencia);
 					$("#freval_"+id).prop('selectedIndex',ui.item.freval);
@@ -465,6 +466,7 @@ html.ui-autocomplete {
 				},
 				select: function( event, ui ) {
 					$("#id_concit_"+id).val( ui.item.id );
+					$("#id_conc_"+id).val( ui.item.id_conc );
 					$("#denomi_"+id).val( ui.item.denomi );
 					$("#frecuencia_"+id       ).val(ui.item.frecuencia);
 					$("#frecuencia_"+id+"_val").text(ui.item.frecuenciatexto);
@@ -1176,7 +1178,7 @@ html.ui-autocomplete {
 					
 				?>
 				 <tr id='tr_r_reciboit_<?=$i ?>'>
-					<td class="littletablerow"              ><?=$form->$obj11->output.$form->$obj9->output.$form->$obj15->output.$form->$obj0->output.$form->$obj1->output.$form->$obj14->output  ?></td>
+					<td class="littletablerow"              ><?=$form->$obj11->output.$form->$obj9->output.$form->$obj15->output.$form->$obj0->output.$form->$obj1->output.$form->$obj14->output.$form->$obj17->output ?></td>
 					<td class="littletablerow"              ><?=$form->$obj3->output."&nbsp;".$form->$obj12->output.'&nbsp;'.$form->$obj13->output ?></td>
 					<td class="littletablerow"              ><?=$form->$obj6->output.$form->$obj7->output.$form->$obj8->output.$form->$obj10->output.$form->$obj16->output  ?></td>
 					<td class="littletablerow"              ><?=$form->$obj4->output ?></td>
