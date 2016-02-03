@@ -617,26 +617,35 @@ class R_abonos extends Controller {
 		$abonosit = $do->get_related('r_abonosit');
 		$mbanc = $do->get_related('r_mbanc');
 		
-		$sal.=' Recibos id:'.implode(array_column($abonosit,'recibo'));
+		$sal.=' Recibos id:';
+		foreach($abonosit as $row)
+			$sal.=" ".$row['recibo'];
+
 		foreach($mbanc as $row)
 			$sal.=" banco : ".$row['codbanc']." ".$row['tipo_doc']." ".$row['cheque']." ".$row['fecha']." ".$row['monto'];
 		
 		logusu($do->table,"Creo $this->tits $primary $sal ");
 	}
+	
 	function _post_update($do){
 		$this->_post_save($do);
 		
-		$sal='';
+		$sal      = '';
 		$abonosit = $do->get_related('r_abonosit');
-		$mbanc = $do->get_related('r_mbanc');
+		$mbanc    = $do->get_related('r_mbanc'   );
 		
-		$sal.=' Recibos id:'.implode(array_column($abonosit,'recibo'));
+		$sal.=' Recibos id:';
+		foreach($abonosit as $row)
+			$sal.=" ".$row['recibo'];
+		
 		foreach($mbanc as $row)
 			$sal.=" banco : ".$row['codbanc']." ".$row['tipo_doc']." ".$row['cheque']." ".$row['fecha']." ".$row['monto'];
 		
 		$primary =implode(',',$do->pk);
+		
 		logusu($do->table,"Modifico $this->tits $primary $sal ");
 	}
+	
 	function _post_delete($do){
 		$this->_post_del($do);
 		$primary =implode(',',$do->pk);
@@ -645,7 +654,10 @@ class R_abonos extends Controller {
 		$abonosit = $do->get_related('r_abonosit');
 		$mbanc = $do->get_related('r_mbanc');
 		
-		$sal.=' Recibos id:'.implode(array_column($abonosit,'recibo'));
+		$sal.=' Recibos id:';
+		foreach($abonosit as $row)
+			$sal.=" ".$row['recibo'];
+		
 		foreach($mbanc as $row)
 			$sal.=" banco : ".$row['codbanc']." ".$row['tipo_doc']." ".$row['cheque']." ".$row['fecha']." ".$row['monto'];
 		
