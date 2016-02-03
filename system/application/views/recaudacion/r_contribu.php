@@ -83,7 +83,6 @@ if($form->_status!='show'){
 			if(patente=="S"){
 				$("#tr_nro"       ).show();
 				$("#tr_objeto"    ).show();
-				$("#tr_observa"   ).show();
 				$("#tr_id_repre"  ).show();
 				$("#tr_nombrep"   ).show();
 				$("#tr_archivo"   ).show();
@@ -95,7 +94,6 @@ if($form->_status!='show'){
 			}else{
 				$("#tr_nro"       ).hide();
 				$("#tr_objeto"    ).hide();
-				$("#tr_observa"   ).hide();
 				$("#tr_id_repre"  ).hide();
 				$("#tr_nombrep"   ).hide();
 				$("#tr_archivo"   ).hide();
@@ -324,6 +322,14 @@ if($form->_status!='show'){
 					<td  style="width:120px;" class="littletablerowth"><?=$form->id_negocio->label  ?> </td>
 					<td                       class="littletablerow"  ><?=$form->id_negocio->output.$form->negociop->output ?> </td>
 				</tr>
+				<tr id="tr_activo" >
+					<td  style="width:120px;" class="littletablerowth"><?=$form->activo->label  ?> </td>
+					<td                       class="littletablerow"  ><?=$form->activo->output ?> </td>
+				</tr>
+				<tr id="tr_observa" >
+					<td  style="width:120px;" class="littletablerowth"><?=$form->observa->label  ?> </td>
+					<td                       class="littletablerow"  ><?=$form->observa->output ?> </td>
+				</tr>
 			</table>
 			<?php if($this->datasis->puede(398)){ ?>
 			<table width="100%"  style="margin:0;width:100%; background:rgb(250,230,230)" >
@@ -342,10 +348,6 @@ if($form->_status!='show'){
 				<tr id="tr_objeto" >
 					<td  style="width:120px;" class="littletablerowth"><?=$form->objeto->label  ?> </td>
 					<td                       class="littletablerow"  ><?=$form->objeto->output ?> </td>
-				</tr>
-				<tr id="tr_observa" >
-					<td  style="width:120px;" class="littletablerowth"><?=$form->observa->label  ?> </td>
-					<td                       class="littletablerow"  ><?=$form->observa->output ?> </td>
 				</tr>
 				<tr id="tr_archivo" >
 					<td  style="width:120px;" class="littletablerowth"><?=$form->archivo->label  ?> </td>

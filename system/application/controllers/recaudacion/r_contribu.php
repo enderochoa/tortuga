@@ -266,6 +266,11 @@ class r_contribu extends Controller {
 		$edit->email->rule      = "required";
 		//$edit->email->css_class ='inputonlynum';
 		
+		$edit->activo = new dropDownField('Activo ','activo');
+		$edit->activo->option("S","SI"   );
+		$edit->activo->option("N","NO"   );
+		$edit->activo->style ="width:150px";
+		
 		/*
 		$edit->rif = new inputField("RIF Firma Personal", 'rif');
 		$edit->rif->size      = 15;
@@ -345,6 +350,12 @@ class r_contribu extends Controller {
 		$edit->negociop->readonly=true;
 		$edit->negociop->pointer=true;
 		$edit->negociop->in      ="id_negocio";
+		
+		$edit->observa = new textAreaField('Observaci&oacute;n','observa');
+		$edit->observa->rows =2;
+		$edit->observa->cols =40;
+		//$edit->observa->group="Datos de Patente";
+		
 
 		if($this->datasis->puede(398)){
 
@@ -370,11 +381,6 @@ class r_contribu extends Controller {
 			$edit->objeto->rows =2;
 			$edit->objeto->cols =40;
 			$edit->objeto->group="Datos de Patente";
-
-			$edit->observa = new textAreaField('Observaci&oacute;n','observa');
-			$edit->observa->rows =2;
-			$edit->observa->cols =40;
-			$edit->observa->group="Datos de Patente";
 
 			$edit->id_repre = new inputField('Representante','id_repre');
 			$edit->id_repre->rule='max_length[11]';
@@ -422,6 +428,7 @@ class r_contribu extends Controller {
 			//$edit->reg_fecha->insertValue=date('Y-m-d');
 			$edit->reg_fecha->group="Datos de Registro";
 		}
+		
 		
 		$edit->itid_contribuit = new inputField('Contribuyente','itid_contribuit_<#i#>');
 		$edit->itid_contribuit->rule='max_length[11]';
@@ -912,8 +919,6 @@ class r_contribu extends Controller {
 			$this->db->query("DELETE FROM r_contribu WHERE id IN ($in) AND id<>$id            ");
 			
 		}
-		
-		
 	}
 
 	function _post_insert($do){
@@ -974,6 +979,8 @@ class r_contribu extends Controller {
 		$query="ALTER TABLE `r_contribu` ADD COLUMN `tipo`  CHAR(1) NULL DEFAULT 'S'";
 		$this->db->simple_query($query);
 		$quey="ALTER TABLE `r_contribu` ADD COLUMN `email` VARCHAR(50) NULL DEFAULT NULL AFTER `telefono`";
+		$this->db->simple_query($query);
+		$query="ALTER TABLE `r_contribu` 	ADD COLUMN `activo` CHAR(1) NULL DEFAULT 'S'";
 		$this->db->simple_query($query);
 
 	}
