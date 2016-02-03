@@ -63,5 +63,34 @@ class logusu extends Controller {
 		$data["head"]    = $this->rapyd->get_head();
 		$this->load->view('view_ventanas', $data);
 	}
+	
+	function prueba(){
+		
+		$query=" UPDATE logusu SET pasada=0";
+		$this->db->query($query);
+		do{
+			$query = "SELECT id,comenta FROM logusu WHERE modulo='r_cxc' AND pasada=0 LIMIT 1";
+			$query = $this->db->query($query);
+			$logusu = $query->result_array();
+			
+			$c=count($logusu);
+			if($c>0){
+				preg_match("/[0-9]+/", $logusu[0]['id'], $coincidencias);
+				$query=" UPDATE logusu SET pasada=1,extra=".$this->db->escape($coincidencias[0])." WHERE id=".$logusu[0]['id'];
+				$this->db->query($query);
+			}
+			
+		}while($c>0);
+		
+	}
+	
+	function instalar(){
+		$query="ALTER TABLE `logusu` ADD COLUMN `extra` TEXT NULL AFTER `comenta`";
+		$this->db->simple_query($query);
+		$query="ALTER TABLE `logusu` ADD COLUMN `id` INT NOT NULL AUTO_INCREMENT FIRST,	ADD PRIMARY KEY (`id`)";
+		$this->db->simple_query($query);
+		$query="ALTER TABLE `logusu` ADD COLUMN `pasada` CHAR(1) NULL DEFAULT '0' AFTER `extra`";
+		$this->db->simple_query($query);
+	}
 }
 ?>
