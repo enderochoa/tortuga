@@ -3,14 +3,17 @@ class r_cxc extends Controller {
 	var $titp='Cuentas por Cobrar';
 	var $tits='Cuenta por Cobrar';
 	var $url ='recaudacion/r_cxc/';
+	
 	function r_cxc(){
 		parent::Controller();
 		$this->load->library("rapyd");
 		$this->datasis->modulo_id(444,1);
 	}
+	
 	function index(){
 		redirect($this->url."filteredgrid");
 	}
+	
 	function filteredgrid(){
 		$this->rapyd->load('datafilter','datagrid');
 		$filter = new DataFilter($this->titp, 'r_cxc');

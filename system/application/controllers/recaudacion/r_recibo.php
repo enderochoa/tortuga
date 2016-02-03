@@ -641,14 +641,21 @@ class r_recibo extends Controller {
 		
 		$intereses=$this->recaudacion->trae_conc_interes();
 		
+		
 		/***********BORRAR INTERESES******************************/
-		for($i=0;$i < $do->count_rel('r_reciboit');$i++){
+		$temp=array();
+		for($i=0;$i < $do->count_rel('r_reciboit');++$i){
 			$requiere    = $do->get_rel('r_reciboit','requiere'   ,$i);
 			if($requiere=='INTERESES'){
-				array_splice($do->data_rel['r_reciboit'],$i,1);
+				//echo "SI";
+				//array_splice($do->data_rel['r_reciboit'],$i,1);
+			}else{
+				$temp[]=$do->data_rel['r_reciboit'][$i];
 			}
 		}
+		$do->data_rel['r_reciboit']=$temp;		
 		
+		//exit();
 		/************** TRAE CONCEPTOS DESCUENTOS *****************/
 		$descuentos=$this->recaudacion->trae_conc_descuento();
 		
@@ -663,14 +670,12 @@ class r_recibo extends Controller {
 		
 		$total=0;$interes=0;
 		for($i=0;$i < $do->count_rel('r_reciboit');$i++){
-			$requiere   = $do->get_rel('r_reciboit','requiere'  ,$i);
-			$id_conc    = $do->get_rel('r_reciboit','id_conc'   ,$i);
-			
-			
-			$id_concit  = $do->get_rel('r_reciboit','id_concit' ,$i);
-			$frecuencia = $do->get_rel('r_reciboit','frecuencia',$i);
-			$freval     = $do->get_rel('r_reciboit','freval'    ,$i);
-			$ano        = $do->get_rel('r_reciboit','ano'       ,$i);
+			/*echo "</br>"."requiere  :".*/$requiere   = $do->get_rel('r_reciboit','requiere'  ,$i);
+			/*echo "</br>"."id_conc   :".*/$id_conc    = $do->get_rel('r_reciboit','id_conc'   ,$i);
+			/*echo "</br>"."id_concit :".*/$id_concit  = $do->get_rel('r_reciboit','id_concit' ,$i);
+			/*echo "</br>"."frecuencia:".*/$frecuencia = $do->get_rel('r_reciboit','frecuencia',$i);
+			/*echo "</br>"."freval    :".*/$freval     = $do->get_rel('r_reciboit','freval'    ,$i);
+			/*echo "</br>"."ano       :".*/$ano        = $do->get_rel('r_reciboit','ano'       ,$i);
 			if($requiere=='INMUEBLE'){
 				$id_inmueble = $do->get_rel('r_reciboit','id_inmueble',$i);
 				if($id_inmueble>0){
@@ -747,7 +752,7 @@ class r_recibo extends Controller {
 				$do->set_rel('r_reciboit','expira'        ,$r_v_conc['expira'    ]   ,$i);		
 			}
 			
-			
+			//echo "</br>id_inmueble:".$id_inmueble;
 			
 			/* CALCULO DE INTERESES*/
 			foreach($intereses as $k=>$v){
@@ -757,7 +762,6 @@ class r_recibo extends Controller {
 			
 			/* CALCULO DE DESCUENTOS*/
 			foreach($descuentos as $k=>$v){
-				
 				$a                        = eval($descuentos[$k]['formula']);
 				$descuentos[$k]['formula'].":".$a."</br>"; 
 				$descuentos[$k]['monto'] += $a;
@@ -768,7 +772,7 @@ class r_recibo extends Controller {
 		 * CREA ITEM DE INTERESES
 		 */
 		 
-		 print_r($intereses);
+		 //print_r($intereses);
 		 //exit();
 		 
 		foreach($intereses as $k=>$v){
