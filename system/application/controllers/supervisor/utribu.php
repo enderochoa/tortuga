@@ -76,11 +76,12 @@ class Utribu extends Controller {
 		$edit->post_process('delete','_post_delete');
 
 		$edit->ano = new inputField('Ano','ano');
-		$edit->ano->rule     ='trim';
+		$edit->ano->rule     ='trim|required|numeric';
 		$edit->ano->size      =12;
 		$edit->ano->maxlength =10;
-		$edit->ano->mode      = 'autohide';
-		$edit->ano->when      =array('show','modify');
+		//$edit->ano->mode      = 'autohide';
+		//$edit->ano->when      =array('show','modify');
+		$edit->ano->css_class='inputnum';
 
 		$edit->valor = new inputField('Valor','valor');
 		$edit->valor->rule     ='trim|numeric';
