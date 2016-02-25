@@ -702,10 +702,13 @@ class Opagoc extends Common {
 		 
 		$status=$edit->get_from_dataobjetct('status');
 		if($status=='C1'){
+			$action = "javascript:window.location='" .site_url($this->url.'selectoc/opagoc/'.$edit->rapyd->uri->get_edited_id()). "'";
+			$edit->button_status("btn_status",'Agregar Partidas',$action,"TR","show");
+			
 			$action = "javascript:window.location='" .site_url($this->url.'actualizar/'.$edit->rapyd->uri->get_edited_id()). "'";
 			$edit->button_status("btn_status",'Causar',$action,"TR","show");
-			$action = "javascript:btn_anulaf('".$edit->rapyd->uri->get_edited_id()."')";
 			
+			$action = "javascript:btn_anulaf('".$edit->rapyd->uri->get_edited_id()."')";
 			if($this->datasis->puede(156))$edit->button_status("btn_anular",'Anular',$action,"TR","show");
 			$edit->buttons("modify","save","delete");
 		
@@ -727,6 +730,8 @@ class Opagoc extends Common {
 				$edit->button_status("btn_camfac",'Modificar Factura',$action,"TR","show");
 			}
 		}elseif($status=="C"){
+			$action = "javascript:window.location='" .site_url($this->url.'selectoc/opagoc/'.$edit->rapyd->uri->get_edited_id()). "'";
+			$edit->button_status("btn_status",'Agregar Partidas',$action,"TR","show");
 			$edit->buttons("modify","save","delete");
 		}elseif($status=="CA"){
 			$edit->buttons("delete");
@@ -1203,7 +1208,7 @@ class Opagoc extends Common {
 			redirect("formatos/ver/ODIRECT/$id");
 	}
 
-	function selectoc($back=''){
+	function selectoc($back='',$numero=null){
 		//$this->datasis->modulo_id(71,1);
 		$this->rapyd->load("datafilter","datagrid");
 		$this->load->helper('form');
@@ -1309,6 +1314,7 @@ class Opagoc extends Common {
 		//echo $grid->db->last_query();
 
 		$salida =form_open($this->url.'guarda');
+		$salida.=form_hidden('numero',$numero);
 		$salida.=$grid->output;
 		$salida.=form_submit('Crear Orden de Pago', 'Crear Orden de Pago');
 		$salida.=form_close();
@@ -1324,9 +1330,16 @@ class Opagoc extends Common {
 	}
 
 	function guarda(){
+		$odirect =$this->input->post('numero');
 		$data    =$this->input->post('data');
-		$ntransac=$this->datasis->fprox_numero('ntransac');
-		$numero  ='_'.$ntransac;
+		
+		if(strlen($odirect)>0){
+			$numero=$odirect;
+		}else{
+			$ntransac=$this->datasis->fprox_numero('ntransac');
+			$numero  ='_'.$ntransac;
+		}
+		
 		$compromisos =array();
 		$nominas     =array();
 	
@@ -1440,6 +1453,9 @@ class Opagoc extends Common {
 			'otrasrete'        => $ordenes['otrasrete'    ]  
 		);
 		
+		if(strlen($odirect)>0)
+		$this->db->update('odirect', $data,array('numero' => $numero)); 
+		else
 		$this->db->insert('odirect', $data); 
 		
 		$query="UPDATE nomi SET status='D' WHERE numero IN ('".implode("','",$nominas)."') ";
