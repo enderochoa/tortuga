@@ -596,8 +596,8 @@ html.ui-autocomplete {
 			$("#modbusi_"+i).show();
 			$("#creai_"+i).show();
 			$("#observa_"+i).show();
-			$("#observa_"+i).prop('readonly', true);
-			$("#observa_"+i).css("background-color", "#AAAAAA");
+			//$("#observa_"+i).prop('readonly', true);
+			//$("#observa_"+i).css("background-color", "#AAAAAA");
 		}
 		
 		if(requiere=='VEHICULO'){
