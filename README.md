@@ -96,7 +96,7 @@ documentos, como recibos, solvencias, patentes adaptándolos a las necesidades d
 Para este módulo se hacen ajustes de impresión, con el objetivo de imprimir con mayor rápidez en las
 impresoras seleccionadas.
 
-<img src="https://dl.dropboxusercontent.com/u/30976662/tortuga/recibos.png">
+<img src="https://dl.dropboxusercontent.com/u/30976662/tortuga/recibo.png">
 
 <strong>Administración:</strong> En este menú existen grandes grupos y opciones que son configuradas dependiendo
 de las necesidades de la organización, es válido apuntar, que no todos los módulos son utilizados por una misma organización ya que existen distintas maneras de hacer cada operación, entre los grandes grupos tenemos: Compras, en este punto se inician la mayoría de los procesos de gastos presupuestarios, donde se realizan los documentos y operaciones previos al compromiso. Orden de Pago, se muestran los distintos módulos para generar órdenes de pago y realizar el causado presupuestario, donde se ingresan datos de facturacion de ser necesario, y se realizan los cálculos pertinentes a las retenciones. Contabilidad, el módulo especializado para realizar la contabilidad fiscal permite generar los asientos contables a partir de todos los movimientos del sistema, o la creacion manual de los mismos, con el objetivo de elaborar el balance general, balance de comprobación, los mayores analíticos entre otros. Suministros, este es el encargado de llevar el inventario de suministros, se recuerda que estos son los implementos que se desgastan y que son necesarios para el funcionamiento de la organización como ejemplo, los materiales de oficina, de limpieza entre otros. El módulo permite llevar las entradas y salidas de almacenes asi, como los entregados a las distintas personas o departamentos.
@@ -135,10 +135,44 @@ tiempo en transcripción.
 
 <img src="https://dl.dropboxusercontent.com/u/30976662/tortuga/mtesoreria.png">
 
+<strong>Desembolso:</strong> es unos de los módulos mas importantes que permite cancelar una o muchas órdenes de pago con uno o muchos cheques y asegurandose que los montos sean exactos para el cuadre del libro mayor y los gastos presupuestarios, además, este módulo sin que el usuario presione ni una tecla realiza el pagador presupuestario tomando
+en cuenta las órdenes de pago. En la siguiente imagen se muestra el filtro de este módulo, el cual no se ha mostrado en las
+imágenes anteriores en el cual se pude visualizar la persiana de búsqueda y gran cantidad de filtros que existen en módulos; por ejemplo, en este módulo se nota que se pude buscar un desembolso, por beneficiario, ordén de pago,
+cheque, monto entre otros.
 
+<img src="https://dl.dropboxusercontent.com/u/30976662/tortuga/tesoreria.png">
 
+<strong>Recursos Humanos:</strong> Este grupo está dedicado para el control del personal, el control de nómina, y en
+especial esta completamente unido al control presupuestario  para  organismos  públicos permitiendo crear un resumen presupuestario de la nómina para evitar errores presupuestarios y agilizar los procesos administrativos.
+La nómina, esta basada en contratos y conceptos lo cual permite configurarla como se desee, permitiendo crear conceptos cuyo monto es manual,  o calculado.
+Luego, que el proceso de recursos humanos está culminado existe la opción de crear la nómina de manera automática y el sistema crear el resumen presupuestario, las deducciones de nómina y los aportes patronales.
 
+<img src="https://dl.dropboxusercontent.com/u/30976662/tortuga/mrecursos.png">
+<img src="https://dl.dropboxusercontent.com/u/30976662/tortuga/prenom.png">
 
+# Conclusiones
+Luego de hacer un recorrido por esta corta presentación, hemos reafirmado los conocimiento sobre el
+software libre, podemos notar la importancia que tiene la implementación de herramientas libres en
+Venezuela, además conocimos vagamente los alcances del sistema tortuga asi como lo útil que puede
+ser para un organismo público el mejoramiento de sus funciones administrativas, por medio del cual se
+pueden utilizar mucho mejor los recursos tanto de personal como inmobiliario y espacios fisicos. Es de
+gran importancia reconocer que debido a la plataforma en que esta realizado el sistema se puede
+extender a muchas otras áreas del organismo, e incluso a realizar operaciones novedosas a través de
+portales web, tales como: que los beneficiarios, puedan consultar el estado de su pago, realizar pagos
+de tributos en línea, mostrar informes en tiempo real de las inversiones de la institución, organizar citas
+en líneas o cualquier otra operación donde las limitanciones son las ideas, y el compromiso de los
+directivos de la misma.
+La pregunta obligante que se hace cualquier persona después de conocer los grandes atributos de este
+sistema es ¿Cúanto cuesta el sistema? es allí cuando parece que las libertades del sotware libre no
+quedaron totalmente claras, aunque a diario se llevan grandes discuciones en el mundo sobre el costo
+del sotware libre, el sistema tortuga es totalmente gratis, y se usa la palabra “gratis” por que es la
+manera de traducir en cuanto a costos la palabra “free”, aunque el eslogan mas utilizado en el medio es
+“libre como en libertad, no como cerveza gratis”. La respuesta que da DATAGEEK a la obligante
+pregunta es: el costo es de instalación y prestación de servicios el cual depende de los módulos a
+utilizar, los que hay que desarrollar, el personal que adiestrar, el tiempo que dedique el personal de la
+institución, el espacio físico e incluso, la selección de los datos a migrar, la eficiencia de los equipos de
+computación y redes, e incluso, si hay que lidiar con sistemas operativos privativos. Se propone una
+reunión para poder definir estas inquietudes.
 
 
 
