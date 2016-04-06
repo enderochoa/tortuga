@@ -1036,8 +1036,10 @@ class Ocompra extends Common {
 					if(empty($error)){
 						$do->set('status','C');
 						
-						//if(strlen($fcomprome)==0)
-						//	$do->set('fcomprome',date('Ymd'));
+						$fcomprome =$do->get('fcomprome');
+						
+						if(strlen($fcomprome)==0)
+							$do->set('fcomprome',date('Ymd'));
 						
 						$do->save();
 					}
@@ -1964,6 +1966,7 @@ class Ocompra extends Common {
 	}
 
 	function _post_update_ingcert($do){
+		
 		$numero   =  $do->get('numero');
 		redirect($this->url.'/actualizar/'.$numero);
 	}
