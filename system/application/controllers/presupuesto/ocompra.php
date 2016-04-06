@@ -1902,11 +1902,13 @@ class Ocompra extends Common {
 
 		if($valida!='NOVALIDA'){
 			$edit->pre_process('update' ,'_valida_ingcert');
-			$edit->post_process('update','_post_update_ingcert');
 		}
+		$edit->post_process('update','_post_update_ingcert');
 
-		$edit->numero  = new inputField("N&uacute;mero", "numero");
-		$edit->numero->mode="autohide";
+		if($this->datasis->traevalor('USACOMPROMISO')=='S' ){
+			$edit->numero  = new inputField("N&uacute;mero", "numero");
+			$edit->numero->mode="autohide";
+		}
 		
 		
 		$edit->fecha = new  dateonlyField("Fecha",  "fecha");
