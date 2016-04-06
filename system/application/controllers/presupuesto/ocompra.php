@@ -1905,10 +1905,10 @@ class Ocompra extends Common {
 		}
 		$edit->post_process('update','_post_update_ingcert');
 
-		if($this->datasis->traevalor('USACOMPROMISO')=='S' ){
-			$edit->numero  = new inputField("N&uacute;mero", "numero");
-			$edit->numero->mode="autohide";
-		}
+		
+		$edit->numero  = new inputField("N&uacute;mero", "numero");
+		$edit->numero->mode="autohide";
+		
 		
 		
 		$edit->fecha = new  dateonlyField("Fecha",  "fecha");
@@ -1920,9 +1920,10 @@ class Ocompra extends Common {
 		//$edit->fcomprome->dbformat ='Ymd';
 		//$edit->fcomprome->Value = $edit->getval('fecha');
 		
-
-		$edit->compromiso = new inputField("Compromiso #", 'compromiso');
-		$edit->compromiso->size = 40;
+		if($this->datasis->traevalor('USACOMPROMISO')=='S' ){
+			$edit->compromiso = new inputField("Compromiso #", 'compromiso');
+			$edit->compromiso->size = 40;
+		}
 
 		$edit->buttons("undo","back","save");
 		$edit->build();
