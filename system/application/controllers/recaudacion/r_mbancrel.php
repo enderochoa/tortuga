@@ -84,6 +84,7 @@ class R_mbancrel extends Controller {
 		$filter->total->db_name   ='a.total';
 
 		$filter->fecha = new dateField('Fecha Transaccion','fecha');
+		$filter->fecha->db_name   ='a.fecha';
 		$filter->fecha->rule      ='chfecha';
 		$filter->fecha->size      =10;
 		$filter->fecha->maxlength =8;
