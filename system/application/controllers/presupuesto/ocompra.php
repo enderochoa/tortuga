@@ -741,14 +741,15 @@ class Ocompra extends Common {
 		//$edit->redondear->onchange = "cal_total();";
 		
 		$tipo=$edit->get_from_dataobjetct('tipo');
-
+		
 		if($status=='P'){
-			if($this->datasis->traevalor('USACOMPROMISO')=='S'){
+			if($this->datasis->traevalor('USACOMPROMISO')=='S' ){
 				$uri_3 = anchor('presupuesto/ocompra/ingcert/modify/<#numero#>','Comprometer');
 				$action = "javascript:window.location='" .site_url('presupuesto/ocompra/ingcert/modify/'.$edit->rapyd->uri->get_edited_id()). "'";
-				if($this->datasis->puede(25))$edit->button_status("btn_status",'Ingresar Nro COmpromiso',$action,"TR","show");
+				if($this->datasis->puede(25))$edit->button_status("btn_status",'Comprometer',$action,"TR","show");
 			}else{
-				$action = "javascript:window.location='" .site_url('presupuesto/ocompra/actualizar/'.$edit->rapyd->uri->get_edited_id()). "'";
+				
+				$action = "javascript:window.location='" .site_url('presupuesto/ocompra/ingcert/NOVALIDA/modify/'.$edit->rapyd->uri->get_edited_id()). "'";
 				if($this->datasis->puede(25))$edit->button_status("btn_status",'Comprometer',$action,"TR","show");
 			}
 			$action = "javascript:window.location='" .site_url('presupuesto/ocompra/anular/'.$edit->rapyd->uri->get_edited_id()). "'";
@@ -1398,6 +1399,8 @@ class Ocompra extends Common {
 
 		if($do->get('simptimbre') == 'S')
 			$total  -=round($impt=($subtotal *$this->datasis->traevalor('IMPTIMBRE')/100),2);
+			
+		$fecha = $do->get('fecha');
 
 		$do->set('imptimbre'     ,  $impt               );
 		$do->set('ivag'          , $giva                );
@@ -1417,6 +1420,8 @@ class Ocompra extends Common {
 		$do->set('total'         , $total               );
 		$do->set('total2'        , $total2              );
 		$do->set('reten'         , $reten               );
+		$do->set('fcomprome'     , $fecha               );
+		
 
 		if(!empty($error)){
 			return $error;
@@ -1887,9 +1892,10 @@ class Ocompra extends Common {
 	}
 
 	 function ingcert($valida=true,$status='',$numero=null){
-		$this->rapyd->load("dataobject","dataedit");
+		$this->rapyd->load("dataobject","dataedit2");
 
-		$edit = new DataEdit("Comprometer", "ocompra");
+		$edit = new DataEdit2("Comprometer", "ocompra");
+		
 		$edit->back_url        = site_url($this->url."/dataedit/show/$numero");
 		$edit->back_cancel     =true;
 		$edit->back_cancel_save=true;
@@ -1901,6 +1907,17 @@ class Ocompra extends Common {
 
 		$edit->numero  = new inputField("N&uacute;mero", "numero");
 		$edit->numero->mode="autohide";
+		
+		
+		$edit->fecha = new  dateonlyField("Fecha",  "fecha");
+		$edit->fecha->mode='autohide';
+
+		
+		$edit->fcomprome = new  dateonlyField("Fecha de Compromiso",  "fcomprome");
+		$edit->fcomprome->size =12;
+		//$edit->fcomprome->dbformat ='Ymd';
+		//$edit->fcomprome->Value = $edit->getval('fecha');
+		
 
 		$edit->compromiso = new inputField("Compromiso #", 'compromiso');
 		$edit->compromiso->size = 40;
