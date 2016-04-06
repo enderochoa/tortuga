@@ -1035,7 +1035,10 @@ class Ocompra extends Common {
 					
 					if(empty($error)){
 						$do->set('status','C');
-						$do->set('fcomprome',date('Ymd'));
+						
+						if(strlen($fcomprome)==0)
+							$do->set('fcomprome',date('Ymd'));
+						
 						$do->save();
 					}
 				}
