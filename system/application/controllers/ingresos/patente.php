@@ -165,9 +165,8 @@ class patente extends Controller {
 		$edit->nro->maxlength =6;
 
 		$edit->razon = new inputField('Raz&oacute;n Social','razon');
-		$edit->razon->rule='max_length[50]|required';
+		$edit->razon->rule='required';
 		$edit->razon->size =52;
-		$edit->razon->maxlength =50;
 		
 		$edit->cedula = new inputField('Rif','cedula');
 		$edit->cedula->rule='max_length[50]';
