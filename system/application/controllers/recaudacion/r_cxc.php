@@ -591,7 +591,7 @@ class r_cxc extends Controller {
 		}
 
 		if($this->datasis->puede(476))
-		$edit->buttons('add','add_rel','save');
+		$edit->buttons('add','add_rel');
 		
 		if($this->datasis->puede(488))
 			$edit->buttons('save');
