@@ -378,6 +378,12 @@ class patente extends Controller {
 		$this->db->simple_query($mSQL);
 		$query="ALTER TABLE `patente` ADD COLUMN `cantfol` INT NULL DEFAULT NULL  ";
 		$this->db->simple_query($mSQL);
+		$mSQL="ALTER TABLE `patente` CHANGE COLUMN `dir_neg` `dir_neg` TEXT NULL DEFAULT NULL AFTER `razon`  ";
+		$this->db->simple_query($mSQL);
+		$mSQL="ALTER TABLE `patente` CHANGE COLUMN `dir_pro` `dir_pro` TEXT NULL DEFAULT NULL AFTER `dir_neg`";
+		$this->db->simple_query($mSQL);
+		$mSQL="ALTER TABLE `patente` CHANGE COLUMN `razon` `razon` TEXT NULL DEFAULT NULL AFTER `nacionali`";
+		$this->db->simple_query($mSQL);
 	}
 }
 ?>
