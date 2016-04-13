@@ -738,8 +738,17 @@ class r_contribu extends Controller {
 		$grid2->build();
 		
 		
-		$idsi=$this->datasis->dameval("SELECT GROUP_CONCAT(id) FROM ( SELECT id FROM r_v_inmueble WHERE id_contribu=".$this->db->escape($id)." LIMIT 1000 )todo");
-		$idsv=$this->datasis->dameval("SELECT GROUP_CONCAT(id) FROM ( SELECT id FROM r_v_vehiculo WHERE id_contribu=".$this->db->escape($id)." LIMIT 1000 )todo");
+		$idsi=$this->datasis->consularray("SELECT id,id FROM r_v_inmueble WHERE id_contribu=".$this->db->escape($id)." LIMIT 1000 ");
+		if(count($idsi)>0)
+			$idsi=implode(',',$idsi);
+		else
+			$idsi='';
+		
+		$idsv=$this->datasis->consularray("SELECT id,id FROM r_v_vehiculo WHERE id_contribu=".$this->db->escape($id)." LIMIT 1000 ");
+		if(count($idsv)>0)
+			$idsv=implode(',',$idsv);
+		else
+			$idsv='';
 
 		$query="SELECT  
 		IF(frecuencia=1,'Año',IF(frecuencia=2,'Semestre',IF(frecuencia=3,'Trimestre',IF(frecuencia=4,'MES','')))) frecuencia
