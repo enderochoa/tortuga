@@ -2771,7 +2771,7 @@ class Desem extends Common {
         function instalar(){
                 $query="ALTER TABLE `pades` CHANGE COLUMN `pago` `pago` VARCHAR(12) NOT NULL  ";
                 $this->db->simple_query($query);
-                $query="ALTER TABLE `riva`  CHANGE COLUMN `nrocomp` `nrocomp` VARCHAR(8) NOT NULL FIRST";
+                $query="ALTER TABLE `riva`  CHANGE COLUMN `nrocomp` `nrocomp` VARCHAR(8)  NULL FIRST";
                 $this->db->simple_query($query);
                 $query="ALTER TABLE `riva`  DROP PRIMARY KEY";
                 $this->db->simple_query($query);
