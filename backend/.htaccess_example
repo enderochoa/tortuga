@@ -1,0 +1,56 @@
+RewriteEngine on
+RewriteBase /tortuga/
+RewriteCond $1 !^(index\.php|sql|tcpdf|images|phpfreechat|system|assets|uploads|user_guide|rapyd_guide|robots\.txt)
+RewriteRule ^(.*)$ index.php/$1  [QSA,L]
+<IfModule mod_expires.c>
+  ExpiresActive on
+
+  # Por defecto 1 mes de caché
+  ExpiresDefault                          "access plus 1 month"
+
+  # los manifiestos appcache necesitan solicitarse cada vez, por firefox 3.6 (probablemente no necesario actualmente?
+  ExpiresByType text/cache-manifest       "access plus 0 seconds"
+
+  # El HTML nunca debe de ser cacheado
+  ExpiresByType text/html                 "access plus 0 seconds"
+
+  # Los datos dinámicos tampoco (tal vez podría variar dependiendo de tu aplicación)
+  ExpiresByType text/xml                  "access plus 0 seconds"
+  ExpiresByType application/xml           "access plus 0 seconds"
+  ExpiresByType application/json          "access plus 0 seconds"
+
+  # Una hora para los feeds (cambiar dependiendo de la fecha de actualización de tu web)
+  ExpiresByType application/rss+xml       "access plus 1 hour"
+  ExpiresByType application/atom+xml      "access plus 1 hour"
+
+  # Favicon (Sólo una semana porque el nombre no cambia, luego podría haber cambios y mantenerse el cacheado)
+  ExpiresByType image/x-icon              "access plus 1 week"
+
+  # Imágenes, vídeo, audio: 1 mes
+  ExpiresByType image/gif                 "access plus 1 month"
+  ExpiresByType image/png                 "access plus 1 month"
+  ExpiresByType image/jpeg                "access plus 1 month"
+  ExpiresByType video/ogg                 "access plus 1 month"
+  ExpiresByType audio/ogg                 "access plus 1 month"
+  ExpiresByType video/mp4                 "access plus 1 month"
+  ExpiresByType video/webm                "access plus 1 month"
+
+  # Fuentes web: 1 mes
+  ExpiresByType application/x-font-ttf    "access plus 1 month"
+  ExpiresByType font/opentype             "access plus 1 month"
+  ExpiresByType application/x-font-woff   "access plus 1 month"
+  ExpiresByType image/svg+xml             "access plus 1 month"
+  ExpiresByType application/vnd.ms-fontobject "access plus 1 month"
+
+  # CSS y JavaScript: 1 año. Ten en cuenta que si cambias los ficheros deberías usar una query string o un nombre de archivo diferente para evitar que los visitantes reciban archivos cacheados.
+  ExpiresByType text/css                  "access plus 1 year"
+  ExpiresByType application/javascript    "access plus 1 year"
+
+</IfModule>
+
+# Eliminar E-Tag
+# Estamos enviando periodos de caché muy amplios, así que no es necesario que el navegador compruebe mediante E-Tag si el fichero cambió
+<IfModule mod_headers.c>
+  Header unset ETag
+</IfModule>
+FileETag None

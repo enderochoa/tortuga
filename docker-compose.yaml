@@ -1,0 +1,31 @@
+version: "3.4"
+
+services:
+  mysql:
+    image: mysql:5.5.62
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+      - MYSQL_DATABASE=gobme2017
+    volumes:
+      - ./.data/mysql:/var/lib/mysql
+    networks:
+      - tortuga
+
+  backend:
+    build: ./backend
+    image: tortuga-backend
+    depends_on:
+      - mysql
+    ports:
+      - "80:80"
+    volumes:
+      - ./backend:/var/www/html/tortuga
+    networks:
+      - tortuga
+    tty: true
+
+networks:
+  tortuga:
+    driver: bridge

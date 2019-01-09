@@ -1,7 +1,0 @@
-SELECT fondo, fpagado, SUM(total*(MID(status,2,1)<>'A')) total, SUM(total2*(MID(status,2,1)<>'A')) total2, compromiso, cod_prov, numeron, numero, fecha, codigoadm, fondo, codigopres, SUM(IF(LENGTH(fanulado)>0,importe*(MONTH(fecha)<>MONTH(fanulado)),importe)) importe, status, observa, denominacion, nombre, codigo
-FROM v_pagos
-WHERE MID(status,2,1) IN ('A', '2', '3') 
-AND fecha >=20150101
-AND fecha <=20150331
-GROUP BY numero, codigoadm, fondo, codigopres
-ORDER BY numero

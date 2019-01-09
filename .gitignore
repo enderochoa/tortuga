@@ -25,6 +25,8 @@
 *.log
 #*.sql
 *.sqlite
+/.data/
+
 
 # OS generated files #
 ######################
@@ -36,10 +38,7 @@
 ehthumbs.db
 Thumbs.db
 
-TORTUGA
-###########
-.htaccess
-/images/logo.jpg
-/system/application/config/config.php
-/system/application/config/database.php
-
+/.idea/
+/backend/phpfreechat/data/private/
+/backend/system/application/cache/
+/backend/system/application/logs/
